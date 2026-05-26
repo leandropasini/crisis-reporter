@@ -1,0 +1,89 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Mercado Público", "osm_id": "way/123001" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-51.2300, -30.0271],
+          [-51.2287, -30.0271],
+          [-51.2287, -30.0279],
+          [-51.2300, -30.0279],
+          [-51.2300, -30.0271]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Prefeitura de Porto Alegre", "osm_id": "way/123002" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-51.2305, -30.0284],
+          [-51.2295, -30.0284],
+          [-51.2295, -30.0291],
+          [-51.2305, -30.0291],
+          [-51.2305, -30.0284]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Museu de Arte do RS", "osm_id": "way/123003" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-51.2255, -30.0308],
+          [-51.2244, -30.0308],
+          [-51.2244, -30.0316],
+          [-51.2255, -30.0316],
+          [-51.2255, -30.0308]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Usina do Gasômetro", "osm_id": "way/123004" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-51.2326, -30.0345],
+          [-51.2313, -30.0345],
+          [-51.2313, -30.0353],
+          [-51.2326, -30.0353],
+          [-51.2326, -30.0345]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "CMPA Teatro", "osm_id": "way/123005" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-51.2278, -30.0295],
+          [-51.2268, -30.0295],
+          [-51.2268, -30.0302],
+          [-51.2278, -30.0302],
+          [-51.2278, -30.0295]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Cais Mauá — Galpão B", "osm_id": "way/123006" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-51.2210, -30.0260],
+          [-51.2195, -30.0260],
+          [-51.2195, -30.0268],
+          [-51.2210, -30.0268],
+          [-51.2210, -30.0260]
+        ]]
+      }
+    }
+  ]
+}

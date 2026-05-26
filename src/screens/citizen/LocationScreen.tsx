@@ -1,0 +1,211 @@
+import { useEffect, useRef, useState } from "react";
+import CrisisMap from "../../components/map/CrisisMap";
+
+type LocationMethod = "gps" | "manual_pin" | "address";
+type GpsStatus = "loading" | "ok" | "failed";
+
+export interface LocationResult {
+  lat: number;
+  lng: number;
+  locationMethod: LocationMethod;
+  address?: string;
+}
+
+interface Props {
+  crisisCenter?: [number, number]; // defaults to POA demo
+  onConfirm: (result: LocationResult) => void;
+  onBack: () => void;
+}
+
+// Truncate to 3 decimal places → ~50 m precision (privacy)
+function trunc(n: number) {
+  return Math.round(n * 1000) / 1000;
+}
+
+function ProgressBar({ step, total }: { step: number; total: number }) {
+  return (
+    <div className="w-full h-1 bg-surface-2 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-amber-400 rounded-full transition-all duration-300"
+        style={{ width: `${(step / total) * 100}%` }}
+      />
+    </div>
+  );
+}
+
+function GpsStatusBadge({ status }: { status: GpsStatus }) {
+  if (status === "loading") {
+    return (
+      <span className="flex items-center gap-2 text-sm text-text-secondary">
+        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+        Getting your location…
+      </span>
+    );
+  }
+  if (status === "ok") {
+    return (
+      <span className="flex items-center gap-2 text-sm text-text-secondary">
+        <span className="w-2 h-2 rounded-full bg-low" />
+        Location found — drag pin to adjust
+      </span>
+    );
+  }
+  return (
+    <span className="flex items-center gap-2 text-sm text-amber-400">
+      <span className="w-2 h-2 rounded-full bg-amber-400" />
+      GPS unavailable — enter address or place pin manually
+    </span>
+  );
+}
+
+const POA_CENTER: [number, number] = [-30.029, -51.228];
+const PIN_ID = "location-pin";
+
+export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, onBack }: Props) {
+  const [gpsStatus, setGpsStatus] = useState<GpsStatus>("loading");
+  const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
+  const [method, setMethod] = useState<LocationMethod>("gps");
+  const [address, setAddress] = useState("");
+  const methodRef = useRef<LocationMethod>("gps");
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setGpsStatus("failed");
+      setMethod("manual_pin");
+      methodRef.current = "manual_pin";
+      setPin({ lat: trunc(crisisCenter[0]), lng: trunc(crisisCenter[1]) });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = trunc(pos.coords.latitude);
+        const lng = trunc(pos.coords.longitude);
+        setPin({ lat, lng });
+        setGpsStatus("ok");
+        setMethod("gps");
+        methodRef.current = "gps";
+      },
+      () => {
+        setGpsStatus("failed");
+        setMethod("manual_pin");
+        methodRef.current = "manual_pin";
+        setPin({ lat: trunc(crisisCenter[0]), lng: trunc(crisisCenter[1]) });
+      },
+      { timeout: 8000, enableHighAccuracy: true }
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handlePinDrag(_id: string, lat: number, lng: number) {
+    setPin({ lat: trunc(lat), lng: trunc(lng) });
+    setMethod("manual_pin");
+    methodRef.current = "manual_pin";
+  }
+
+  function handleAddressChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setAddress(e.target.value);
+    if (methodRef.current !== "manual_pin") {
+      setMethod("address");
+      methodRef.current = "address";
+    }
+  }
+
+  const canConfirm = pin !== null && (method !== "address" || address.trim().length > 0);
+
+  function handleConfirm() {
+    if (!pin) return;
+    onConfirm({
+      lat: pin.lat,
+      lng: pin.lng,
+      locationMethod: method,
+      address: method === "address" ? address.trim() : undefined,
+    });
+  }
+
+  const mapCenter: [number, number] = pin ? [pin.lat, pin.lng] : crisisCenter;
+
+  const pins = pin
+    ? [{ id: PIN_ID, lat: pin.lat, lng: pin.lng, damageLevel: "minimal" as const, draggable: true }]
+    : [];
+
+  return (
+    <div className="flex flex-col h-screen bg-surface text-text-primary">
+
+      {/* Header */}
+      <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
+        <ProgressBar step={2} total={5} />
+        <p className="text-xs text-text-muted text-center tracking-widest uppercase">
+          Step 2 of 5
+        </p>
+      </div>
+
+      {/* Map — 60% viewport height */}
+      <div className="flex-none" style={{ height: "60vh" }}>
+        <CrisisMap
+          center={mapCenter}
+          zoom={15}
+          pins={pins}
+          onPinDragEnd={handlePinDrag}
+          className="rounded-none"
+        />
+      </div>
+
+      {/* Bottom panel */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
+
+        {/* GPS status */}
+        <GpsStatusBadge status={gpsStatus} />
+
+        {/* Address field — always visible when GPS failed */}
+        {gpsStatus === "failed" && (
+          <div className="space-y-1">
+            <label className="text-xs text-text-muted uppercase tracking-wide">
+              Street address
+            </label>
+            <input
+              type="text"
+              value={address}
+              onChange={handleAddressChange}
+              placeholder="e.g. Av. Mauá 1050, Porto Alegre"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-amber-400 transition-colors"
+            />
+          </div>
+        )}
+
+        {/* Coordinates display */}
+        {pin && (
+          <div className="flex gap-4 text-xs text-text-muted font-mono">
+            <span>Lat {pin.lat.toFixed(3)}</span>
+            <span>Lng {pin.lng.toFixed(3)}</span>
+            <span className="ml-auto uppercase tracking-wide">{method.replace("_", " ")}</span>
+          </div>
+        )}
+
+        {/* Privacy note */}
+        <p className="text-xs text-text-muted leading-relaxed">
+          Location approximate — your exact position is not stored
+        </p>
+
+        {/* Actions */}
+        <div className="flex gap-3 mt-auto">
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex-1 py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
+          >
+            ← Back
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirm}
+            disabled={!canConfirm}
+            className="flex-1 py-3 rounded-xl bg-accent text-white text-sm font-semibold disabled:opacity-40 active:opacity-80 transition-opacity"
+          >
+            Confirm location →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
