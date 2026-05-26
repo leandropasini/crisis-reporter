@@ -8,10 +8,11 @@ import DetailsScreen, { type DetailsData } from "./screens/citizen/DetailsScreen
 import ReviewScreen, { type ReviewSuccessPayload } from "./screens/citizen/ReviewScreen";
 import ConfirmationScreen from "./screens/citizen/ConfirmationScreen";
 import DashboardScreen from "./screens/agent/DashboardScreen";
+import CommunityMapScreen from "./screens/CommunityMapScreen";
 import LanguageSelector from "./components/LanguageSelector";
 import type { ObservationInput } from "./types/observation";
 
-type AppMode = "index" | "citizen" | "agent";
+type AppMode = "index" | "citizen" | "agent" | "map";
 type CitizenStep = "camera" | "location" | "classification" | "details" | "review";
 
 const CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "00000000-0000-0000-0000-000000000001";
@@ -71,6 +72,19 @@ export default function App() {
     );
   }
 
+  // ── Community map ────────────────────────────────────────────────────────────
+  if (mode === "map") {
+    return (
+      <>
+        <LanguageSelector />
+        <CommunityMapScreen
+          crisisId={CRISIS_ID}
+          onBack={() => setMode("index")}
+        />
+      </>
+    );
+  }
+
   // ── Confirmation ────────────────────────────────────────────────────────────
   if (mode === "citizen" && confirmed) {
     return (
@@ -89,6 +103,7 @@ export default function App() {
         <IndexScreen
           onSelectCitizen={startCitizenFlow}
           onSelectAgent={() => setMode("agent")}
+          onSelectMap={() => setMode("map")}
         />
       </>
     );

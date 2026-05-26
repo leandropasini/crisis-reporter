@@ -3,7 +3,9 @@
     "citizen_title": "Je signale des dégâts",
     "citizen_desc": "Signalez les dommages aux bâtiments dans votre zone",
     "agent_title": "Tableau de bord agent",
-    "agent_desc": "Visualisez et analysez les rapports de terrain sur la carte"
+    "agent_desc": "Visualisez et analysez les rapports de terrain sur la carte",
+    "map_title": "Voir la carte communautaire",
+    "map_desc": "Découvrez ce que vos voisins signalent"
   },
   "common": {
     "back": "← Retour",
@@ -121,8 +123,13 @@
     "reports_helping_one": "rapport de votre zone contribue à prioriser la réponse",
     "reports_helping_other": "rapports de votre zone contribuent à prioriser la réponse",
     "first_report": "Soyez le premier à signaler depuis cette zone",
+    "your_first": "Votre signalement est le premier dans cette zone",
+    "area_count_48h": "{{count}} signalements dans votre zone au cours des 48 dernières heures",
     "report_another": "Signaler un autre",
     "view_map": "Voir la carte (bientôt disponible)"
+  },
+  "community_map": {
+    "title": "Carte communautaire de crise"
   },
   "dashboard": {
     "loading": "Chargement des observations…",

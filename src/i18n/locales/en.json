@@ -3,7 +3,9 @@
     "citizen_title": "I'm reporting damage",
     "citizen_desc": "Report building damage in your area",
     "agent_title": "Agent Dashboard",
-    "agent_desc": "View and analyse field reports on the map"
+    "agent_desc": "View and analyse field reports on the map",
+    "map_title": "View community map",
+    "map_desc": "See what your neighbors are reporting"
   },
   "common": {
     "back": "← Back",
@@ -121,8 +123,13 @@
     "reports_helping_one": "report from your area is helping prioritize response",
     "reports_helping_other": "reports from your area are helping prioritize response",
     "first_report": "Be the first to report from this area",
+    "your_first": "Your report is the first in this area",
+    "area_count_48h": "{{count}} reports in your area in the last 48 hours",
     "report_another": "Report another",
     "view_map": "View map (coming soon)"
+  },
+  "community_map": {
+    "title": "Community Crisis Map"
   },
   "dashboard": {
     "loading": "Loading observations…",

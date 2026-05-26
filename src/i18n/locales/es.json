@@ -3,7 +3,9 @@
     "citizen_title": "Estoy reportando daños",
     "citizen_desc": "Reporte daños en edificios de su área",
     "agent_title": "Panel de agente",
-    "agent_desc": "Ver y analizar informes de campo en el mapa"
+    "agent_desc": "Ver y analizar informes de campo en el mapa",
+    "map_title": "Ver mapa comunitario",
+    "map_desc": "Vea lo que sus vecinos están reportando"
   },
   "common": {
     "back": "← Atrás",
@@ -121,8 +123,13 @@
     "reports_helping_one": "informe de su área está ayudando a priorizar la respuesta",
     "reports_helping_other": "informes de su área están ayudando a priorizar la respuesta",
     "first_report": "Sea el primero en informar desde esta área",
+    "your_first": "Su informe es el primero en esta área",
+    "area_count_48h": "{{count}} informes en su área en las últimas 48 horas",
     "report_another": "Enviar otro informe",
     "view_map": "Ver mapa (próximamente)"
+  },
+  "community_map": {
+    "title": "Mapa comunitario de crisis"
   },
   "dashboard": {
     "loading": "Cargando observaciones…",

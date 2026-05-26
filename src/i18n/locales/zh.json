@@ -3,7 +3,9 @@
     "citizen_title": "我要上报受损情况",
     "citizen_desc": "上报所在区域的建筑损毁情况",
     "agent_title": "工作人员仪表板",
-    "agent_desc": "在地图上查看和分析现场报告"
+    "agent_desc": "在地图上查看和分析现场报告",
+    "map_title": "查看社区地图",
+    "map_desc": "了解您的邻居正在报告什么"
   },
   "common": {
     "back": "← 返回",
@@ -121,8 +123,13 @@
     "reports_helping_one": "条来自您所在区域的报告正在帮助确定响应优先级",
     "reports_helping_other": "条来自您所在区域的报告正在帮助确定响应优先级",
     "first_report": "成为该区域第一个报告者",
+    "your_first": "您的报告是该区域的第一份",
+    "area_count_48h": "过去48小时内您所在区域有{{count}}份报告",
     "report_another": "提交新报告",
     "view_map": "查看地图（即将推出）"
+  },
+  "community_map": {
+    "title": "社区危机地图"
   },
   "dashboard": {
     "loading": "正在加载观测数据…",

@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../../services/supabase";
-import { encodeGeohash } from "../../utils/geohash";
+import { encodeGeohash, decodeGeohashBbox } from "../../utils/geohash";
 import type { ReviewSuccessPayload } from "./ReviewScreen";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
 
 interface Props extends ReviewSuccessPayload {
-  geohashPrecision?: number; // default 6
+  geohashPrecision?: number;
   onReportAnother: () => void;
+}
+
+interface DamageCounts {
+  total: number;
+  minimal: number;
+  partial: number;
+  complete: number;
 }
 
 function CheckIcon() {
@@ -29,6 +36,23 @@ function QueuedIcon() {
   );
 }
 
+function DamageBar({ counts }: { counts: DamageCounts }) {
+  const { minimal, partial, complete, total } = counts;
+  return (
+    <div className="w-full flex rounded-full overflow-hidden" style={{ height: 6 }}>
+      {minimal > 0 && (
+        <div style={{ flex: minimal / total, backgroundColor: "#3ecf8e" }} />
+      )}
+      {partial > 0 && (
+        <div style={{ flex: partial / total, backgroundColor: "#f5a623" }} />
+      )}
+      {complete > 0 && (
+        <div style={{ flex: complete / total, backgroundColor: "#e84040" }} />
+      )}
+    </div>
+  );
+}
+
 export default function ConfirmationScreen({
   id,
   lat,
@@ -39,7 +63,7 @@ export default function ConfirmationScreen({
   onReportAnother,
 }: Props) {
   const { t } = useTranslation();
-  const [areaCount, setAreaCount] = useState<number | null>(null);
+  const [counts, setCounts] = useState<DamageCounts | null>(null);
   const [loadingArea, setLoadingArea] = useState(true);
 
   const shortId = id.replace(/-/g, "").slice(0, 8).toUpperCase();
@@ -48,18 +72,30 @@ export default function ConfirmationScreen({
   useEffect(() => {
     async function fetchAreaStats() {
       try {
+        const since48h = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+        const bbox = decodeGeohashBbox(geohash);
+
         const { data, error } = await db
-          .from("area_stats")
-          .select("observation_count")
+          .from("observations")
+          .select("damage_level")
           .eq("crisis_id", crisisId)
-          .eq("geohash", geohash)
-          .maybeSingle() as { data: { observation_count: number } | null; error: unknown };
+          .gte("latitude", bbox.minLat)
+          .lte("latitude", bbox.maxLat)
+          .gte("longitude", bbox.minLng)
+          .lte("longitude", bbox.maxLng)
+          .gte("client_created_at", since48h) as { data: { damage_level: string }[] | null; error: unknown };
 
         if (!error && data) {
-          setAreaCount(data.observation_count);
+          const c = { total: data.length, minimal: 0, partial: 0, complete: 0 };
+          for (const row of data) {
+            if (row.damage_level === "minimal") c.minimal++;
+            else if (row.damage_level === "partial") c.partial++;
+            else if (row.damage_level === "complete") c.complete++;
+          }
+          setCounts(c);
         }
       } catch {
-        // network unavailable or no data — show fallback
+        // network unavailable — show fallback
       } finally {
         setLoadingArea(false);
       }
@@ -103,16 +139,25 @@ export default function ConfirmationScreen({
       </div>
 
       {/* Community impact */}
-      <div className="w-full max-w-xs bg-surface-2 border border-border rounded-xl px-4 py-4 text-center space-y-1">
+      <div className="w-full max-w-xs bg-surface-2 border border-border rounded-xl px-4 py-4 text-center space-y-3">
         {loadingArea ? (
           <p className="text-sm text-text-muted">{t("confirmation.loading_area")}</p>
-        ) : areaCount !== null && areaCount > 0 ? (
+        ) : counts !== null && counts.total >= 2 ? (
           <>
-            <p className="text-2xl font-bold text-text-primary">{areaCount}</p>
             <p className="text-sm text-text-muted leading-relaxed">
-              {t("confirmation.reports_helping", { count: areaCount })}
+              {t("confirmation.area_count_48h", { count: counts.total })}
             </p>
+            <DamageBar counts={counts} />
+            <div className="flex justify-between text-xs text-text-muted">
+              <span style={{ color: "#3ecf8e" }}>{counts.minimal}</span>
+              <span style={{ color: "#f5a623" }}>{counts.partial}</span>
+              <span style={{ color: "#e84040" }}>{counts.complete}</span>
+            </div>
           </>
+        ) : counts !== null && counts.total === 1 ? (
+          <p className="text-sm text-text-muted leading-relaxed">
+            {t("confirmation.your_first")}
+          </p>
         ) : (
           <p className="text-sm text-text-muted leading-relaxed">
             {t("confirmation.first_report")}

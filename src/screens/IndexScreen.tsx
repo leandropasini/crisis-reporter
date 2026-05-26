@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 interface Props {
   onSelectCitizen: () => void;
   onSelectAgent: () => void;
+  onSelectMap: () => void;
 }
 
 function DamageIcon() {
@@ -26,6 +27,17 @@ function MapIcon() {
   );
 }
 
+function GlobeIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <circle cx="14" cy="14" r="11" />
+      <path d="M14 3c-4 4-4 14 0 22M14 3c4 4 4 14 0 22" />
+      <path d="M3 14h22" />
+      <path d="M5 8h18M5 20h18" />
+    </svg>
+  );
+}
+
 function WaveDecoration() {
   return (
     <svg width="100%" height="60" viewBox="0 0 360 60" preserveAspectRatio="none" aria-hidden>
@@ -43,7 +55,7 @@ function WaveDecoration() {
   );
 }
 
-export default function IndexScreen({ onSelectCitizen, onSelectAgent }: Props) {
+export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMap }: Props) {
   const { t } = useTranslation();
 
   return (
@@ -168,6 +180,40 @@ export default function IndexScreen({ onSelectCitizen, onSelectAgent }: Props) {
                 </p>
                 <p style={{ fontSize: 12, color: "#6b6b68", lineHeight: 1.5 }}>
                   {t("index.agent_desc")}
+                </p>
+              </div>
+            </div>
+          </button>
+
+          {/* Community map card */}
+          <button
+            type="button"
+            onClick={onSelectMap}
+            className="w-full text-left rounded-2xl active:scale-[0.98] transition-transform"
+            style={{
+              background: "#1e1e1c",
+              border: "1px solid #2a2a28",
+              padding: "20px 22px",
+            }}
+          >
+            <div className="flex items-start gap-4">
+              <span
+                className="flex-none mt-0.5 flex items-center justify-center rounded-xl"
+                style={{
+                  width: 48,
+                  height: 48,
+                  background: "#3b82f618",
+                  color: "#3b82f6",
+                }}
+              >
+                <GlobeIcon />
+              </span>
+              <div>
+                <p style={{ fontSize: 15, fontWeight: 600, color: "#f5f5f4", marginBottom: 3 }}>
+                  {t("index.map_title")}
+                </p>
+                <p style={{ fontSize: 12, color: "#6b6b68", lineHeight: 1.5 }}>
+                  {t("index.map_desc")}
                 </p>
               </div>
             </div>
