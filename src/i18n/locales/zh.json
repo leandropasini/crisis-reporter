@@ -1,4 +1,10 @@
 {
+  "index": {
+    "citizen_title": "我要上报受损情况",
+    "citizen_desc": "上报所在区域的建筑损毁情况",
+    "agent_title": "工作人员仪表板",
+    "agent_desc": "在地图上查看和分析现场报告"
+  },
   "common": {
     "back": "← 返回",
     "next": "下一步 →"

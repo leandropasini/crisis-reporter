@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CrisisMap from "../../components/map/CrisisMap";
+import type { FeatureCollection } from "geojson";
+import buildingsData from "../../data/buildings-poa-sample.geojson";
 
 type LocationMethod = "gps" | "manual_pin" | "address";
 type GpsStatus = "loading" | "ok" | "failed";
@@ -10,6 +12,8 @@ export interface LocationResult {
   lng: number;
   locationMethod: LocationMethod;
   address?: string;
+  buildingId?: string;
+  buildingName?: string;
 }
 
 interface Props {
@@ -68,6 +72,7 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
   const [method, setMethod] = useState<LocationMethod>("gps");
   const [address, setAddress] = useState("");
+  const [selectedBuilding, setSelectedBuilding] = useState<{ id: string; name: string } | null>(null);
   const methodRef = useRef<LocationMethod>("gps");
 
   useEffect(() => {
@@ -122,6 +127,8 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
       lng: pin.lng,
       locationMethod: method,
       address: method === "address" ? address.trim() : undefined,
+      buildingId: selectedBuilding?.id,
+      buildingName: selectedBuilding?.name,
     });
   }
 
@@ -147,11 +154,32 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
         <CrisisMap
           center={mapCenter}
           zoom={15}
+          buildings={buildingsData as FeatureCollection}
+          selectedBuildingId={selectedBuilding?.id}
+          onBuildingClick={(id, name) => setSelectedBuilding({ id, name })}
           pins={pins}
           onPinDragEnd={handlePinDrag}
           className="rounded-none"
         />
       </div>
+
+      {/* Building selected banner */}
+      {selectedBuilding && (
+        <div className="flex-none flex items-center justify-between px-4 py-2.5 bg-surface-2 border-b border-border">
+          <span className="text-sm text-text-secondary">
+            Edifício selecionado:{" "}
+            <span className="font-semibold text-text-primary">{selectedBuilding.name}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setSelectedBuilding(null)}
+            className="text-text-muted text-lg leading-none active:opacity-60"
+            aria-label="Remover seleção"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Bottom panel */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">

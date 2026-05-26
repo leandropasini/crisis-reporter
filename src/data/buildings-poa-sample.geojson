@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type":"Feature","id":"1","properties":{"name":"Edifício Centro"},"geometry":{"type":"Polygon","coordinates":[[[-51.2280,-30.0285],[-51.2275,-30.0285],[-51.2275,-30.0290],[-51.2280,-30.0290],[-51.2280,-30.0285]]]}},
+    {"type":"Feature","id":"2","properties":{"name":"Residencial Mauá"},"geometry":{"type":"Polygon","coordinates":[[[-51.2290,-30.0288],[-51.2285,-30.0288],[-51.2285,-30.0293],[-51.2290,-30.0293],[-51.2290,-30.0288]]]}},
+    {"type":"Feature","id":"3","properties":{"name":"Comercial Borges"},"geometry":{"type":"Polygon","coordinates":[[[-51.2270,-30.0280],[-51.2265,-30.0280],[-51.2265,-30.0285],[-51.2270,-30.0285],[-51.2270,-30.0280]]]}},
+    {"type":"Feature","id":"4","properties":{"name":"Escola Municipal"},"geometry":{"type":"Polygon","coordinates":[[[-51.2295,-30.0275],[-51.2288,-30.0275],[-51.2288,-30.0282],[-51.2295,-30.0282],[-51.2295,-30.0275]]]}},
+    {"type":"Feature","id":"5","properties":{"name":"Hospital de Clínicas"},"geometry":{"type":"Polygon","coordinates":[[[-51.2260,-30.0295],[-51.2250,-30.0295],[-51.2250,-30.0305],[-51.2260,-30.0305],[-51.2260,-30.0295]]]}},
+    {"type":"Feature","id":"6","properties":{"name":"Mercado Público"},"geometry":{"type":"Polygon","coordinates":[[[-51.2285,-30.0270],[-51.2278,-30.0270],[-51.2278,-30.0276],[-51.2285,-30.0276],[-51.2285,-30.0270]]]}},
+    {"type":"Feature","id":"7","properties":{"name":"Prefeitura Municipal"},"geometry":{"type":"Polygon","coordinates":[[[-51.2275,-30.0265],[-51.2268,-30.0265],[-51.2268,-30.0272],[-51.2275,-30.0272],[-51.2275,-30.0265]]]}},
+    {"type":"Feature","id":"8","properties":{"name":"Residencial Andradas"},"geometry":{"type":"Polygon","coordinates":[[[-51.2265,-30.0288],[-51.2258,-30.0288],[-51.2258,-30.0294],[-51.2265,-30.0294],[-51.2265,-30.0288]]]}},
+    {"type":"Feature","id":"9","properties":{"name":"Torre Empresarial"},"geometry":{"type":"Polygon","coordinates":[[[-51.2255,-30.0278],[-51.2250,-30.0278],[-51.2250,-30.0285],[-51.2255,-30.0285],[-51.2255,-30.0278]]]}},
+    {"type":"Feature","id":"10","properties":{"name":"Condomínio Guaíba"},"geometry":{"type":"Polygon","coordinates":[[[-51.2300,-30.0268],[-51.2293,-30.0268],[-51.2293,-30.0275],[-51.2300,-30.0275],[-51.2300,-30.0268]]]}}
+  ]
+}

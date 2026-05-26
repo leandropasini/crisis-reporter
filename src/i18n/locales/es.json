@@ -1,4 +1,10 @@
 {
+  "index": {
+    "citizen_title": "Estoy reportando daños",
+    "citizen_desc": "Reporte daños en edificios de su área",
+    "agent_title": "Panel de agente",
+    "agent_desc": "Ver y analizar informes de campo en el mapa"
+  },
   "common": {
     "back": "← Atrás",
     "next": "Siguiente →"

@@ -24,6 +24,8 @@ interface Props {
   center?: [number, number];
   zoom?: number;
   buildings?: FeatureCollection;
+  selectedBuildingId?: string;
+  onBuildingClick?: (id: string, name: string) => void;
   pins?: PinData[];
   onPinDragEnd?: (id: string, lat: number, lng: number) => void;
   className?: string;
@@ -33,6 +35,8 @@ export default function CrisisMap({
   center = POA_CENTER,
   zoom = 15,
   buildings,
+  selectedBuildingId,
+  onBuildingClick,
   pins = [],
   onPinDragEnd,
   className = "",
@@ -51,7 +55,13 @@ export default function CrisisMap({
         maxZoom={20}
       />
 
-      {buildings && <BuildingLayer data={buildings} />}
+      {buildings && (
+        <BuildingLayer
+          data={buildings}
+          selectedId={selectedBuildingId}
+          onSelect={onBuildingClick}
+        />
+      )}
 
       {pins.map((pin) => (
         <ObservationPin

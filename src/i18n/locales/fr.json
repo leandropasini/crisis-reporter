@@ -1,4 +1,10 @@
 {
+  "index": {
+    "citizen_title": "Je signale des dégâts",
+    "citizen_desc": "Signalez les dommages aux bâtiments dans votre zone",
+    "agent_title": "Tableau de bord agent",
+    "agent_desc": "Visualisez et analysez les rapports de terrain sur la carte"
+  },
   "common": {
     "back": "← Retour",
     "next": "Suivant →"

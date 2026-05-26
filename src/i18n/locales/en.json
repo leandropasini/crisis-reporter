@@ -1,4 +1,10 @@
 {
+  "index": {
+    "citizen_title": "I'm reporting damage",
+    "citizen_desc": "Report building damage in your area",
+    "agent_title": "Agent Dashboard",
+    "agent_desc": "View and analyse field reports on the map"
+  },
   "common": {
     "back": "← Back",
     "next": "Next →"
