@@ -13,11 +13,13 @@
     "@supabase/supabase-js": "^2.106.2",
     "@types/leaflet.heat": "^0.2.5",
     "@types/papaparse": "^5.5.2",
+    "i18next": "^26.3.0",
     "leaflet": "^1.9.4",
     "leaflet.heat": "^0.2.0",
     "papaparse": "^5.5.3",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-i18next": "^17.0.8",
     "react-leaflet": "^5.0.0",
     "react-leaflet-cluster": "^4.1.3"
   },

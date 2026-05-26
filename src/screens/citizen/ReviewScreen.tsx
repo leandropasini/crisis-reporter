@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ObservationInput } from "../../types/observation";
 import { submitObservation } from "../../services/submit";
 
@@ -26,10 +27,6 @@ const DAMAGE_COLORS: Record<string, string> = {
   complete: "#e84040",
 };
 
-function label(s: string) {
-  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function ProgressBar({ step, total }: { step: number; total: number }) {
@@ -41,7 +38,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
   );
 }
 
-function OfflineBanner() {
+function OfflineBanner({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
       style={{ backgroundColor: "#1a1a18", border: "1px solid #2a2a28" }}>
@@ -49,7 +46,7 @@ function OfflineBanner() {
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#a8a8a5" strokeWidth="1.6">
         <path d="M4 14a4 4 0 0 1-.5-8A5 5 0 0 1 14.5 8H15a3 3 0 0 1 2.5 4.5M3 3l14 14" strokeLinecap="round"/>
       </svg>
-      <p className="text-sm text-text-secondary">Saved locally — will sync when connected</p>
+      <p className="text-sm text-text-secondary">{text}</p>
     </div>
   );
 }
@@ -66,6 +63,7 @@ function SummaryRow({ label: lbl, value, color }: { label: string; value: string
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
+  const { t } = useTranslation();
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const isOffline = !navigator.onLine;
 
@@ -89,19 +87,19 @@ export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
       {/* Header */}
       <div className="flex-none" style={{ padding: "16px 16px 12px", display: "flex", flexDirection: "column", gap: "12px" }}>
         <ProgressBar step={5} total={5} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">Step 5 of 5 — Review</p>
+        <p className="text-xs text-text-muted text-center tracking-widest uppercase">{t("review.step")}</p>
       </div>
 
       {/* Scrollable body */}
       <div className="flex-1 min-h-0 overflow-y-auto" style={{ padding: "0 16px 16px", display: "flex", flexDirection: "column", gap: "16px" }}>
 
         {/* Offline banner */}
-        {(isOffline || submitState === "queued") && <OfflineBanner />}
+        {(isOffline || submitState === "queued") && <OfflineBanner text={t("review.offline")} />}
 
         {/* Queued state feedback */}
         {submitState === "queued" && !isOffline && (
           <p className="text-xs text-amber-400 text-center">
-            Connection error — saved to local queue
+            {t("review.queued_error")}
           </p>
         )}
 
@@ -109,40 +107,40 @@ export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
         <div className="rounded-xl overflow-hidden aspect-[4/3] bg-surface-2">
           <img
             src={data.photoPreviewUrl}
-            alt="Observation photo"
+            alt={t("review.photo_alt")}
             className="w-full h-full object-cover"
           />
         </div>
 
         {/* Summary */}
         <div className="bg-surface-2 rounded-xl px-4 divide-y divide-border">
-          <SummaryRow label="Infrastructure" value={data.infrastructureName} />
-          <SummaryRow label="Type"        value={label(data.infrastructureType)} />
+          <SummaryRow label={t("review.label_infrastructure")} value={data.infrastructureName} />
+          <SummaryRow label={t("review.label_type")}        value={t(`enum.infra_${data.infrastructureType}`)} />
           <SummaryRow
-            label="Damage"
-            value={label(data.damageLevel)}
+            label={t("review.label_damage")}
+            value={t(`enum.damage_${data.damageLevel}`)}
             color={DAMAGE_COLORS[data.damageLevel]}
           />
-          <SummaryRow label="Debris needed" value={data.debrisClearingNeeded ? "Yes" : "No"} />
+          <SummaryRow label={t("review.label_debris")} value={data.debrisClearingNeeded ? t("review.yes") : t("review.no")} />
           <SummaryRow
-            label="Location"
-            value={`${data.lat.toFixed(3)}, ${data.lng.toFixed(3)} (${label(data.locationMethod)})`}
+            label={t("review.label_location")}
+            value={`${data.lat.toFixed(3)}, ${data.lng.toFixed(3)} (${t(`enum.method_${data.locationMethod}`)})`}
           />
-          <SummaryRow label="Crisis type"  value={label(data.crisisSubtype)} />
+          <SummaryRow label={t("review.label_crisis_type")}  value={t(`enum.subtype_${data.crisisSubtype}`)} />
           {data.modularFields.electricity_condition && (
-            <SummaryRow label="Electricity" value={label(data.modularFields.electricity_condition)} />
+            <SummaryRow label={t("review.label_electricity")} value={t(`enum.elec_${data.modularFields.electricity_condition}`)} />
           )}
           {data.modularFields.health_services && (
-            <SummaryRow label="Health" value={label(data.modularFields.health_services)} />
+            <SummaryRow label={t("review.label_health")} value={t(`enum.health_${data.modularFields.health_services}`)} />
           )}
           {pressingNeeds && pressingNeeds.length > 0 && (
-            <SummaryRow label="Needs" value={pressingNeeds.map(label).join(", ")} />
+            <SummaryRow label={t("review.label_needs")} value={pressingNeeds.map((n) => t(`enum.need_${n}`)).join(", ")} />
           )}
         </div>
 
         {data.infrastructureDescription && (
           <div className="bg-surface-2 rounded-xl px-4 py-3">
-            <p className="text-xs text-text-muted uppercase tracking-wide mb-1">Notes</p>
+            <p className="text-xs text-text-muted uppercase tracking-wide mb-1">{t("review.notes_title")}</p>
             <p className="text-sm text-text-secondary">{data.infrastructureDescription}</p>
           </div>
         )}
@@ -157,7 +155,7 @@ export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
           className="flex-1 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70 disabled:opacity-40"
           style={{ padding: "12px 0" }}
         >
-          ← Back
+          {t("common.back")}
         </button>
         <button
           type="button"
@@ -166,7 +164,7 @@ export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
           className="flex-1 rounded-xl bg-accent text-white text-sm font-semibold disabled:opacity-60 active:opacity-80 transition-opacity"
           style={{ padding: "12px 0" }}
         >
-          {submitState === "uploading" ? "Submitting…" : isOffline ? "Save offline" : "Submit →"}
+          {submitState === "uploading" ? t("review.submitting") : isOffline ? t("review.save_offline") : t("review.submit")}
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../../services/supabase";
 import { encodeGeohash } from "../../utils/geohash";
 import type { ReviewSuccessPayload } from "./ReviewScreen";
@@ -37,6 +38,7 @@ export default function ConfirmationScreen({
   geohashPrecision = 6,
   onReportAnother,
 }: Props) {
+  const { t } = useTranslation();
   const [areaCount, setAreaCount] = useState<number | null>(null);
   const [loadingArea, setLoadingArea] = useState(true);
 
@@ -80,12 +82,12 @@ export default function ConfirmationScreen({
       {/* Message */}
       <div className="text-center space-y-2">
         <p className="text-lg font-semibold text-text-primary">
-          {queued ? "Saved locally" : "Report received"}
+          {queued ? t("confirmation.saved_locally") : t("confirmation.received")}
         </p>
         <p className="text-sm text-text-muted">
           {queued
-            ? "Will sync when connection is restored"
-            : "Added to response map"}
+            ? t("confirmation.will_sync")
+            : t("confirmation.added_to_map")}
         </p>
       </div>
 
@@ -103,18 +105,17 @@ export default function ConfirmationScreen({
       {/* Community impact */}
       <div className="w-full max-w-xs bg-surface-2 border border-border rounded-xl px-4 py-4 text-center space-y-1">
         {loadingArea ? (
-          <p className="text-sm text-text-muted">Loading area data…</p>
+          <p className="text-sm text-text-muted">{t("confirmation.loading_area")}</p>
         ) : areaCount !== null && areaCount > 0 ? (
           <>
             <p className="text-2xl font-bold text-text-primary">{areaCount}</p>
             <p className="text-sm text-text-muted leading-relaxed">
-              report{areaCount !== 1 ? "s" : ""} from your area{" "}
-              {areaCount === 1 ? "is" : "are"} helping prioritize response
+              {t("confirmation.reports_helping", { count: areaCount })}
             </p>
           </>
         ) : (
           <p className="text-sm text-text-muted leading-relaxed">
-            Be the first to report from this area
+            {t("confirmation.first_report")}
           </p>
         )}
       </div>
@@ -126,14 +127,14 @@ export default function ConfirmationScreen({
           onClick={onReportAnother}
           className="w-full py-3 rounded-xl bg-accent text-white text-sm font-semibold active:opacity-80"
         >
-          Report another
+          {t("confirmation.report_another")}
         </button>
         <button
           type="button"
           disabled
           className="w-full py-3 rounded-xl border border-border text-text-muted text-sm font-medium opacity-40 cursor-not-allowed"
         >
-          View map (coming soon)
+          {t("confirmation.view_map")}
         </button>
       </div>
     </div>

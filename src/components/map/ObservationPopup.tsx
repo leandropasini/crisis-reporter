@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { DamageLevel, InfrastructureType, ObservationSource } from "../../types/schema";
 
 export interface PopupObservation {
@@ -17,27 +18,19 @@ const DAMAGE_COLOR: Record<DamageLevel, string> = {
   complete: "#e84040",
 };
 
-const DAMAGE_LABEL: Record<DamageLevel, string> = {
-  minimal:  "Minimal",
-  partial:  "Partial",
-  complete: "Complete",
-};
-
-function label(s: string) {
-  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 interface Props {
   observation: PopupObservation;
 }
 
 export default function ObservationPopup({ observation: obs }: Props) {
+  const { t } = useTranslation();
+
   const ago = (() => {
     const ms = Date.now() - new Date(obs.client_created_at).getTime();
     const h = Math.floor(ms / 3_600_000);
-    if (h < 1) return `${Math.floor(ms / 60_000)}m ago`;
-    if (h < 24) return `${h}h ago`;
-    return `${Math.floor(h / 24)}d ago`;
+    if (h < 1) return t("observation.time_minutes", { n: Math.floor(ms / 60_000) });
+    if (h < 24) return t("observation.time_hours", { n: h });
+    return t("observation.time_days", { n: Math.floor(h / 24) });
   })();
 
   return (
@@ -70,7 +63,7 @@ export default function ObservationPopup({ observation: obs }: Props) {
           color: DAMAGE_COLOR[obs.damage_level],
           border: `1px solid ${DAMAGE_COLOR[obs.damage_level]}55`,
         }}>
-          {DAMAGE_LABEL[obs.damage_level]}
+          {t(`observation.damage_${obs.damage_level}`)}
         </span>
 
         {/* Confidence badge */}
@@ -82,13 +75,13 @@ export default function ObservationPopup({ observation: obs }: Props) {
           backgroundColor: "#2a2a28",
           color: "#a8a8a5",
         }}>
-          {obs.confidence}% conf.
+          {t("observation.conf", { confidence: obs.confidence })}
         </span>
       </div>
 
       {/* Meta */}
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#6b6b68" }}>
-        <span>{label(obs.infrastructure_type)}</span>
+        <span>{t(`enum.infra_${obs.infrastructure_type}`)}</span>
         <span>{ago}</span>
       </div>
     </div>

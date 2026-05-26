@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { supabase, isSupabaseConfigured } from "../../services/supabase";
 import ClusterLayer, { type MappedObservation } from "../../components/map/ClusterLayer";
@@ -108,6 +109,7 @@ export default function DashboardScreen({
   center = [-30.029, -51.228],
   zoom = 13,
 }: Props) {
+  const { t } = useTranslation();
   const [observations, setObservations] = useState<MappedObservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedObs, setSelectedObs] = useState<MappedObservation | null>(null);
@@ -211,7 +213,7 @@ export default function DashboardScreen({
             fontSize: 12,
             color: "#a8a8a5",
           }}>
-            Loading observations…
+            {t("dashboard.loading")}
           </div>
         )}
         <MapContainer

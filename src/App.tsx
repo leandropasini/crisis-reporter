@@ -1,7 +1,9 @@
 import { useState } from "react";
+import "./i18n";
 import ReviewScreen, { type ReviewSuccessPayload } from "./screens/citizen/ReviewScreen";
 import ConfirmationScreen from "./screens/citizen/ConfirmationScreen";
 import DashboardScreen from "./screens/agent/DashboardScreen";
+import LanguageSelector from "./components/LanguageSelector";
 import type { ObservationInput } from "./types/observation";
 
 const DEMO_DATA: ObservationInput = {
@@ -31,23 +33,34 @@ export default function App() {
   const [confirmed, setConfirmed] = useState<ReviewSuccessPayload | null>(null);
 
   if (MODE === "agent") {
-    return <DashboardScreen />;
+    return (
+      <>
+        <LanguageSelector />
+        <DashboardScreen />
+      </>
+    );
   }
 
   if (confirmed) {
     return (
-      <ConfirmationScreen
-        {...confirmed}
-        onReportAnother={() => setConfirmed(null)}
-      />
+      <>
+        <LanguageSelector />
+        <ConfirmationScreen
+          {...confirmed}
+          onReportAnother={() => setConfirmed(null)}
+        />
+      </>
     );
   }
 
   return (
-    <ReviewScreen
-      data={DEMO_DATA}
-      onSuccess={setConfirmed}
-      onBack={() => console.log("back")}
-    />
+    <>
+      <LanguageSelector />
+      <ReviewScreen
+        data={DEMO_DATA}
+        onSuccess={setConfirmed}
+        onBack={() => console.log("back")}
+      />
+    </>
   );
 }

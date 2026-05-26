@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   DamageLevel, InfrastructureType, CrisisNature, CrisisSubtype,
 } from "../../types/schema";
@@ -98,59 +99,6 @@ function InfraIcon({ type }: { type: InfrastructureType }) {
   }
 }
 
-// ── Data ─────────────────────────────────────────────────────────────────────
-
-const DAMAGE_OPTIONS: { value: DamageLevel; label: string; variant: "intact" | "cracked" | "destroyed"; color: string }[] = [
-  { value: "minimal",  label: "Minimal / No damage",    variant: "intact",    color: "#3ecf8e" },
-  { value: "partial",  label: "Partially damaged",      variant: "cracked",   color: "#f59e0b" },
-  { value: "complete", label: "Completely damaged",     variant: "destroyed", color: "#e84040" },
-];
-
-const INFRA_OPTIONS: { value: InfrastructureType; label: string }[] = [
-  { value: "residential",       label: "Residential"    },
-  { value: "commercial",        label: "Commercial"     },
-  { value: "government",        label: "Government"     },
-  { value: "utility",           label: "Utility"        },
-  { value: "transport_comm",    label: "Transport"      },
-  { value: "community",         label: "Community"      },
-  { value: "public_recreation", label: "Recreation"     },
-  { value: "other",             label: "Other"          },
-];
-
-const NATURE_GROUPS: { nature: CrisisNature; label: string; subtypes: { value: CrisisSubtype; label: string }[] }[] = [
-  {
-    nature: "natural", label: "Natural",
-    subtypes: [
-      { value: "earthquake",        label: "Earthquake"    },
-      { value: "flood",             label: "Flood"         },
-      { value: "tsunami",           label: "Tsunami"       },
-      { value: "hurricane_cyclone", label: "Hurricane"     },
-      { value: "wildfire",          label: "Wildfire"      },
-    ],
-  },
-  {
-    nature: "technological", label: "Technological",
-    subtypes: [
-      { value: "explosion",         label: "Explosion"         },
-      { value: "chemical_incident", label: "Chemical incident" },
-    ],
-  },
-  {
-    nature: "human_made", label: "Human-made",
-    subtypes: [
-      { value: "conflict",          label: "Conflict"     },
-      { value: "civil_unrest",      label: "Civil unrest" },
-    ],
-  },
-];
-
-function subtypeToNature(sub: CrisisSubtype): CrisisNature {
-  for (const g of NATURE_GROUPS) {
-    if (g.subtypes.some((s) => s.value === sub)) return g.nature;
-  }
-  return "natural";
-}
-
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function ProgressBar({ step, total }: { step: number; total: number }) {
@@ -166,9 +114,18 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">{children}</p>;
 }
 
+function subtypeToNature(sub: CrisisSubtype): CrisisNature {
+  const natural: CrisisSubtype[] = ["earthquake", "flood", "tsunami", "hurricane_cyclone", "wildfire"];
+  const technological: CrisisSubtype[] = ["explosion", "chemical_incident"];
+  if (natural.includes(sub)) return "natural";
+  if (technological.includes(sub)) return "technological";
+  return "human_made";
+}
+
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack }: Props) {
+  const { t } = useTranslation();
   const [damageLevel, setDamageLevel] = useState<DamageLevel | null>(null);
   const [infraType, setInfraType] = useState<InfrastructureType | null>(null);
   const [infraOther, setInfraOther] = useState("");
@@ -195,13 +152,57 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
     });
   }
 
+  const DAMAGE_OPTIONS: { value: DamageLevel; tKey: string; variant: "intact" | "cracked" | "destroyed"; color: string }[] = [
+    { value: "minimal",  tKey: "classification.damage_minimal",  variant: "intact",    color: "#3ecf8e" },
+    { value: "partial",  tKey: "classification.damage_partial",   variant: "cracked",   color: "#f59e0b" },
+    { value: "complete", tKey: "classification.damage_complete",  variant: "destroyed", color: "#e84040" },
+  ];
+
+  const INFRA_OPTIONS: { value: InfrastructureType; tKey: string }[] = [
+    { value: "residential",       tKey: "classification.infra_residential" },
+    { value: "commercial",        tKey: "classification.infra_commercial"  },
+    { value: "government",        tKey: "classification.infra_government"  },
+    { value: "utility",           tKey: "classification.infra_utility"     },
+    { value: "transport_comm",    tKey: "classification.infra_transport"   },
+    { value: "community",         tKey: "classification.infra_community"   },
+    { value: "public_recreation", tKey: "classification.infra_recreation"  },
+    { value: "other",             tKey: "classification.infra_other"       },
+  ];
+
+  const NATURE_GROUPS: { nature: CrisisNature; tKey: string; subtypes: { value: CrisisSubtype; tKey: string }[] }[] = [
+    {
+      nature: "natural", tKey: "classification.nature_natural",
+      subtypes: [
+        { value: "earthquake",        tKey: "classification.subtype_earthquake"      },
+        { value: "flood",             tKey: "classification.subtype_flood"           },
+        { value: "tsunami",           tKey: "classification.subtype_tsunami"         },
+        { value: "hurricane_cyclone", tKey: "classification.subtype_hurricane_cyclone" },
+        { value: "wildfire",          tKey: "classification.subtype_wildfire"        },
+      ],
+    },
+    {
+      nature: "technological", tKey: "classification.nature_technological",
+      subtypes: [
+        { value: "explosion",         tKey: "classification.subtype_explosion"         },
+        { value: "chemical_incident", tKey: "classification.subtype_chemical_incident" },
+      ],
+    },
+    {
+      nature: "human_made", tKey: "classification.nature_human_made",
+      subtypes: [
+        { value: "conflict",    tKey: "classification.subtype_conflict"    },
+        { value: "civil_unrest", tKey: "classification.subtype_civil_unrest" },
+      ],
+    },
+  ];
+
   return (
     <div className="flex flex-col h-screen bg-surface text-text-primary">
 
       {/* Header — fixed */}
       <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
         <ProgressBar step={3} total={5} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">Step 3 of 5</p>
+        <p className="text-xs text-text-muted text-center tracking-widest uppercase">{t("classification.step")}</p>
       </div>
 
       {/* Scrollable body */}
@@ -209,7 +210,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
 
         {/* ── Damage level ── */}
         <section>
-          <SectionLabel>Damage level *</SectionLabel>
+          <SectionLabel>{t("classification.damage_section")}</SectionLabel>
           <div className="space-y-2">
             {DAMAGE_OPTIONS.map((opt) => {
               const selected = damageLevel === opt.value;
@@ -228,7 +229,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                   <span style={{ color: selected ? opt.color : "#6b6b68" }}>
                     <HouseIcon variant={opt.variant} />
                   </span>
-                  <span className="text-sm font-medium text-left">{opt.label}</span>
+                  <span className="text-sm font-medium text-left">{t(opt.tKey)}</span>
                   {selected && (
                     <span className="ml-auto w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: opt.color }}>
                       <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
@@ -244,7 +245,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
 
         {/* ── Infrastructure type ── */}
         <section>
-          <SectionLabel>Infrastructure type *</SectionLabel>
+          <SectionLabel>{t("classification.infra_section")}</SectionLabel>
           <div className="grid grid-cols-4 gap-2">
             {INFRA_OPTIONS.map((opt) => {
               const selected = infraType === opt.value;
@@ -263,7 +264,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                   <InfraIcon type={opt.value} />
                   <span className="text-[10px] leading-tight text-center"
                     style={{ color: selected ? "#f5f5f4" : "#6b6b68" }}>
-                    {opt.label}
+                    {t(opt.tKey)}
                   </span>
                 </button>
               );
@@ -275,7 +276,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
               type="text"
               value={infraOther}
               onChange={(e) => setInfraOther(e.target.value)}
-              placeholder="Describe infrastructure type…"
+              placeholder={t("classification.infra_placeholder")}
               className="mt-3 w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors"
             />
           )}
@@ -283,11 +284,11 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
 
         {/* ── Crisis type ── */}
         <section>
-          <SectionLabel>Crisis type *</SectionLabel>
+          <SectionLabel>{t("classification.crisis_section")}</SectionLabel>
           <div className="space-y-3">
             {NATURE_GROUPS.map((group) => (
               <div key={group.nature}>
-                <p className="text-[11px] text-text-muted uppercase tracking-wide mb-2">{group.label}</p>
+                <p className="text-[11px] text-text-muted uppercase tracking-wide mb-2">{t(group.tKey)}</p>
                 <div className="flex flex-wrap gap-2">
                   {group.subtypes.map((s) => {
                     const selected = subtype === s.value;
@@ -303,7 +304,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                           color: selected ? "#f59e0b" : "#a8a8a5",
                         }}
                       >
-                        {s.label}
+                        {t(s.tKey)}
                       </button>
                     );
                   })}
@@ -315,7 +316,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
 
         {/* ── Debris clearing ── */}
         <section>
-          <SectionLabel>Debris clearing needed?</SectionLabel>
+          <SectionLabel>{t("classification.debris_section")}</SectionLabel>
           <div className="flex gap-3">
             {[true, false].map((val) => {
               const selected = debrisNeeded === val;
@@ -331,7 +332,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                     color: selected ? "#e86c2c" : "#a8a8a5",
                   }}
                 >
-                  {val ? "Yes" : "No"}
+                  {val ? t("review.yes") : t("review.no")}
                 </button>
               );
             })}
@@ -341,7 +342,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
         {/* Validation hint */}
         {!canAdvance && (
           <p className="text-xs text-text-muted text-center">
-            Select damage level, infrastructure type, and crisis type to continue
+            {t("classification.validation_hint")}
           </p>
         )}
       </div>
@@ -353,7 +354,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
           onClick={onBack}
           className="flex-1 py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
         >
-          ← Back
+          {t("common.back")}
         </button>
         <button
           type="button"
@@ -361,7 +362,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
           disabled={!canAdvance}
           className="flex-1 py-3 rounded-xl bg-accent text-white text-sm font-semibold disabled:opacity-40 active:opacity-80 transition-opacity"
         >
-          Next →
+          {t("common.next")}
         </button>
       </div>
     </div>

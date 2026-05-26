@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { DamageLevel, InfrastructureType, ObservationSource } from "../../types/schema";
 
 const DAMAGE_LEVELS: DamageLevel[] = ["minimal", "partial", "complete"];
@@ -6,35 +7,6 @@ const DAMAGE_COLOR: Record<DamageLevel, string> = {
   partial:  "#f59e0b",
   complete: "#e84040",
 };
-const DAMAGE_LABEL: Record<DamageLevel, string> = {
-  minimal:  "Minimal",
-  partial:  "Partial",
-  complete: "Complete",
-};
-
-const INFRA_OPTIONS: Array<{ value: InfrastructureType | "all"; label: string }> = [
-  { value: "all",              label: "All types" },
-  { value: "residential",      label: "Residential" },
-  { value: "commercial",       label: "Commercial" },
-  { value: "government",       label: "Government" },
-  { value: "utility",          label: "Utility" },
-  { value: "transport_comm",   label: "Transport / Comm" },
-  { value: "community",        label: "Community" },
-  { value: "public_recreation",label: "Public Recreation" },
-  { value: "school",           label: "School" },
-  { value: "health_center",    label: "Health Center" },
-  { value: "bridge",           label: "Bridge" },
-  { value: "power_station",    label: "Power Station" },
-  { value: "other",            label: "Other" },
-];
-
-const SOURCE_OPTIONS: Array<{ value: ObservationSource | "all"; label: string }> = [
-  { value: "all",       label: "All sources" },
-  { value: "citizen",   label: "Citizen" },
-  { value: "drone",     label: "Drone" },
-  { value: "satellite", label: "Satellite" },
-  { value: "sensor",    label: "Sensor" },
-];
 
 export type MapMode = "clusters" | "heatmap";
 
@@ -91,6 +63,38 @@ export default function FilterPanel({
   onMapModeChange,
   exportSlot,
 }: Props) {
+  const { t } = useTranslation();
+
+  const DAMAGE_LABEL: Record<DamageLevel, string> = {
+    minimal:  t("dashboard.damage_minimal"),
+    partial:  t("dashboard.damage_partial"),
+    complete: t("dashboard.damage_complete"),
+  };
+
+  const INFRA_OPTIONS: Array<{ value: InfrastructureType | "all"; label: string }> = [
+    { value: "all",               label: t("dashboard.infra_all")           },
+    { value: "residential",       label: t("dashboard.infra_residential")   },
+    { value: "commercial",        label: t("dashboard.infra_commercial")    },
+    { value: "government",        label: t("dashboard.infra_government")    },
+    { value: "utility",           label: t("dashboard.infra_utility")       },
+    { value: "transport_comm",    label: t("dashboard.infra_transport_comm") },
+    { value: "community",         label: t("dashboard.infra_community")     },
+    { value: "public_recreation", label: t("dashboard.infra_recreation")    },
+    { value: "school",            label: t("dashboard.infra_school")        },
+    { value: "health_center",     label: t("dashboard.infra_health_center") },
+    { value: "bridge",            label: t("dashboard.infra_bridge")        },
+    { value: "power_station",     label: t("dashboard.infra_power_station") },
+    { value: "other",             label: t("dashboard.infra_other")         },
+  ];
+
+  const SOURCE_OPTIONS: Array<{ value: ObservationSource | "all"; label: string }> = [
+    { value: "all",       label: t("dashboard.source_all")       },
+    { value: "citizen",   label: t("dashboard.source_citizen")   },
+    { value: "drone",     label: t("dashboard.source_drone")     },
+    { value: "satellite", label: t("dashboard.source_satellite") },
+    { value: "sensor",    label: t("dashboard.source_sensor")    },
+  ];
+
   return (
     <aside style={{
       width: 224,
@@ -105,14 +109,14 @@ export default function FilterPanel({
       {/* Title */}
       <div>
         <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>
-          Crisis Reporter
+          {t("dashboard.app_name")}
         </p>
-        <p style={{ fontSize: 15, fontWeight: 600, color: "#f5f5f4" }}>Agent Dashboard</p>
+        <p style={{ fontSize: 15, fontWeight: 600, color: "#f5f5f4" }}>{t("dashboard.title")}</p>
       </div>
 
       {/* Total */}
       <div style={{ background: "#1e1e1c", borderRadius: 10, padding: "12px 14px", border: "1px solid #2a2a28" }}>
-        <p style={{ ...SECTION_LABEL, marginBottom: 6 }}>Total reports</p>
+        <p style={{ ...SECTION_LABEL, marginBottom: 6 }}>{t("dashboard.total_reports")}</p>
         <p style={{ fontSize: 26, fontWeight: 700, color: "#f5f5f4", lineHeight: 1 }}>
           {loading ? "—" : totalCount}
         </p>
@@ -120,7 +124,7 @@ export default function FilterPanel({
 
       {/* Map mode toggle */}
       <div>
-        <p style={SECTION_LABEL}>Map view</p>
+        <p style={SECTION_LABEL}>{t("dashboard.map_view")}</p>
         <div style={{ display: "flex", gap: 6 }}>
           {(["clusters", "heatmap"] as MapMode[]).map((mode) => {
             const active = filters.mapMode === mode;
@@ -142,7 +146,7 @@ export default function FilterPanel({
                   textTransform: "capitalize",
                 }}
               >
-                {mode}
+                {mode === "clusters" ? t("dashboard.map_clusters") : t("dashboard.map_heatmap")}
               </button>
             );
           })}
@@ -151,7 +155,7 @@ export default function FilterPanel({
 
       {/* Damage level chips */}
       <div>
-        <p style={SECTION_LABEL}>Damage level</p>
+        <p style={SECTION_LABEL}>{t("dashboard.damage_section")}</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
           {DAMAGE_LEVELS.map((lvl) => {
             const active = filters.damageLevels.has(lvl);
@@ -190,7 +194,7 @@ export default function FilterPanel({
 
       {/* Infrastructure type dropdown */}
       <div>
-        <p style={SECTION_LABEL}>Infrastructure type</p>
+        <p style={SECTION_LABEL}>{t("dashboard.infra_section")}</p>
         <div style={{ position: "relative" }}>
           <select
             value={filters.infraType}
@@ -207,7 +211,7 @@ export default function FilterPanel({
 
       {/* Source dropdown */}
       <div>
-        <p style={SECTION_LABEL}>Source</p>
+        <p style={SECTION_LABEL}>{t("dashboard.source_section")}</p>
         <div style={{ position: "relative" }}>
           <select
             value={filters.source}
@@ -226,7 +230,7 @@ export default function FilterPanel({
       <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
         {exportSlot}
         <p style={{ fontSize: 11, color: "#6b6b68" }}>
-          Showing {filteredCount} of {totalCount} reports
+          {t("dashboard.showing", { filtered: filteredCount, total: totalCount })}
         </p>
       </div>
     </aside>

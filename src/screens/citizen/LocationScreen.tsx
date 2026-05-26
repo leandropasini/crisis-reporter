@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CrisisMap from "../../components/map/CrisisMap";
 
 type LocationMethod = "gps" | "manual_pin" | "address";
@@ -33,12 +34,12 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
   );
 }
 
-function GpsStatusBadge({ status }: { status: GpsStatus }) {
+function GpsStatusBadge({ status, t }: { status: GpsStatus; t: (key: string) => string }) {
   if (status === "loading") {
     return (
       <span className="flex items-center gap-2 text-sm text-text-secondary">
         <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-        Getting your location…
+        {t("location.gps_loading")}
       </span>
     );
   }
@@ -46,14 +47,14 @@ function GpsStatusBadge({ status }: { status: GpsStatus }) {
     return (
       <span className="flex items-center gap-2 text-sm text-text-secondary">
         <span className="w-2 h-2 rounded-full bg-low" />
-        Location found — drag pin to adjust
+        {t("location.gps_ok")}
       </span>
     );
   }
   return (
     <span className="flex items-center gap-2 text-sm text-amber-400">
       <span className="w-2 h-2 rounded-full bg-amber-400" />
-      GPS unavailable — enter address or place pin manually
+      {t("location.gps_failed")}
     </span>
   );
 }
@@ -62,6 +63,7 @@ const POA_CENTER: [number, number] = [-30.029, -51.228];
 const PIN_ID = "location-pin";
 
 export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, onBack }: Props) {
+  const { t } = useTranslation();
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>("loading");
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
   const [method, setMethod] = useState<LocationMethod>("gps");
@@ -136,7 +138,7 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
       <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
         <ProgressBar step={2} total={5} />
         <p className="text-xs text-text-muted text-center tracking-widest uppercase">
-          Step 2 of 5
+          {t("location.step")}
         </p>
       </div>
 
@@ -155,19 +157,19 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
 
         {/* GPS status */}
-        <GpsStatusBadge status={gpsStatus} />
+        <GpsStatusBadge status={gpsStatus} t={t} />
 
         {/* Address field — always visible when GPS failed */}
         {gpsStatus === "failed" && (
           <div className="space-y-1">
             <label className="text-xs text-text-muted uppercase tracking-wide">
-              Street address
+              {t("location.address_label")}
             </label>
             <input
               type="text"
               value={address}
               onChange={handleAddressChange}
-              placeholder="e.g. Av. Mauá 1050, Porto Alegre"
+              placeholder={t("location.address_placeholder")}
               className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-amber-400 transition-colors"
             />
           </div>
@@ -176,15 +178,15 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
         {/* Coordinates display */}
         {pin && (
           <div className="flex gap-4 text-xs text-text-muted font-mono">
-            <span>Lat {pin.lat.toFixed(3)}</span>
-            <span>Lng {pin.lng.toFixed(3)}</span>
-            <span className="ml-auto uppercase tracking-wide">{method.replace("_", " ")}</span>
+            <span>{t("location.lat")} {pin.lat.toFixed(3)}</span>
+            <span>{t("location.lng")} {pin.lng.toFixed(3)}</span>
+            <span className="ml-auto uppercase tracking-wide">{t(`enum.method_${method}`)}</span>
           </div>
         )}
 
         {/* Privacy note */}
         <p className="text-xs text-text-muted leading-relaxed">
-          Location approximate — your exact position is not stored
+          {t("location.privacy_note")}
         </p>
 
         {/* Actions */}
@@ -194,7 +196,7 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
             onClick={onBack}
             className="flex-1 py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
           >
-            ← Back
+            {t("common.back")}
           </button>
           <button
             type="button"
@@ -202,7 +204,7 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
             disabled={!canConfirm}
             className="flex-1 py-3 rounded-xl bg-accent text-white text-sm font-semibold disabled:opacity-40 active:opacity-80 transition-opacity"
           >
-            Confirm location →
+            {t("location.confirm")}
           </button>
         </div>
       </div>

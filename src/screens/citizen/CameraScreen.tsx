@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   onCapture: (file: File, previewUrl: string) => void;
@@ -45,6 +46,7 @@ function CameraIcon() {
 }
 
 export default function CameraScreen({ onCapture }: Props) {
+  const { t } = useTranslation();
   const [preview, setPreview] = useState<string | null>(null);
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
 
@@ -78,7 +80,7 @@ export default function CameraScreen({ onCapture }: Props) {
       <div className="px-4 pt-4 pb-3 space-y-3">
         <ProgressBar step={1} total={5} />
         <p className="text-xs text-text-muted text-center tracking-widest uppercase">
-          Step 1 of 5
+          {t("camera.step")}
         </p>
       </div>
 
@@ -90,7 +92,7 @@ export default function CameraScreen({ onCapture }: Props) {
           {preview ? (
             <img
               src={preview}
-              alt="Captured photo preview"
+              alt={t("camera.take_photo")}
               className="absolute inset-0 w-full h-full object-cover"
             />
           ) : (
@@ -102,7 +104,7 @@ export default function CameraScreen({ onCapture }: Props) {
                 />
                 <circle cx="24" cy="25" r="7" stroke="currentColor" strokeWidth="2" />
               </svg>
-              <span className="text-sm">Point at the building</span>
+              <span className="text-sm">{t("camera.point_at_building")}</span>
             </div>
           )}
         </div>
@@ -119,14 +121,14 @@ export default function CameraScreen({ onCapture }: Props) {
               onClick={handleRetake}
               className="flex-1 py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
             >
-              Retake
+              {t("camera.retake")}
             </button>
             <button
               type="button"
               onClick={handleNext}
               className="flex-1 py-3 rounded-xl bg-accent text-white text-sm font-semibold active:opacity-80"
             >
-              Use photo →
+              {t("camera.use_photo")}
             </button>
           </div>
         ) : (
@@ -136,12 +138,12 @@ export default function CameraScreen({ onCapture }: Props) {
             <button
               type="button"
               onClick={() => cameraInputRef.current?.click()}
-              aria-label="Take photo"
+              aria-label={t("camera.take_photo")}
               className="w-[72px] h-[72px] rounded-full bg-white flex items-center justify-center shadow-lg active:scale-95 transition-transform"
             >
               <CameraIcon />
             </button>
-            <span className="text-xs text-text-muted">Take photo</span>
+            <span className="text-xs text-text-muted">{t("camera.take_photo")}</span>
 
             {/* Secondary: gallery */}
             <button
@@ -149,7 +151,7 @@ export default function CameraScreen({ onCapture }: Props) {
               onClick={() => galleryInputRef.current?.click()}
               className="text-sm text-text-secondary underline underline-offset-2 active:opacity-60"
             >
-              Choose from gallery
+              {t("camera.choose_gallery")}
             </button>
           </>
         )}

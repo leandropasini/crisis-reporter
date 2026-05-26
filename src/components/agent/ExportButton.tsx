@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { exportGeoJSON, exportCSV, type ExportRow, type ExportFilters } from "../../services/export";
 
 interface Props {
@@ -9,16 +10,17 @@ interface Props {
 
 type Format = "geojson" | "csv";
 
-const OPTIONS: Array<{ fmt: Format; label: string; ext: string }> = [
-  { fmt: "geojson", label: "Export GeoJSON", ext: ".geojson" },
-  { fmt: "csv",     label: "Export CSV",     ext: ".csv" },
-];
-
 export default function ExportButton({ crisisId, filters, rows }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<Format | null>(null);
   const [error, setError] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const OPTIONS: Array<{ fmt: Format; label: string; ext: string }> = [
+    { fmt: "geojson", label: t("export.geojson"), ext: ".geojson" },
+    { fmt: "csv",     label: t("export.csv"),     ext: ".csv" },
+  ];
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -42,8 +44,8 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
       } else {
         await exportCSV(crisisId, filters, rows);
       }
-    } catch (err) {
-      setError(fmt === "geojson" ? "GeoJSON export failed" : "CSV export failed");
+    } catch {
+      setError(fmt === "geojson" ? t("export.error_geojson") : t("export.error_csv"));
     } finally {
       setLoading(null);
     }
@@ -72,12 +74,12 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
         {loading ? (
           <>
             <span style={{ fontSize: 10, animation: "spin 1s linear infinite" }}>⟳</span>
-            Exporting…
+            {t("export.exporting")}
           </>
         ) : (
           <>
             <span style={{ fontSize: 11 }}>↓</span>
-            Export ▾
+            {t("export.button")}
           </>
         )}
       </button>

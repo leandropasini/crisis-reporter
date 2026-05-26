@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ModularFields } from "../../types/schema";
 
 export interface DetailsData {
@@ -18,35 +19,6 @@ interface Props {
 type ElectricityCondition = NonNullable<ModularFields["electricity_condition"]>;
 type HealthServices       = NonNullable<ModularFields["health_services"]>;
 type PressingNeed         = NonNullable<ModularFields["pressing_needs"]>[number];
-
-// ── Data ──────────────────────────────────────────────────────────────────────
-
-const ELECTRICITY_OPTIONS: { value: ElectricityCondition; label: string }[] = [
-  { value: "no_damage",       label: "No damage"       },
-  { value: "minor_damage",    label: "Minor damage"    },
-  { value: "moderate_damage", label: "Moderate damage" },
-  { value: "severe_damage",   label: "Severe damage"   },
-  { value: "no_service",      label: "No service"      },
-];
-
-const HEALTH_OPTIONS: { value: HealthServices; label: string }[] = [
-  { value: "fully_functional",    label: "Fully functional"    },
-  { value: "partially_functional", label: "Partially functional" },
-  { value: "not_functional",      label: "Not functional"      },
-  { value: "unknown",             label: "Unknown"             },
-];
-
-const NEEDS_OPTIONS: { value: PressingNeed; label: string }[] = [
-  { value: "food",           label: "Food"          },
-  { value: "water",          label: "Water"         },
-  { value: "medical_care",   label: "Medical care"  },
-  { value: "shelter",        label: "Shelter"       },
-  { value: "electricity",    label: "Electricity"   },
-  { value: "sanitation",     label: "Sanitation"    },
-  { value: "communication",  label: "Communication" },
-  { value: "transport",      label: "Transport"     },
-  { value: "other",          label: "Other"         },
-];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -137,6 +109,7 @@ function MultiSelect({
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm, onBack }: Props) {
+  const { t } = useTranslation();
   const [name, setName]         = useState("");
   const [description, setDesc]  = useState("");
   const [electricity, setElec]  = useState<ElectricityCondition | undefined>();
@@ -144,6 +117,33 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
   const [needs, setNeeds]       = useState<PressingNeed[]>([]);
 
   const canAdvance = name.trim().length > 0;
+
+  const ELECTRICITY_OPTIONS: { value: ElectricityCondition; label: string }[] = [
+    { value: "no_damage",       label: t("details.elec_no_damage")       },
+    { value: "minor_damage",    label: t("details.elec_minor_damage")    },
+    { value: "moderate_damage", label: t("details.elec_moderate_damage") },
+    { value: "severe_damage",   label: t("details.elec_severe_damage")   },
+    { value: "no_service",      label: t("details.elec_no_service")      },
+  ];
+
+  const HEALTH_OPTIONS: { value: HealthServices; label: string }[] = [
+    { value: "fully_functional",     label: t("details.health_fully_functional")     },
+    { value: "partially_functional", label: t("details.health_partially_functional") },
+    { value: "not_functional",       label: t("details.health_not_functional")       },
+    { value: "unknown",              label: t("details.health_unknown")              },
+  ];
+
+  const NEEDS_OPTIONS: { value: PressingNeed; label: string }[] = [
+    { value: "food",          label: t("details.need_food")          },
+    { value: "water",         label: t("details.need_water")         },
+    { value: "medical_care",  label: t("details.need_medical_care")  },
+    { value: "shelter",       label: t("details.need_shelter")       },
+    { value: "electricity",   label: t("details.need_electricity")   },
+    { value: "sanitation",    label: t("details.need_sanitation")    },
+    { value: "communication", label: t("details.need_communication") },
+    { value: "transport",     label: t("details.need_transport")     },
+    { value: "other",         label: t("details.need_other")         },
+  ];
 
   function handleConfirm() {
     if (!canAdvance) return;
@@ -166,7 +166,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
       {/* Header */}
       <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
         <ProgressBar step={4} total={5} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">Step 4 of 5</p>
+        <p className="text-xs text-text-muted text-center tracking-widest uppercase">{t("details.step")}</p>
       </div>
 
       {/* Scrollable body */}
@@ -174,27 +174,27 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
 
         {/* ── Infrastructure name ── */}
         <section>
-          <SectionLabel>Infrastructure name *</SectionLabel>
+          <SectionLabel>{t("details.name_section")}</SectionLabel>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Name or description of this infrastructure"
+            placeholder={t("details.name_placeholder")}
             className="w-full bg-surface-2 border rounded-lg px-3 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none transition-colors"
             style={{ borderColor: name.trim() ? "#e86c2c" : "#2a2a28" }}
           />
           {!name.trim() && (
-            <p className="text-xs text-text-muted mt-1.5">Required to continue</p>
+            <p className="text-xs text-text-muted mt-1.5">{t("details.name_required")}</p>
           )}
         </section>
 
         {/* ── Description ── */}
         <section>
-          <SectionLabel>Additional details</SectionLabel>
+          <SectionLabel>{t("details.details_section")}</SectionLabel>
           <textarea
             value={description}
             onChange={(e) => setDesc(e.target.value)}
-            placeholder="Optional — visible damage, context, access issues…"
+            placeholder={t("details.details_placeholder")}
             rows={3}
             className="w-full bg-surface-2 border border-border rounded-lg px-3 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent resize-none transition-colors"
           />
@@ -205,7 +205,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
           <>
             {/* Electricity condition */}
             <section>
-              <SectionLabel>Electricity condition</SectionLabel>
+              <SectionLabel>{t("details.electricity_section")}</SectionLabel>
               <SingleSelect
                 options={ELECTRICITY_OPTIONS}
                 value={electricity}
@@ -215,7 +215,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
 
             {/* Health services */}
             <section>
-              <SectionLabel>Health services</SectionLabel>
+              <SectionLabel>{t("details.health_section")}</SectionLabel>
               <SingleSelect
                 options={HEALTH_OPTIONS}
                 value={health}
@@ -225,7 +225,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
 
             {/* Pressing needs */}
             <section>
-              <SectionLabel>Most pressing needs</SectionLabel>
+              <SectionLabel>{t("details.needs_section")}</SectionLabel>
               <MultiSelect
                 options={NEEDS_OPTIONS}
                 value={needs}
@@ -233,7 +233,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
               />
               {needs.length > 0 && (
                 <p className="text-xs text-text-muted mt-2">
-                  {needs.length} selected
+                  {t("details.selected_count", { count: needs.length })}
                 </p>
               )}
             </section>
@@ -248,7 +248,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
           onClick={onBack}
           className="flex-1 py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
         >
-          ← Back
+          {t("common.back")}
         </button>
         <button
           type="button"
@@ -256,7 +256,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
           disabled={!canAdvance}
           className="flex-1 py-3 rounded-xl bg-accent text-white text-sm font-semibold disabled:opacity-40 active:opacity-80 transition-opacity"
         >
-          Next →
+          {t("common.next")}
         </button>
       </div>
     </div>

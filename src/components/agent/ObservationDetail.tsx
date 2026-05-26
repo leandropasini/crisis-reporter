@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { MappedObservation } from "../map/ClusterLayer";
 import type { DamageLevel } from "../../types/schema";
 
@@ -11,10 +12,6 @@ function confidenceColor(c: number): string {
   if (c < 50) return "#eab308";
   if (c <= 80) return "#f59e0b";
   return "#3ecf8e";
-}
-
-function label(s: string) {
-  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function formatTs(iso: string): string {
@@ -58,9 +55,13 @@ interface Props {
 }
 
 export default function ObservationDetail({ observation: obs, onClose }: Props) {
+  const { t } = useTranslation();
+
   const hasModular = obs.modular_fields && Object.values(obs.modular_fields).some((v) =>
     v !== null && v !== undefined && (Array.isArray(v) ? v.length > 0 : true)
   );
+
+  const earlierCount = (obs.version_number ?? 1) - 1;
 
   return (
     <div style={{
@@ -125,34 +126,34 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
           {obs.infrastructure_name}
         </p>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
-          <Badge text={label(obs.damage_level)} color={DAMAGE_COLOR[obs.damage_level]} />
-          <Badge text={`${obs.confidence}% conf.`} color={confidenceColor(obs.confidence)} />
+          <Badge text={t(`enum.damage_${obs.damage_level}`)} color={DAMAGE_COLOR[obs.damage_level]} />
+          <Badge text={t("observation.conf", { confidence: obs.confidence })} color={confidenceColor(obs.confidence)} />
           {obs.version_number !== undefined && (
-            <Badge text={`v${obs.version_number}`} color="#6b6b68" />
+            <Badge text={t("observation.version_badge", { n: obs.version_number })} color="#6b6b68" />
           )}
         </div>
 
         {/* Fields */}
         <div style={{ borderTop: "1px solid #2a2a28" }}>
-          <Row label="Type">{label(obs.infrastructure_type)}</Row>
-          <Row label="Source">{label(obs.source)}</Row>
+          <Row label={t("observation.label_type")}>{t(`enum.infra_${obs.infrastructure_type}`)}</Row>
+          <Row label={t("observation.label_source")}>{t(`enum.source_${obs.source}`)}</Row>
           {obs.debris_clearing_needed !== undefined && (
-            <Row label="Debris">{obs.debris_clearing_needed ? "Needed" : "Not needed"}</Row>
+            <Row label={t("observation.label_debris")}>{obs.debris_clearing_needed ? t("observation.debris_needed") : t("observation.debris_not_needed")}</Row>
           )}
           {obs.location_method && (
-            <Row label="Location">{label(obs.location_method)}</Row>
+            <Row label={t("observation.label_location")}>{t(`enum.method_${obs.location_method}`)}</Row>
           )}
-          <Row label="Coords">{obs.lat.toFixed(5)}, {obs.lng.toFixed(5)}</Row>
-          <Row label="Reported">{formatTs(obs.client_created_at)}</Row>
+          <Row label={t("observation.label_coords")}>{obs.lat.toFixed(5)}, {obs.lng.toFixed(5)}</Row>
+          <Row label={t("observation.label_reported")}>{formatTs(obs.client_created_at)}</Row>
           {obs.crisis_nature && (
-            <Row label="Crisis">{label(obs.crisis_nature)}</Row>
+            <Row label={t("observation.label_crisis")}>{t(`enum.nature_${obs.crisis_nature}`)}</Row>
           )}
         </div>
 
         {/* Description */}
         {obs.infrastructure_description && (
           <div style={{ margin: "12px 0 0", padding: "10px 12px", background: "#1e1e1c", borderRadius: 8, border: "1px solid #2a2a28" }}>
-            <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 5 }}>Notes</p>
+            <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 5 }}>{t("observation.notes")}</p>
             <p style={{ fontSize: 12, color: "#a8a8a5", lineHeight: 1.5, margin: 0 }}>{obs.infrastructure_description}</p>
           </div>
         )}
@@ -160,30 +161,30 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
         {/* Modular fields */}
         {hasModular && (
           <div style={{ margin: "12px 0 0" }}>
-            <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>Field data</p>
+            <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{t("observation.field_data")}</p>
             <div style={{ borderTop: "1px solid #2a2a28" }}>
               {obs.modular_fields!.electricity_condition && (
-                <Row label="Electricity">{label(obs.modular_fields!.electricity_condition)}</Row>
+                <Row label={t("observation.label_electricity")}>{t(`enum.elec_${obs.modular_fields!.electricity_condition}`)}</Row>
               )}
               {obs.modular_fields!.health_services && (
-                <Row label="Health">{label(obs.modular_fields!.health_services)}</Row>
+                <Row label={t("observation.label_health")}>{t(`enum.health_${obs.modular_fields!.health_services}`)}</Row>
               )}
               {obs.modular_fields!.pressing_needs && obs.modular_fields!.pressing_needs!.length > 0 && (
-                <Row label="Needs">{obs.modular_fields!.pressing_needs!.map(label).join(", ")}</Row>
+                <Row label={t("observation.label_needs")}>{obs.modular_fields!.pressing_needs!.map((n) => t(`enum.need_${n}`)).join(", ")}</Row>
               )}
             </div>
           </div>
         )}
 
-        {/* Version history (F1 basic) */}
+        {/* Version history */}
         <div style={{ margin: "12px 0 0", padding: "10px 12px", background: "#1e1e1c", borderRadius: 8, border: "1px solid #2a2a28" }}>
-          <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>Version history</p>
+          <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{t("observation.version_history")}</p>
           <p style={{ fontSize: 12, color: "#a8a8a5", margin: 0 }}>
-            Current: v{obs.version_number ?? 1}
+            {t("observation.version_current", { n: obs.version_number ?? 1 })}
           </p>
-          {(obs.version_number ?? 1) > 1 && (
+          {earlierCount > 0 && (
             <p style={{ fontSize: 11, color: "#6b6b68", marginTop: 4 }}>
-              {(obs.version_number ?? 1) - 1} earlier version{(obs.version_number ?? 1) > 2 ? "s" : ""} — detail view in F2
+              {t("observation.version_earlier", { count: earlierCount })}
             </p>
           )}
         </div>
