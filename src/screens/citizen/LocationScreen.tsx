@@ -174,7 +174,7 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
             type="button"
             onClick={() => setSelectedBuilding(null)}
             className="text-text-muted text-lg leading-none active:opacity-60"
-            aria-label="Remover seleção"
+            aria-label={t("location.remove_selection")}
           >
             ×
           </button>

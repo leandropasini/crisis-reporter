@@ -29,7 +29,8 @@
     "privacy_note": "Position approximative — votre position exacte n'est pas enregistrée",
     "confirm": "Confirmer la position →",
     "lat": "Lat",
-    "lng": "Lon"
+    "lng": "Lon",
+    "remove_selection": "Supprimer la sélection"
   },
   "classification": {
     "step": "Étape 3 sur 5",

@@ -29,7 +29,8 @@
     "privacy_note": "位置为近似值 — 不存储您的精确位置",
     "confirm": "确认位置 →",
     "lat": "纬度",
-    "lng": "经度"
+    "lng": "经度",
+    "remove_selection": "取消选择"
   },
   "classification": {
     "step": "第 3 步，共 5 步",

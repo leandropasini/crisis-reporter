@@ -14,9 +14,9 @@ function confidenceColor(c: number): string {
   return "#3ecf8e";
 }
 
-function formatTs(iso: string): string {
+function formatTs(iso: string, locale: string): string {
   const d = new Date(iso);
-  return d.toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleString(locale, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ interface Props {
 }
 
 export default function ObservationDetail({ observation: obs, onClose }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const hasModular = obs.modular_fields && Object.values(obs.modular_fields).some((v) =>
     v !== null && v !== undefined && (Array.isArray(v) ? v.length > 0 : true)
@@ -144,7 +144,7 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
             <Row label={t("observation.label_location")}>{t(`enum.method_${obs.location_method}`)}</Row>
           )}
           <Row label={t("observation.label_coords")}>{obs.lat.toFixed(5)}, {obs.lng.toFixed(5)}</Row>
-          <Row label={t("observation.label_reported")}>{formatTs(obs.client_created_at)}</Row>
+          <Row label={t("observation.label_reported")}>{formatTs(obs.client_created_at, i18n.language)}</Row>
           {obs.crisis_nature && (
             <Row label={t("observation.label_crisis")}>{t(`enum.nature_${obs.crisis_nature}`)}</Row>
           )}

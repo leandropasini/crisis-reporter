@@ -1,7 +1,9 @@
 import { supabase } from "./supabase";
 import { queue } from "./queue";
+import i18n from "../i18n";
 import type { ObservationInput } from "../types/observation";
 import type { ObservationInsert } from "../types/database";
+import type { UnLanguage } from "../types/schema";
 
 // Handwritten Database types don't fully satisfy Supabase's GenericSchema check.
 // TODO: replace with `supabase gen types typescript` output after migrations run.
@@ -47,7 +49,7 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
   const localId = crypto.randomUUID();
 
   if (!navigator.onLine) {
-    queue.enqueue(input as unknown as Record<string, unknown>);
+    await queue.enqueue(input);
     return { success: false, queued: true, id: localId };
   }
 
@@ -72,7 +74,7 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
       source:                     "citizen",
       session_id:                 sessionId,
       is_proxy:                   false,
-      language:                   "en",
+      language:                   i18n.language as UnLanguage,
       client_created_at:          new Date().toISOString(),
       modular_fields:             input.modularFields,
     };
@@ -83,7 +85,7 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
 
     return { success: true, queued: false, id: localId };
   } catch (err) {
-    queue.enqueue(input as unknown as Record<string, unknown>);
+    await queue.enqueue(input);
     return {
       success: false,
       queued: true,
@@ -92,3 +94,6 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
     };
   }
 }
+
+window.addEventListener("online", () => { void queue.flush(submitObservation); });
+if (navigator.onLine) void queue.flush(submitObservation);

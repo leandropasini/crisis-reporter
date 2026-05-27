@@ -29,7 +29,8 @@
     "privacy_note": "Location approximate — your exact position is not stored",
     "confirm": "Confirm location →",
     "lat": "Lat",
-    "lng": "Lng"
+    "lng": "Lng",
+    "remove_selection": "Remove selection"
   },
   "classification": {
     "step": "Step 3 of 5",
