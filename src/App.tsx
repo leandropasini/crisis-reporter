@@ -90,7 +90,7 @@ export default function App() {
     return (
       <>
         <LanguageSelector />
-        <ConfirmationScreen {...confirmed} onReportAnother={handleReportAnother} />
+        <ConfirmationScreen {...confirmed} onReportAnother={handleReportAnother} onViewMap={() => setMode("map")} />
       </>
     );
   }

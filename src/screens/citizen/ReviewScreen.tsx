@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { ObservationInput } from "../../types/observation";
 import { submitObservation } from "../../services/submit";
 
-type SubmitState = "idle" | "uploading" | "success" | "queued";
+type SubmitState = "idle" | "uploading" | "success" | "queued" | "error";
 
 export interface ReviewSuccessPayload {
   id: string;
@@ -69,14 +69,18 @@ export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
 
   async function handleSubmit() {
     setSubmitState("uploading");
-    const result = await submitObservation(data);
-    onSuccess({
-      id: result.id,
-      lat: data.lat,
-      lng: data.lng,
-      crisisId: data.crisisId,
-      queued: result.queued,
-    });
+    try {
+      const result = await submitObservation(data);
+      onSuccess({
+        id: result.id,
+        lat: data.lat,
+        lng: data.lng,
+        crisisId: data.crisisId,
+        queued: result.queued,
+      });
+    } catch {
+      setSubmitState("error");
+    }
   }
 
   const pressingNeeds = data.modularFields.pressing_needs;
@@ -100,6 +104,13 @@ export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
         {submitState === "queued" && !isOffline && (
           <p className="text-xs text-amber-400 text-center">
             {t("review.queued_error")}
+          </p>
+        )}
+
+        {/* Error state feedback */}
+        {submitState === "error" && (
+          <p className="text-xs text-center" style={{ color: "var(--color-critical)" }}>
+            {t("review.submit_error")}
           </p>
         )}
 
@@ -164,7 +175,13 @@ export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
           className="flex-1 rounded-xl bg-accent text-white text-sm font-semibold disabled:opacity-60 active:opacity-80 transition-opacity"
           style={{ padding: "12px 0" }}
         >
-          {submitState === "uploading" ? t("review.submitting") : isOffline ? t("review.save_offline") : t("review.submit")}
+          {submitState === "uploading"
+            ? t("review.submitting")
+            : submitState === "error"
+            ? t("review.retry")
+            : isOffline
+            ? t("review.save_offline")
+            : t("review.submit")}
         </button>
       </div>
     </div>

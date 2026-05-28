@@ -10,6 +10,7 @@ const db = supabase as any;
 interface Props extends ReviewSuccessPayload {
   geohashPrecision?: number;
   onReportAnother: () => void;
+  onViewMap?: () => void;
 }
 
 interface DamageCounts {
@@ -61,6 +62,7 @@ export default function ConfirmationScreen({
   queued,
   geohashPrecision = 6,
   onReportAnother,
+  onViewMap,
 }: Props) {
   const { t } = useTranslation();
   const [counts, setCounts] = useState<DamageCounts | null>(null);
@@ -176,8 +178,8 @@ export default function ConfirmationScreen({
         </button>
         <button
           type="button"
-          disabled
-          className="w-full py-3 rounded-xl border border-border text-text-muted text-sm font-medium opacity-40 cursor-not-allowed"
+          onClick={onViewMap}
+          className="w-full py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
         >
           {t("confirmation.view_map")}
         </button>

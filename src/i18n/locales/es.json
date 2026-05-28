@@ -112,6 +112,8 @@
     "submitting": "Enviando…",
     "save_offline": "Guardar sin conexión",
     "submit": "Enviar →",
+    "submit_error": "Error al enviar — toque para reintentar",
+    "retry": "Reintentar →",
     "yes": "Sí",
     "no": "No"
   },
@@ -127,7 +129,7 @@
     "your_first": "Su informe es el primero en esta área",
     "area_count_48h": "{{count}} informes en su área en las últimas 48 horas",
     "report_another": "Enviar otro informe",
-    "view_map": "Ver mapa (próximamente)"
+    "view_map": "Ver mapa"
   },
   "community_map": {
     "title": "Mapa comunitario de crisis"

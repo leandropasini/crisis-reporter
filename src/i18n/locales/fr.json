@@ -112,6 +112,8 @@
     "submitting": "Envoi en cours…",
     "save_offline": "Enregistrer hors ligne",
     "submit": "Soumettre →",
+    "submit_error": "Échec de l'envoi — appuyez pour réessayer",
+    "retry": "Réessayer →",
     "yes": "Oui",
     "no": "Non"
   },
@@ -127,7 +129,7 @@
     "your_first": "Votre signalement est le premier dans cette zone",
     "area_count_48h": "{{count}} signalements dans votre zone au cours des 48 dernières heures",
     "report_another": "Signaler un autre",
-    "view_map": "Voir la carte (bientôt disponible)"
+    "view_map": "Voir la carte"
   },
   "community_map": {
     "title": "Carte communautaire de crise"
