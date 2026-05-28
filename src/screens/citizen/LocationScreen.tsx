@@ -224,7 +224,8 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
           <button
             type="button"
             onClick={onBack}
-            className="flex-1 py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
+            className="flex-1 rounded-xl border text-sm font-medium active:opacity-70"
+            style={{ minHeight: "var(--min-touch)", minWidth: 120, borderColor: "var(--color-border)", color: "var(--color-label)" }}
           >
             {t("common.back")}
           </button>
@@ -232,7 +233,8 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
             type="button"
             onClick={handleConfirm}
             disabled={!canConfirm}
-            className="flex-1 py-3 rounded-xl bg-accent text-white text-sm font-semibold disabled:opacity-40 active:opacity-80 transition-opacity"
+            className="flex-1 rounded-xl text-white text-sm font-semibold disabled:opacity-40 active:opacity-80 transition-opacity"
+            style={{ minHeight: "var(--min-touch)", minWidth: 120, backgroundColor: "var(--color-primary)" }}
           >
             {t("location.confirm")}
           </button>

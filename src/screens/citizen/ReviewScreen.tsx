@@ -56,8 +56,9 @@ function OfflineBanner({ text }: { text: string }) {
 function SummaryRow({ label: lbl, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div className="flex items-start justify-between gap-4 py-2.5 border-b border-border last:border-0">
-      <span className="text-xs text-text-muted uppercase tracking-wide shrink-0">{lbl}</span>
-      <span className="text-sm text-right" style={{ color: color ?? "var(--color-text-primary)" }}>{value}</span>
+      <span className="text-xs uppercase tracking-wide shrink-0"
+        style={{ fontSize: "var(--font-label)", color: "var(--color-label)" }}>{lbl}</span>
+      <span className="text-sm text-right" style={{ fontSize: "var(--font-value)", color: color ?? "var(--color-value)" }}>{value}</span>
     </div>
   );
 }
@@ -173,8 +174,8 @@ export default function ReviewScreen({ data, onSuccess, onBack, modeLabel, total
           type="button"
           onClick={onBack}
           disabled={submitState === "uploading"}
-          className="flex-1 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70 disabled:opacity-40"
-          style={{ padding: "12px 0" }}
+          className="flex-1 rounded-xl border text-sm font-medium active:opacity-70 disabled:opacity-40"
+          style={{ minHeight: "var(--min-touch)", minWidth: 120, borderColor: "var(--color-border)", color: "var(--color-label)" }}
         >
           {t("common.back")}
         </button>
@@ -182,8 +183,8 @@ export default function ReviewScreen({ data, onSuccess, onBack, modeLabel, total
           type="button"
           onClick={handleSubmit}
           disabled={submitState === "uploading"}
-          className="flex-1 rounded-xl bg-accent text-white text-sm font-semibold disabled:opacity-60 active:opacity-80 transition-opacity"
-          style={{ padding: "12px 0" }}
+          className="flex-1 rounded-xl text-white text-sm font-semibold disabled:opacity-60 active:opacity-80 transition-opacity"
+          style={{ minHeight: "var(--min-touch)", minWidth: 120, backgroundColor: "var(--color-primary)" }}
         >
           {submitState === "uploading"
             ? t("review.submitting")
