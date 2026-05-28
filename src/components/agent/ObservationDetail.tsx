@@ -3,15 +3,15 @@ import type { MappedObservation } from "../map/ClusterLayer";
 import type { DamageLevel } from "../../types/schema";
 
 const DAMAGE_COLOR: Record<DamageLevel, string> = {
-  minimal:  "#3ecf8e",
-  partial:  "#f59e0b",
-  complete: "#e84040",
+  minimal:  "var(--color-minimal)",
+  partial:  "var(--color-warning)",
+  complete: "var(--color-critical)",
 };
 
 function confidenceColor(c: number): string {
-  if (c < 50) return "#eab308";
-  if (c <= 80) return "#f59e0b";
-  return "#3ecf8e";
+  if (c < 50) return "var(--color-medium)";
+  if (c <= 80) return "var(--color-warning)";
+  return "var(--color-minimal)";
 }
 
 function formatTs(iso: string, locale: string): string {
@@ -28,9 +28,9 @@ function Badge({ text, color }: { text: string; color: string }) {
       borderRadius: 999,
       fontSize: 11,
       fontWeight: 600,
-      background: color + "22",
+      background: `color-mix(in srgb, ${color} 13%, transparent)`,
       color,
-      border: `1px solid ${color}55`,
+      border: `1px solid color-mix(in srgb, ${color} 33%, transparent)`,
       whiteSpace: "nowrap",
     }}>
       {text}
@@ -40,9 +40,9 @@ function Badge({ text, color }: { text: string; color: string }) {
 
 function Row({ label: lbl, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, padding: "9px 0", borderBottom: "1px solid #2a2a28" }}>
-      <span style={{ fontSize: 11, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", flexShrink: 0 }}>{lbl}</span>
-      <span style={{ fontSize: 12, color: "#f5f5f4", textAlign: "right" }}>{children}</span>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, padding: "9px 0", borderBottom: "1px solid var(--color-border)" }}>
+      <span style={{ fontSize: 11, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", flexShrink: 0 }}>{lbl}</span>
+      <span style={{ fontSize: 12, color: "var(--color-text-primary)", textAlign: "right" }}>{children}</span>
     </div>
   );
 }
@@ -70,8 +70,8 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
       right: 0,
       width: 300,
       height: "100%",
-      background: "#141413",
-      borderLeft: "1px solid #2a2a28",
+      background: "var(--color-surface-1)",
+      borderLeft: "1px solid var(--color-border)",
       display: "flex",
       flexDirection: "column",
       zIndex: 1000,
@@ -98,7 +98,7 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
               borderRadius: "50%",
               border: "none",
               background: "rgba(0,0,0,0.6)",
-              color: "#f5f5f4",
+              color: "var(--color-text-primary)",
               fontSize: 14,
               cursor: "pointer",
               display: "flex",
@@ -108,12 +108,12 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
           >✕</button>
         </div>
       ) : (
-        <div style={{ position: "relative", flexShrink: 0, height: 56, background: "#0a0a09", borderBottom: "1px solid #2a2a28", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0 12px" }}>
+        <div style={{ position: "relative", flexShrink: 0, height: 56, background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0 12px" }}>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            style={{ background: "none", border: "none", color: "#6b6b68", fontSize: 18, cursor: "pointer" }}
+            style={{ background: "none", border: "none", color: "var(--color-text-muted)", fontSize: 18, cursor: "pointer" }}
           >✕</button>
         </div>
       )}
@@ -122,19 +122,19 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
       <div style={{ flex: 1, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 0 }}>
 
         {/* Title + badges */}
-        <p style={{ fontSize: 14, fontWeight: 600, color: "#f5f5f4", margin: "0 0 10px", lineHeight: 1.4 }}>
+        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 10px", lineHeight: 1.4 }}>
           {obs.infrastructure_name}
         </p>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
           <Badge text={t(`enum.damage_${obs.damage_level}`)} color={DAMAGE_COLOR[obs.damage_level]} />
           <Badge text={t("observation.conf", { confidence: obs.confidence })} color={confidenceColor(obs.confidence)} />
           {obs.version_number !== undefined && (
-            <Badge text={t("observation.version_badge", { n: obs.version_number })} color="#6b6b68" />
+            <Badge text={t("observation.version_badge", { n: obs.version_number })} color="var(--color-text-muted)" />
           )}
         </div>
 
         {/* Fields */}
-        <div style={{ borderTop: "1px solid #2a2a28" }}>
+        <div style={{ borderTop: "1px solid var(--color-border)" }}>
           <Row label={t("observation.label_type")}>{t(`enum.infra_${obs.infrastructure_type}`)}</Row>
           <Row label={t("observation.label_source")}>{t(`enum.source_${obs.source}`)}</Row>
           {obs.debris_clearing_needed !== undefined && (
@@ -152,17 +152,17 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
 
         {/* Description */}
         {obs.infrastructure_description && (
-          <div style={{ margin: "12px 0 0", padding: "10px 12px", background: "#1e1e1c", borderRadius: 8, border: "1px solid #2a2a28" }}>
-            <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 5 }}>{t("observation.notes")}</p>
-            <p style={{ fontSize: 12, color: "#a8a8a5", lineHeight: 1.5, margin: 0 }}>{obs.infrastructure_description}</p>
+          <div style={{ margin: "12px 0 0", padding: "10px 12px", background: "var(--color-surface-2)", borderRadius: 8, border: "1px solid var(--color-border)" }}>
+            <p style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 5 }}>{t("observation.notes")}</p>
+            <p style={{ fontSize: 12, color: "var(--color-text-secondary)", lineHeight: 1.5, margin: 0 }}>{obs.infrastructure_description}</p>
           </div>
         )}
 
         {/* Modular fields */}
         {hasModular && (
           <div style={{ margin: "12px 0 0" }}>
-            <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{t("observation.field_data")}</p>
-            <div style={{ borderTop: "1px solid #2a2a28" }}>
+            <p style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{t("observation.field_data")}</p>
+            <div style={{ borderTop: "1px solid var(--color-border)" }}>
               {obs.modular_fields!.electricity_condition && (
                 <Row label={t("observation.label_electricity")}>{t(`enum.elec_${obs.modular_fields!.electricity_condition}`)}</Row>
               )}
@@ -177,13 +177,13 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
         )}
 
         {/* Version history */}
-        <div style={{ margin: "12px 0 0", padding: "10px 12px", background: "#1e1e1c", borderRadius: 8, border: "1px solid #2a2a28" }}>
-          <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{t("observation.version_history")}</p>
-          <p style={{ fontSize: 12, color: "#a8a8a5", margin: 0 }}>
+        <div style={{ margin: "12px 0 0", padding: "10px 12px", background: "var(--color-surface-2)", borderRadius: 8, border: "1px solid var(--color-border)" }}>
+          <p style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{t("observation.version_history")}</p>
+          <p style={{ fontSize: 12, color: "var(--color-text-secondary)", margin: 0 }}>
             {t("observation.version_current", { n: obs.version_number ?? 1 })}
           </p>
           {earlierCount > 0 && (
-            <p style={{ fontSize: 11, color: "#6b6b68", marginTop: 4 }}>
+            <p style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 4 }}>
               {t("observation.version_earlier", { count: earlierCount })}
             </p>
           )}

@@ -63,9 +63,9 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
           gap: 6,
           padding: "7px 12px",
           borderRadius: 8,
-          border: "1px solid #2a2a28",
-          background: open ? "#1e1e1c" : "transparent",
-          color: loading ? "#6b6b68" : "#a8a8a5",
+          border: "1px solid var(--color-border)",
+          background: open ? "var(--color-surface-2)" : "transparent",
+          color: loading ? "var(--color-text-muted)" : "var(--color-text-secondary)",
           fontSize: 12,
           cursor: loading ? "not-allowed" : "pointer",
           whiteSpace: "nowrap",
@@ -90,8 +90,8 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
           top: "calc(100% + 4px)",
           right: 0,
           width: 160,
-          background: "#1e1e1c",
-          border: "1px solid #2a2a28",
+          background: "var(--color-surface-2)",
+          border: "1px solid var(--color-border)",
           borderRadius: 8,
           overflow: "hidden",
           zIndex: 2000,
@@ -109,15 +109,15 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
                 textAlign: "left",
                 background: "none",
                 border: "none",
-                color: "#f5f5f4",
+                color: "var(--color-text-primary)",
                 fontSize: 12,
                 cursor: "pointer",
-                borderBottom: "1px solid #2a2a28",
+                borderBottom: "1px solid var(--color-border)",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a28")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-border)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
             >
-              <span style={{ color: "#6b6b68", fontSize: 10, display: "block", marginBottom: 1 }}>
+              <span style={{ color: "var(--color-text-muted)", fontSize: 10, display: "block", marginBottom: 1 }}>
                 {opt.ext}
               </span>
               {opt.label}
@@ -131,12 +131,12 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
           position: "absolute",
           top: "calc(100% + 4px)",
           right: 0,
-          background: "#e8404022",
-          border: "1px solid #e8404055",
+          background: "color-mix(in srgb, var(--color-critical) 13%, transparent)",
+          border: "1px solid color-mix(in srgb, var(--color-critical) 33%, transparent)",
           borderRadius: 6,
           padding: "5px 10px",
           fontSize: 11,
-          color: "#e84040",
+          color: "var(--color-critical)",
           whiteSpace: "nowrap",
           zIndex: 2000,
         }}>

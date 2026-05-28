@@ -2,10 +2,12 @@ import { Marker } from "react-leaflet";
 import L from "leaflet";
 import type { DamageLevel } from "../../types/schema";
 
+// Hex literals are required here: these are injected into a Leaflet DivIcon SVG string
+// outside the CSS cascade, so CSS variables cannot be resolved.
 const PIN_COLORS: Record<DamageLevel, string> = {
-  minimal:  "#3ecf8e",
-  partial:  "#f59e0b",
-  complete: "#e84040",
+  minimal:  "#3ecf8e", // --color-minimal
+  partial:  "#f59e0b", // --color-warning
+  complete: "#e84040", // --color-critical
 };
 
 function makeIcon(color: string): L.DivIcon {

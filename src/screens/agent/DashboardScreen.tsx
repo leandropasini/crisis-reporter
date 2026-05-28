@@ -178,7 +178,7 @@ export default function DashboardScreen({
   }, { minimal: 0, partial: 0, complete: 0 });
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#0a0a09", color: "#f5f5f4" }}>
+    <div style={{ display: "flex", height: "100vh", background: "var(--color-surface)", color: "var(--color-text-primary)" }}>
       <FilterPanel
         filters={filters}
         totalCount={observations.length}
@@ -206,12 +206,12 @@ export default function DashboardScreen({
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 1000,
-            background: "#1e1e1c",
-            border: "1px solid #2a2a28",
+            background: "var(--color-surface-2)",
+            border: "1px solid var(--color-border)",
             borderRadius: 8,
             padding: "6px 14px",
             fontSize: 12,
-            color: "#a8a8a5",
+            color: "var(--color-text-secondary)",
           }}>
             {t("dashboard.loading")}
           </div>

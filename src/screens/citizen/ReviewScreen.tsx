@@ -22,9 +22,9 @@ interface Props {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const DAMAGE_COLORS: Record<string, string> = {
-  minimal:  "#3ecf8e",
-  partial:  "#f59e0b",
-  complete: "#e84040",
+  minimal:  "var(--color-minimal)",
+  partial:  "var(--color-warning)",
+  complete: "var(--color-critical)",
 };
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -41,9 +41,9 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
 function OfflineBanner({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
-      style={{ backgroundColor: "#1a1a18", border: "1px solid #2a2a28" }}>
+      style={{ backgroundColor: "var(--color-surface-1)", border: "1px solid var(--color-border)" }}>
       {/* Cloud-off icon */}
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#a8a8a5" strokeWidth="1.6">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-text-secondary)" strokeWidth="1.6">
         <path d="M4 14a4 4 0 0 1-.5-8A5 5 0 0 1 14.5 8H15a3 3 0 0 1 2.5 4.5M3 3l14 14" strokeLinecap="round"/>
       </svg>
       <p className="text-sm text-text-secondary">{text}</p>
@@ -55,7 +55,7 @@ function SummaryRow({ label: lbl, value, color }: { label: string; value: string
   return (
     <div className="flex items-start justify-between gap-4 py-2.5 border-b border-border last:border-0">
       <span className="text-xs text-text-muted uppercase tracking-wide shrink-0">{lbl}</span>
-      <span className="text-sm text-right" style={{ color: color ?? "#f5f5f4" }}>{value}</span>
+      <span className="text-sm text-right" style={{ color: color ?? "var(--color-text-primary)" }}>{value}</span>
     </div>
   );
 }

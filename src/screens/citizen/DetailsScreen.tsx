@@ -55,9 +55,9 @@ function SingleSelect<T extends string>({
             onClick={() => onChange(opt.value)}
             className="px-3 py-1.5 rounded-full border text-xs font-medium transition-all active:scale-95"
             style={{
-              borderColor: selected ? "#e86c2c" : "#2a2a28",
-              backgroundColor: selected ? "#e86c2c22" : "#1e1e1c",
-              color: selected ? "#e86c2c" : "#a8a8a5",
+              borderColor: selected ? "var(--color-accent)" : "var(--color-border)",
+              backgroundColor: selected ? "color-mix(in srgb, var(--color-accent) 13%, transparent)" : "var(--color-surface-2)",
+              color: selected ? "var(--color-accent)" : "var(--color-text-secondary)",
             }}
           >
             {opt.label}
@@ -93,9 +93,9 @@ function MultiSelect({
             onClick={() => toggle(opt.value)}
             className="px-3 py-1.5 rounded-full border text-xs font-medium transition-all active:scale-95"
             style={{
-              borderColor: selected ? "#3ecf8e" : "#2a2a28",
-              backgroundColor: selected ? "#3ecf8e22" : "#1e1e1c",
-              color: selected ? "#3ecf8e" : "#a8a8a5",
+              borderColor: selected ? "var(--color-minimal)" : "var(--color-border)",
+              backgroundColor: selected ? "color-mix(in srgb, var(--color-minimal) 13%, transparent)" : "var(--color-surface-2)",
+              color: selected ? "var(--color-minimal)" : "var(--color-text-secondary)",
             }}
           >
             {opt.label}
@@ -181,7 +181,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
             onChange={(e) => setName(e.target.value)}
             placeholder={t("details.name_placeholder")}
             className="w-full bg-surface-2 border rounded-lg px-3 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none transition-colors"
-            style={{ borderColor: name.trim() ? "#e86c2c" : "#2a2a28" }}
+            style={{ borderColor: name.trim() ? "var(--color-accent)" : "var(--color-border)" }}
           />
           {!name.trim() && (
             <p className="text-xs text-text-muted mt-1.5">{t("details.name_required")}</p>

@@ -19,7 +19,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
 
 // Four L-shaped corner brackets that frame the viewfinder
 function ViewfinderCorners() {
-  const corner = "absolute w-8 h-8 border-[#f5a623]";
+  const corner = "absolute w-8 h-8 border-warning";
   const size = "border-[3px]";
   return (
     <>

@@ -18,10 +18,11 @@ export interface MappedObservation extends PopupObservation {
   crisis_nature?: CrisisNature;
 }
 
+// Hex literals required: used inside Leaflet DivIcon SVG strings (outside CSS cascade)
 const PIN_COLORS: Record<DamageLevel, string> = {
-  minimal:  "#3ecf8e",
-  partial:  "#f59e0b",
-  complete: "#e84040",
+  minimal:  "#3ecf8e", // --color-minimal
+  partial:  "#f59e0b", // --color-warning
+  complete: "#e84040", // --color-critical
 };
 
 const SEVERITY: Record<DamageLevel, number> = {

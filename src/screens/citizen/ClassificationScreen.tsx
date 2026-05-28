@@ -153,9 +153,9 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
   }
 
   const DAMAGE_OPTIONS: { value: DamageLevel; tKey: string; variant: "intact" | "cracked" | "destroyed"; color: string }[] = [
-    { value: "minimal",  tKey: "classification.damage_minimal",  variant: "intact",    color: "#3ecf8e" },
-    { value: "partial",  tKey: "classification.damage_partial",   variant: "cracked",   color: "#f59e0b" },
-    { value: "complete", tKey: "classification.damage_complete",  variant: "destroyed", color: "#e84040" },
+    { value: "minimal",  tKey: "classification.damage_minimal",  variant: "intact",    color: "var(--color-minimal)" },
+    { value: "partial",  tKey: "classification.damage_partial",   variant: "cracked",   color: "var(--color-warning)" },
+    { value: "complete", tKey: "classification.damage_complete",  variant: "destroyed", color: "var(--color-critical)" },
   ];
 
   const INFRA_OPTIONS: { value: InfrastructureType; tKey: string }[] = [
@@ -221,12 +221,12 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                   onClick={() => setDamageLevel(opt.value)}
                   className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border transition-all active:scale-[0.99]"
                   style={{
-                    borderColor: selected ? opt.color : "#2a2a28",
-                    backgroundColor: selected ? `${opt.color}18` : "#1e1e1c",
-                    color: selected ? opt.color : "#a8a8a5",
+                    borderColor: selected ? opt.color : "var(--color-border)",
+                    backgroundColor: selected ? `color-mix(in srgb, ${opt.color} 9%, transparent)` : "var(--color-surface-2)",
+                    color: selected ? opt.color : "var(--color-text-secondary)",
                   }}
                 >
-                  <span style={{ color: selected ? opt.color : "#6b6b68" }}>
+                  <span style={{ color: selected ? opt.color : "var(--color-text-muted)" }}>
                     <HouseIcon variant={opt.variant} />
                   </span>
                   <span className="text-sm font-medium text-left">{t(opt.tKey)}</span>
@@ -256,14 +256,14 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                   onClick={() => setInfraType(opt.value)}
                   className="flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all active:scale-95"
                   style={{
-                    borderColor: selected ? "#e86c2c" : "#2a2a28",
-                    backgroundColor: selected ? "#e86c2c18" : "#1e1e1c",
-                    color: selected ? "#e86c2c" : "#6b6b68",
+                    borderColor: selected ? "var(--color-accent)" : "var(--color-border)",
+                    backgroundColor: selected ? "color-mix(in srgb, var(--color-accent) 9%, transparent)" : "var(--color-surface-2)",
+                    color: selected ? "var(--color-accent)" : "var(--color-text-muted)",
                   }}
                 >
                   <InfraIcon type={opt.value} />
                   <span className="text-[10px] leading-tight text-center"
-                    style={{ color: selected ? "#f5f5f4" : "#6b6b68" }}>
+                    style={{ color: selected ? "var(--color-text-primary)" : "var(--color-text-muted)" }}>
                     {t(opt.tKey)}
                   </span>
                 </button>
@@ -299,9 +299,9 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                         onClick={() => setSubtype(s.value)}
                         className="px-3 py-1.5 rounded-full border text-xs font-medium transition-all active:scale-95"
                         style={{
-                          borderColor: selected ? "#f59e0b" : "#2a2a28",
-                          backgroundColor: selected ? "#f59e0b22" : "#1e1e1c",
-                          color: selected ? "#f59e0b" : "#a8a8a5",
+                          borderColor: selected ? "var(--color-warning)" : "var(--color-border)",
+                          backgroundColor: selected ? "color-mix(in srgb, var(--color-warning) 13%, transparent)" : "var(--color-surface-2)",
+                          color: selected ? "var(--color-warning)" : "var(--color-text-secondary)",
                         }}
                       >
                         {t(s.tKey)}
@@ -327,9 +327,9 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                   onClick={() => setDebrisNeeded(val)}
                   className="flex-1 py-2.5 rounded-xl border text-sm font-medium transition-all active:scale-[0.98]"
                   style={{
-                    borderColor: selected ? "#e86c2c" : "#2a2a28",
-                    backgroundColor: selected ? "#e86c2c18" : "#1e1e1c",
-                    color: selected ? "#e86c2c" : "#a8a8a5",
+                    borderColor: selected ? "var(--color-accent)" : "var(--color-border)",
+                    backgroundColor: selected ? "color-mix(in srgb, var(--color-accent) 9%, transparent)" : "var(--color-surface-2)",
+                    color: selected ? "var(--color-accent)" : "var(--color-text-secondary)",
                   }}
                 >
                   {val ? t("review.yes") : t("review.no")}
