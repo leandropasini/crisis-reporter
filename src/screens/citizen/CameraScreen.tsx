@@ -121,14 +121,16 @@ export default function CameraScreen({ onCapture, modeLabel, totalSteps = 5 }: P
             <button
               type="button"
               onClick={handleRetake}
-              className="flex-1 py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
+              className="flex-1 rounded-xl border text-sm font-medium active:opacity-70"
+              style={{ minHeight: "var(--min-touch)", minWidth: 120, borderColor: "var(--color-border)", color: "var(--color-label)" }}
             >
               {t("camera.retake")}
             </button>
             <button
               type="button"
               onClick={handleNext}
-              className="flex-1 py-3 rounded-xl bg-accent text-white text-sm font-semibold active:opacity-80"
+              className="flex-1 rounded-xl text-white text-sm font-semibold active:opacity-80"
+              style={{ minHeight: "var(--min-touch)", minWidth: 120, backgroundColor: "var(--color-primary)" }}
             >
               {t("camera.use_photo")}
             </button>

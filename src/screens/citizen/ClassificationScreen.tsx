@@ -113,7 +113,12 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">{children}</p>;
+  return (
+    <p className="text-xs font-semibold uppercase tracking-wider mb-3"
+      style={{ fontSize: "var(--font-label)", color: "var(--color-label)" }}>
+      {children}
+    </p>
+  );
 }
 
 function subtypeToNature(sub: CrisisSubtype): CrisisNature {
@@ -258,16 +263,19 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                   key={opt.value}
                   type="button"
                   onClick={() => setInfraType(opt.value)}
-                  className="flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all active:scale-95"
+                  className="flex flex-col items-center gap-1.5 rounded-xl border transition-all active:scale-95"
                   style={{
-                    borderColor: selected ? "var(--color-accent)" : "var(--color-border)",
-                    backgroundColor: selected ? "color-mix(in srgb, var(--color-accent) 9%, transparent)" : "var(--color-surface-2)",
-                    color: selected ? "var(--color-accent)" : "var(--color-text-muted)",
+                    minHeight: "var(--min-touch)",
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    borderColor: selected ? "var(--color-primary)" : "var(--color-border)",
+                    backgroundColor: selected ? "color-mix(in srgb, var(--color-primary) 9%, var(--color-surface-2))" : "var(--color-surface-2)",
+                    color: selected ? "var(--color-primary)" : "var(--color-label)",
                   }}
                 >
                   <InfraIcon type={opt.value} />
                   <span className="text-[10px] leading-tight text-center"
-                    style={{ color: selected ? "var(--color-text-primary)" : "var(--color-text-muted)" }}>
+                    style={{ color: selected ? "var(--color-value)" : "var(--color-label)" }}>
                     {t(opt.tKey)}
                   </span>
                 </button>
@@ -292,7 +300,7 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
           <div className="space-y-3">
             {NATURE_GROUPS.map((group) => (
               <div key={group.nature}>
-                <p className="text-[11px] text-text-muted uppercase tracking-wide mb-2">{t(group.tKey)}</p>
+                <p className="text-[11px] uppercase tracking-wide mb-2" style={{ color: "var(--color-label)" }}>{t(group.tKey)}</p>
                 <div className="flex flex-wrap gap-2">
                   {group.subtypes.map((s) => {
                     const selected = subtype === s.value;
@@ -301,11 +309,12 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                         key={s.value}
                         type="button"
                         onClick={() => setSubtype(s.value)}
-                        className="px-3 py-1.5 rounded-full border text-xs font-medium transition-all active:scale-95"
+                        className="px-4 rounded-full border text-xs font-medium transition-all active:scale-95"
                         style={{
+                          minHeight: "var(--min-touch)",
                           borderColor: selected ? "var(--color-warning)" : "var(--color-border)",
                           backgroundColor: selected ? "color-mix(in srgb, var(--color-warning) 13%, transparent)" : "var(--color-surface-2)",
-                          color: selected ? "var(--color-warning)" : "var(--color-text-secondary)",
+                          color: selected ? "var(--color-warning)" : "var(--color-value)",
                         }}
                       >
                         {t(s.tKey)}
@@ -329,11 +338,12 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
                   key={String(val)}
                   type="button"
                   onClick={() => setDebrisNeeded(val)}
-                  className="flex-1 py-2.5 rounded-xl border text-sm font-medium transition-all active:scale-[0.98]"
+                  className="flex-1 rounded-xl border text-sm font-medium transition-all active:scale-[0.98]"
                   style={{
-                    borderColor: selected ? "var(--color-accent)" : "var(--color-border)",
-                    backgroundColor: selected ? "color-mix(in srgb, var(--color-accent) 9%, transparent)" : "var(--color-surface-2)",
-                    color: selected ? "var(--color-accent)" : "var(--color-text-secondary)",
+                    minHeight: "var(--min-touch)",
+                    borderColor: selected ? "var(--color-primary)" : "var(--color-border)",
+                    backgroundColor: selected ? "color-mix(in srgb, var(--color-primary) 9%, var(--color-surface-2))" : "var(--color-surface-2)",
+                    color: selected ? "var(--color-primary)" : "var(--color-value)",
                   }}
                 >
                   {val ? t("review.yes") : t("review.no")}
@@ -356,7 +366,8 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
+          className="flex-1 rounded-xl border text-sm font-medium active:opacity-70"
+          style={{ minHeight: "var(--min-touch)", minWidth: 120, borderColor: "var(--color-border)", color: "var(--color-label)" }}
         >
           {t("common.back")}
         </button>
@@ -364,7 +375,8 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
           type="button"
           onClick={handleConfirm}
           disabled={!canAdvance}
-          className="flex-1 py-3 rounded-xl bg-accent text-white text-sm font-semibold disabled:opacity-40 active:opacity-80 transition-opacity"
+          className="flex-1 rounded-xl text-white text-sm font-semibold disabled:opacity-40 active:opacity-80 transition-opacity"
+          style={{ minHeight: "var(--min-touch)", minWidth: 120, backgroundColor: "var(--color-primary)" }}
         >
           {t("common.next")}
         </button>
