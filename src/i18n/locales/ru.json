@@ -141,6 +141,8 @@
     "app_name": "Crisis Reporter",
     "title": "Панель управления",
     "report_mode": "Режим отчёта",
+    "filters_open": "Фильтры",
+    "filters_close": "Закрыть фильтры",
     "total_reports": "Всего отчётов",
     "map_view": "Вид карты",
     "map_clusters": "кластеры",

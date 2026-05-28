@@ -115,6 +115,8 @@ export default function DashboardScreen({
   const [loading, setLoading] = useState(true);
   const { mode, setMode } = useCrisisMode();
   const [selectedObs, setSelectedObs] = useState<MappedObservation | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [filters, setFilters] = useState<FilterState>({
     damageLevels: new Set<DamageLevel>(DAMAGE_LEVELS),
     infraType: "all",
@@ -154,6 +156,12 @@ export default function DashboardScreen({
     fetchObservations();
   }, [crisisId]);
 
+  useEffect(() => {
+    function onResize() { setIsMobile(window.innerWidth < 768); }
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   function toggleDamage(level: DamageLevel) {
     setFilters((prev) => {
       const next = new Set(prev.damageLevels);
@@ -185,112 +193,181 @@ export default function DashboardScreen({
     { value: "contextual", label: "Contextual" },
   ];
 
+  const exportSlot = (
+    <ExportButton
+      crisisId={crisisId}
+      filters={{ damageLevels: filters.damageLevels, infraType: filters.infraType }}
+      rows={filtered}
+    />
+  );
+
+  const filterPanel = (
+    <FilterPanel
+      filters={filters}
+      totalCount={observations.length}
+      filteredCount={filtered.length}
+      loading={loading}
+      damageCounts={damageCounts}
+      onToggleDamage={toggleDamage}
+      onInfraChange={(v) => setFilters((f) => ({ ...f, infraType: v as InfrastructureType | "all" }))}
+      onSourceChange={(v) => setFilters((f) => ({ ...f, source: v as ObservationSource | "all" }))}
+      onMapModeChange={(v: MapMode) => setFilters((f) => ({ ...f, mapMode: v }))}
+      exportSlot={exportSlot}
+    />
+  );
+
+  const modeSelector = (
+    <div style={{ padding: "14px 16px 12px", borderBottom: "1px solid var(--color-border)" }}>
+      <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--color-label)", marginBottom: 8 }}>
+        {t("dashboard.report_mode")}
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {MODE_OPTIONS.map((opt) => {
+          const active = mode === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setMode(opt.value)}
+              style={{
+                minHeight: "var(--min-touch)",
+                padding: "0 14px",
+                borderRadius: 10,
+                border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
+                backgroundColor: active
+                  ? "color-mix(in srgb, var(--color-primary) 12%, var(--color-surface-2))"
+                  : "var(--color-surface-2)",
+                color: active ? "var(--color-primary)" : "var(--color-label)",
+                textAlign: "left",
+                cursor: "pointer",
+                transition: "border-color 0.15s, background-color 0.15s",
+              }}
+            >
+              <span style={{ display: "block", fontWeight: 600, fontSize: 12 }}>{opt.label}</span>
+              <span style={{ fontSize: 11, opacity: 0.7 }}>{MODE_META[opt.value].totalSteps} steps</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const mapArea = (
+    <main style={{ flex: 1, position: "relative", height: "100%" }}>
+      {loading && (
+        <div style={{
+          position: "absolute",
+          top: 12,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1000,
+          background: "var(--color-surface-2)",
+          border: "1px solid var(--color-border)",
+          borderRadius: 8,
+          padding: "6px 14px",
+          fontSize: 12,
+          color: "var(--color-text-secondary)",
+        }}>
+          {t("dashboard.loading")}
+        </div>
+      )}
+      <MapContainer
+        center={center}
+        zoom={zoom}
+        style={{ height: "100%", width: "100%" }}
+        zoomControl={false}
+      >
+        <TileLayer
+          url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
+          maxZoom={20}
+        />
+        {!loading && filters.mapMode === "clusters" && (
+          <ClusterLayer observations={filtered} onSelect={setSelectedObs} />
+        )}
+        {!loading && filters.mapMode === "heatmap" && (
+          <HeatmapLayer points={filtered} />
+        )}
+      </MapContainer>
+
+      {selectedObs && (
+        <ObservationDetail
+          observation={selectedObs}
+          onClose={() => setSelectedObs(null)}
+        />
+      )}
+    </main>
+  );
+
+  if (isMobile) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-surface)", color: "var(--color-text-primary)" }}>
+
+        {/* Collapsible accordion (above map) */}
+        {filtersOpen && (
+          <div style={{
+            overflowY: "auto",
+            maxHeight: "60vh",
+            borderBottom: "1px solid var(--color-border)",
+            background: "var(--color-surface)",
+          }}>
+            {modeSelector}
+            {filterPanel}
+          </div>
+        )}
+
+        {/* Map takes remaining space */}
+        <div style={{ flex: 1, position: "relative" }}>
+          {mapArea}
+
+          {/* Floating "Filters" button */}
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((o) => !o)}
+            style={{
+              position: "absolute",
+              bottom: 24,
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 1001,
+              minHeight: "var(--min-touch)",
+              padding: "0 24px",
+              borderRadius: 24,
+              border: `1px solid ${filtersOpen ? "var(--color-primary)" : "var(--color-border)"}`,
+              backgroundColor: filtersOpen
+                ? "color-mix(in srgb, var(--color-primary) 15%, var(--color-surface-2))"
+                : "var(--color-surface-2)",
+              color: filtersOpen ? "var(--color-primary)" : "var(--color-value)",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M2 4h12M4 8h8M6 12h4" strokeLinecap="round" />
+            </svg>
+            {filtersOpen ? t("dashboard.filters_close") : t("dashboard.filters_open")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout
   return (
     <div style={{ display: "flex", height: "100vh", background: "var(--color-surface)", color: "var(--color-text-primary)" }}>
 
       {/* Left sidebar: mode selector + filter panel */}
       <div style={{ display: "flex", flexDirection: "column", flexShrink: 0, overflowY: "auto" }}>
-        {/* Mode selector */}
-        <div style={{ padding: "14px 16px 12px", borderBottom: "1px solid var(--color-border)", borderRight: "1px solid var(--color-border)" }}>
-          <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--color-label)", marginBottom: 8 }}>
-            {t("dashboard.report_mode")}
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {MODE_OPTIONS.map((opt) => {
-              const active = mode === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setMode(opt.value)}
-                  style={{
-                    minHeight: "var(--min-touch)",
-                    padding: "0 14px",
-                    borderRadius: 10,
-                    border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
-                    backgroundColor: active
-                      ? "color-mix(in srgb, var(--color-primary) 12%, var(--color-surface-2))"
-                      : "var(--color-surface-2)",
-                    color: active ? "var(--color-primary)" : "var(--color-label)",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    transition: "border-color 0.15s, background-color 0.15s",
-                  }}
-                >
-                  <span style={{ display: "block", fontWeight: 600, fontSize: 12 }}>{opt.label}</span>
-                  <span style={{ fontSize: 11, opacity: 0.7 }}>{MODE_META[opt.value].totalSteps} steps</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Filter panel */}
-        <FilterPanel
-          filters={filters}
-          totalCount={observations.length}
-          filteredCount={filtered.length}
-          loading={loading}
-          damageCounts={damageCounts}
-          onToggleDamage={toggleDamage}
-          onInfraChange={(v) => setFilters((f) => ({ ...f, infraType: v as InfrastructureType | "all" }))}
-          onSourceChange={(v) => setFilters((f) => ({ ...f, source: v as ObservationSource | "all" }))}
-          onMapModeChange={(v: MapMode) => setFilters((f) => ({ ...f, mapMode: v }))}
-          exportSlot={
-            <ExportButton
-              crisisId={crisisId}
-              filters={{ damageLevels: filters.damageLevels, infraType: filters.infraType }}
-              rows={filtered}
-            />
-          }
-        />
+        {modeSelector}
+        {filterPanel}
       </div>
 
-      {/* Map area */}
-      <main style={{ flex: 1, position: "relative" }}>
-        {loading && (
-          <div style={{
-            position: "absolute",
-            top: 12,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 1000,
-            background: "var(--color-surface-2)",
-            border: "1px solid var(--color-border)",
-            borderRadius: 8,
-            padding: "6px 14px",
-            fontSize: 12,
-            color: "var(--color-text-secondary)",
-          }}>
-            {t("dashboard.loading")}
-          </div>
-        )}
-        <MapContainer
-          center={center}
-          zoom={zoom}
-          style={{ height: "100%", width: "100%" }}
-          zoomControl={false}
-        >
-          <TileLayer
-            url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
-            maxZoom={20}
-          />
-          {!loading && filters.mapMode === "clusters" && (
-            <ClusterLayer observations={filtered} onSelect={setSelectedObs} />
-          )}
-          {!loading && filters.mapMode === "heatmap" && (
-            <HeatmapLayer points={filtered} />
-          )}
-        </MapContainer>
-
-        {selectedObs && (
-          <ObservationDetail
-            observation={selectedObs}
-            onClose={() => setSelectedObs(null)}
-          />
-        )}
-      </main>
+      {mapArea}
     </div>
   );
 }

@@ -139,6 +139,8 @@
     "app_name": "危机报告系统",
     "title": "工作人员仪表板",
     "report_mode": "报告模式",
+    "filters_open": "筛选",
+    "filters_close": "关闭筛选",
     "total_reports": "报告总数",
     "map_view": "地图视图",
     "map_clusters": "聚合",

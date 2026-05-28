@@ -31,12 +31,15 @@ const SEVERITY: Record<DamageLevel, number> = {
 
 function pinIcon(damage: DamageLevel): L.DivIcon {
   const color = PIN_COLORS[damage];
+  const pulseRing = damage === "complete"
+    ? `<div class="damage-complete-ring"></div>`
+    : "";
   return L.divIcon({
-    html: `<svg width="28" height="36" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
+    html: `<div style="position:relative;display:inline-block">${pulseRing}<svg width="28" height="36" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
       <path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z"
         fill="${color}" stroke="rgba(0,0,0,0.4)" stroke-width="1.5"/>
       <circle cx="14" cy="14" r="5" fill="white" fill-opacity="0.9"/>
-    </svg>`,
+    </svg></div>`,
     className: `damage-${damage}`,
     iconSize: [28, 36],
     iconAnchor: [14, 36],
