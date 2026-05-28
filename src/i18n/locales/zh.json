@@ -138,6 +138,7 @@
     "loading": "正在加载观测数据…",
     "app_name": "危机报告系统",
     "title": "工作人员仪表板",
+    "report_mode": "报告模式",
     "total_reports": "报告总数",
     "map_view": "地图视图",
     "map_clusters": "聚合",

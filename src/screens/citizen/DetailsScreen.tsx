@@ -12,6 +12,8 @@ interface Props {
   modularFieldsEnabled?: boolean;
   onConfirm: (data: DetailsData) => void;
   onBack: () => void;
+  modeLabel?: string;
+  totalSteps?: number;
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -108,7 +110,7 @@ function MultiSelect({
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm, onBack }: Props) {
+export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
   const { t } = useTranslation();
   const [name, setName]         = useState("");
   const [description, setDesc]  = useState("");
@@ -165,8 +167,10 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
 
       {/* Header */}
       <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
-        <ProgressBar step={4} total={5} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">{t("details.step")}</p>
+        <ProgressBar step={4} total={totalSteps} />
+        <p className="text-xs text-text-muted text-center tracking-widest uppercase">
+          {modeLabel ? `${modeLabel} — STEP 4 OF ${totalSteps}` : t("details.step")}
+        </p>
       </div>
 
       {/* Scrollable body */}

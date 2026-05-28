@@ -140,6 +140,7 @@
     "loading": "Загрузка наблюдений…",
     "app_name": "Crisis Reporter",
     "title": "Панель управления",
+    "report_mode": "Режим отчёта",
     "total_reports": "Всего отчётов",
     "map_view": "Вид карты",
     "map_clusters": "кластеры",

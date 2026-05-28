@@ -1,5 +1,12 @@
 // Mirrors SQL enums from 001_enums.sql — keep in sync
 
+export const CrisisMode = {
+  RAPID:       "rapid",
+  FULL:        "full",
+  CONTEXTUAL:  "contextual",
+} as const;
+export type CrisisMode = (typeof CrisisMode)[keyof typeof CrisisMode];
+
 export const DamageLevel = {
   MINIMAL:  "minimal",
   PARTIAL:  "partial",

@@ -138,6 +138,7 @@
     "loading": "Cargando observaciones…",
     "app_name": "Crisis Reporter",
     "title": "Panel de agente",
+    "report_mode": "Modo de informe",
     "total_reports": "Total de informes",
     "map_view": "Vista de mapa",
     "map_clusters": "agrupaciones",

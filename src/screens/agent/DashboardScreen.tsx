@@ -7,8 +7,9 @@ import HeatmapLayer from "../../components/map/HeatmapLayer";
 import FilterPanel, { type FilterState, type MapMode } from "../../components/agent/FilterPanel";
 import ObservationDetail from "../../components/agent/ObservationDetail";
 import ExportButton from "../../components/agent/ExportButton";
+import { useCrisisMode, MODE_META } from "../../contexts/CrisisModeContext";
 import "../../components/map/map.css";
-import type { DamageLevel, InfrastructureType, ObservationSource } from "../../types/schema";
+import type { CrisisMode, DamageLevel, InfrastructureType, ObservationSource } from "../../types/schema";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -112,6 +113,7 @@ export default function DashboardScreen({
   const { t } = useTranslation();
   const [observations, setObservations] = useState<MappedObservation[]>([]);
   const [loading, setLoading] = useState(true);
+  const { mode, setMode } = useCrisisMode();
   const [selectedObs, setSelectedObs] = useState<MappedObservation | null>(null);
   const [filters, setFilters] = useState<FilterState>({
     damageLevels: new Set<DamageLevel>(DAMAGE_LEVELS),
@@ -177,27 +179,74 @@ export default function DashboardScreen({
     return acc;
   }, { minimal: 0, partial: 0, complete: 0 });
 
+  const MODE_OPTIONS: { value: CrisisMode; label: string }[] = [
+    { value: "rapid",      label: "Rapid" },
+    { value: "full",       label: "Full" },
+    { value: "contextual", label: "Contextual" },
+  ];
+
   return (
     <div style={{ display: "flex", height: "100vh", background: "var(--color-surface)", color: "var(--color-text-primary)" }}>
-      <FilterPanel
-        filters={filters}
-        totalCount={observations.length}
-        filteredCount={filtered.length}
-        loading={loading}
-        damageCounts={damageCounts}
-        onToggleDamage={toggleDamage}
-        onInfraChange={(v) => setFilters((f) => ({ ...f, infraType: v as InfrastructureType | "all" }))}
-        onSourceChange={(v) => setFilters((f) => ({ ...f, source: v as ObservationSource | "all" }))}
-        onMapModeChange={(v: MapMode) => setFilters((f) => ({ ...f, mapMode: v }))}
-        exportSlot={
-          <ExportButton
-            crisisId={crisisId}
-            filters={{ damageLevels: filters.damageLevels, infraType: filters.infraType }}
-            rows={filtered}
-          />
-        }
-      />
 
+      {/* Left sidebar: mode selector + filter panel */}
+      <div style={{ display: "flex", flexDirection: "column", flexShrink: 0, overflowY: "auto" }}>
+        {/* Mode selector */}
+        <div style={{ padding: "14px 16px 12px", borderBottom: "1px solid var(--color-border)", borderRight: "1px solid var(--color-border)" }}>
+          <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--color-label)", marginBottom: 8 }}>
+            {t("dashboard.report_mode")}
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {MODE_OPTIONS.map((opt) => {
+              const active = mode === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setMode(opt.value)}
+                  style={{
+                    minHeight: "var(--min-touch)",
+                    padding: "0 14px",
+                    borderRadius: 10,
+                    border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
+                    backgroundColor: active
+                      ? "color-mix(in srgb, var(--color-primary) 12%, var(--color-surface-2))"
+                      : "var(--color-surface-2)",
+                    color: active ? "var(--color-primary)" : "var(--color-label)",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    transition: "border-color 0.15s, background-color 0.15s",
+                  }}
+                >
+                  <span style={{ display: "block", fontWeight: 600, fontSize: 12 }}>{opt.label}</span>
+                  <span style={{ fontSize: 11, opacity: 0.7 }}>{MODE_META[opt.value].totalSteps} steps</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Filter panel */}
+        <FilterPanel
+          filters={filters}
+          totalCount={observations.length}
+          filteredCount={filtered.length}
+          loading={loading}
+          damageCounts={damageCounts}
+          onToggleDamage={toggleDamage}
+          onInfraChange={(v) => setFilters((f) => ({ ...f, infraType: v as InfrastructureType | "all" }))}
+          onSourceChange={(v) => setFilters((f) => ({ ...f, source: v as ObservationSource | "all" }))}
+          onMapModeChange={(v: MapMode) => setFilters((f) => ({ ...f, mapMode: v }))}
+          exportSlot={
+            <ExportButton
+              crisisId={crisisId}
+              filters={{ damageLevels: filters.damageLevels, infraType: filters.infraType }}
+              rows={filtered}
+            />
+          }
+        />
+      </div>
+
+      {/* Map area */}
       <main style={{ flex: 1, position: "relative" }}>
         {loading && (
           <div style={{

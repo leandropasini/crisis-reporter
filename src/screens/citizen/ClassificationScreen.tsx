@@ -17,6 +17,8 @@ interface Props {
   defaultSubtype?: CrisisSubtype;
   onConfirm: (data: ClassificationData) => void;
   onBack: () => void;
+  modeLabel?: string;
+  totalSteps?: number;
 }
 
 // ── Icons ────────────────────────────────────────────────────────────────────
@@ -124,7 +126,7 @@ function subtypeToNature(sub: CrisisSubtype): CrisisNature {
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack }: Props) {
+export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
   const { t } = useTranslation();
   const [damageLevel, setDamageLevel] = useState<DamageLevel | null>(null);
   const [infraType, setInfraType] = useState<InfrastructureType | null>(null);
@@ -201,8 +203,10 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
 
       {/* Header — fixed */}
       <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
-        <ProgressBar step={3} total={5} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">{t("classification.step")}</p>
+        <ProgressBar step={3} total={totalSteps} />
+        <p className="text-xs text-text-muted text-center tracking-widest uppercase">
+          {modeLabel ? `${modeLabel} — STEP 3 OF ${totalSteps}` : t("classification.step")}
+        </p>
       </div>
 
       {/* Scrollable body */}
