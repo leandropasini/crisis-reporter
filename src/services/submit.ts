@@ -49,7 +49,11 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
   const localId = crypto.randomUUID();
 
   if (!navigator.onLine) {
-    await queue.enqueue(input);
+    try {
+      await queue.enqueue(input);
+    } catch {
+      // IndexedDB unavailable — still return queued result so UI can proceed
+    }
     return { success: false, queued: true, id: localId };
   }
 
