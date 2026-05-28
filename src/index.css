@@ -14,7 +14,7 @@
   --color-label: rgba(255, 255, 255, 0.7);   /* field labels — WCAG AA on #0a0a09 */
   --color-value: #FFFFFF;                      /* values & selected options */
   --color-primary: #e86c2c;                   /* brand accent (alias of --color-accent) */
-  --color-warning: #f59e0b;                   /* damage partial amber (alias of --color-medium) */
+  --color-warning: #f59e0b;                   /* damage partial amber */
   --color-minimal: #3ecf8e;                   /* damage minimal green */
 
   /* Severity */
