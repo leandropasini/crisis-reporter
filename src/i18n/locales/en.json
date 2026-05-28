@@ -112,6 +112,8 @@
     "submitting": "Submitting…",
     "save_offline": "Save offline",
     "submit": "Submit →",
+    "submit_error": "Failed to submit — tap to retry",
+    "retry": "Retry →",
     "yes": "Yes",
     "no": "No"
   },
@@ -127,7 +129,7 @@
     "your_first": "Your report is the first in this area",
     "area_count_48h": "{{count}} reports in your area in the last 48 hours",
     "report_another": "Report another",
-    "view_map": "View map (coming soon)"
+    "view_map": "View map"
   },
   "community_map": {
     "title": "Community Crisis Map"

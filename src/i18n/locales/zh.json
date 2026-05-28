@@ -112,6 +112,8 @@
     "submitting": "正在提交…",
     "save_offline": "离线保存",
     "submit": "提交 →",
+    "submit_error": "提交失败 — 点击重试",
+    "retry": "重试 →",
     "yes": "是",
     "no": "否"
   },
@@ -127,7 +129,7 @@
     "your_first": "您的报告是该区域的第一份",
     "area_count_48h": "过去48小时内您所在区域有{{count}}份报告",
     "report_another": "提交新报告",
-    "view_map": "查看地图（即将推出）"
+    "view_map": "查看地图"
   },
   "community_map": {
     "title": "社区危机地图"
