@@ -10,6 +10,13 @@
   --color-text-secondary: #a8a8a5;
   --color-text-muted: #6b6b68;
 
+  /* Semantic aliases */
+  --color-label: rgba(255, 255, 255, 0.7);   /* field labels — WCAG AA on #0a0a09 */
+  --color-value: #FFFFFF;                      /* values & selected options */
+  --color-primary: #e86c2c;                   /* brand accent (alias of --color-accent) */
+  --color-warning: #f59e0b;                   /* damage partial amber (alias of --color-medium) */
+  --color-minimal: #3ecf8e;                   /* damage minimal green */
+
   /* Severity */
   --color-critical: #ef4444;
   --color-high: #f97316;
@@ -26,6 +33,11 @@
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+
+  /* Touch & typography */
+  --min-touch: 48px;
+  --font-label: 14px;
+  --font-value: 16px;
 
   /* Font */
   --font-sans: "Inter", system-ui, sans-serif;

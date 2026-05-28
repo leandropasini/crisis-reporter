@@ -60,10 +60,10 @@ export default function LanguageSelector() {
           gap: 5,
           padding: "5px 10px",
           borderRadius: 8,
-          border: "1px solid #2a2a28",
-          background: open ? "#1e1e1c" : "rgba(10,10,9,0.85)",
+          border: "1px solid var(--color-border)",
+          background: open ? "var(--color-surface-2)" : "rgba(10,10,9,0.85)",
           backdropFilter: "blur(8px)",
-          color: "#a8a8a5",
+          color: "var(--color-text-secondary)",
           fontSize: 12,
           cursor: "pointer",
           whiteSpace: "nowrap",
@@ -81,8 +81,8 @@ export default function LanguageSelector() {
             top: "calc(100% + 4px)",
             right: 0,
             width: 140,
-            background: "#1e1e1c",
-            border: "1px solid #2a2a28",
+            background: "var(--color-surface-2)",
+            border: "1px solid var(--color-border)",
             borderRadius: 8,
             overflow: "hidden",
             boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
@@ -100,15 +100,15 @@ export default function LanguageSelector() {
                   width: "100%",
                   padding: "8px 14px",
                   textAlign: "left",
-                  background: active ? "#2a2a28" : "none",
+                  background: active ? "var(--color-border)" : "none",
                   border: "none",
-                  borderBottom: "1px solid #2a2a28",
-                  color: active ? "#f5f5f4" : "#a8a8a5",
+                  borderBottom: "1px solid var(--color-border)",
+                  color: active ? "var(--color-text-primary)" : "var(--color-text-secondary)",
                   fontSize: 12,
                   cursor: "pointer",
                   fontWeight: active ? 600 : 400,
                 }}
-                onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = "#252523"; }}
+                onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = "var(--color-surface-1)"; }}
                 onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "none"; }}
               >
                 {lang.label}

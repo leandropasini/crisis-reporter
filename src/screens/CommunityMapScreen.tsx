@@ -115,7 +115,7 @@ export default function CommunityMapScreen({ crisisId, onBack }: Props) {
               style={{
                 width: 10,
                 height: 10,
-                backgroundColor: level === "minimal" ? "#3ecf8e" : level === "partial" ? "#f5a623" : "#e84040",
+                backgroundColor: level === "minimal" ? "var(--color-minimal)" : level === "partial" ? "var(--color-warning)" : "var(--color-critical)",
               }}
             />
             <span className="text-xs text-text-muted">{t(`enum.damage_${level}`)}</span>

@@ -3,9 +3,9 @@ import type { DamageLevel, InfrastructureType, ObservationSource } from "../../t
 
 const DAMAGE_LEVELS: DamageLevel[] = ["minimal", "partial", "complete"];
 const DAMAGE_COLOR: Record<DamageLevel, string> = {
-  minimal:  "#3ecf8e",
-  partial:  "#f59e0b",
-  complete: "#e84040",
+  minimal:  "var(--color-minimal)",
+  partial:  "var(--color-warning)",
+  complete: "var(--color-critical)",
 };
 
 export type MapMode = "clusters" | "heatmap";
@@ -34,9 +34,9 @@ const SELECT_STYLE: React.CSSProperties = {
   width: "100%",
   padding: "7px 10px",
   borderRadius: 8,
-  border: "1px solid #2a2a28",
-  background: "#1e1e1c",
-  color: "#f5f5f4",
+  border: "1px solid var(--color-border)",
+  background: "var(--color-surface-2)",
+  color: "var(--color-text-primary)",
   fontSize: 12,
   appearance: "none",
   cursor: "pointer",
@@ -45,7 +45,7 @@ const SELECT_STYLE: React.CSSProperties = {
 
 const SECTION_LABEL: React.CSSProperties = {
   fontSize: 10,
-  color: "#6b6b68",
+  color: "var(--color-text-muted)",
   textTransform: "uppercase" as const,
   letterSpacing: "0.08em",
   marginBottom: 8,
@@ -101,23 +101,23 @@ export default function FilterPanel({
       flexShrink: 0,
       display: "flex",
       flexDirection: "column",
-      borderRight: "1px solid #2a2a28",
+      borderRight: "1px solid var(--color-border)",
       padding: "20px 16px",
       gap: 22,
       overflowY: "auto",
     }}>
       {/* Title */}
       <div>
-        <p style={{ fontSize: 10, color: "#6b6b68", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>
+        <p style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>
           {t("dashboard.app_name")}
         </p>
-        <p style={{ fontSize: 15, fontWeight: 600, color: "#f5f5f4" }}>{t("dashboard.title")}</p>
+        <p style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)" }}>{t("dashboard.title")}</p>
       </div>
 
       {/* Total */}
-      <div style={{ background: "#1e1e1c", borderRadius: 10, padding: "12px 14px", border: "1px solid #2a2a28" }}>
+      <div style={{ background: "var(--color-surface-2)", borderRadius: 10, padding: "12px 14px", border: "1px solid var(--color-border)" }}>
         <p style={{ ...SECTION_LABEL, marginBottom: 6 }}>{t("dashboard.total_reports")}</p>
-        <p style={{ fontSize: 26, fontWeight: 700, color: "#f5f5f4", lineHeight: 1 }}>
+        <p style={{ fontSize: 26, fontWeight: 700, color: "var(--color-text-primary)", lineHeight: 1 }}>
           {loading ? "—" : totalCount}
         </p>
       </div>
@@ -137,9 +137,9 @@ export default function FilterPanel({
                   flex: 1,
                   padding: "6px 0",
                   borderRadius: 8,
-                  border: `1px solid ${active ? "#e86c2c88" : "#2a2a28"}`,
-                  background: active ? "#e86c2c22" : "transparent",
-                  color: active ? "#e86c2c" : "#6b6b68",
+                  border: `1px solid ${active ? "color-mix(in srgb, var(--color-accent) 53%, transparent)" : "var(--color-border)"}`,
+                  background: active ? "color-mix(in srgb, var(--color-accent) 13%, transparent)" : "transparent",
+                  color: active ? "var(--color-accent)" : "var(--color-text-muted)",
                   fontSize: 12,
                   fontWeight: active ? 600 : 400,
                   cursor: "pointer",
@@ -171,19 +171,19 @@ export default function FilterPanel({
                   justifyContent: "space-between",
                   padding: "7px 10px",
                   borderRadius: 8,
-                  border: `1px solid ${active ? color + "55" : "#2a2a28"}`,
-                  background: active ? color + "18" : "transparent",
+                  border: `1px solid ${active ? `color-mix(in srgb, ${color} 33%, transparent)` : "var(--color-border)"}`,
+                  background: active ? `color-mix(in srgb, ${color} 9%, transparent)` : "transparent",
                   cursor: "pointer",
                   textAlign: "left",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: active ? color : "#2a2a28", flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, color: active ? "#f5f5f4" : "#6b6b68", fontWeight: 500 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: active ? color : "var(--color-border)", flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: active ? "var(--color-text-primary)" : "var(--color-text-muted)", fontWeight: 500 }}>
                     {DAMAGE_LABEL[lvl]}
                   </span>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: active ? color : "#6b6b68" }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: active ? color : "var(--color-text-muted)" }}>
                   {loading ? "—" : damageCounts[lvl]}
                 </span>
               </button>
@@ -205,7 +205,7 @@ export default function FilterPanel({
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
-          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#6b6b68", fontSize: 10 }}>▾</span>
+          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--color-text-muted)", fontSize: 10 }}>▾</span>
         </div>
       </div>
 
@@ -222,14 +222,14 @@ export default function FilterPanel({
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
-          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#6b6b68", fontSize: 10 }}>▾</span>
+          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--color-text-muted)", fontSize: 10 }}>▾</span>
         </div>
       </div>
 
       {/* Export + footer */}
       <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
         {exportSlot}
-        <p style={{ fontSize: 11, color: "#6b6b68" }}>
+        <p style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
           {t("dashboard.showing", { filtered: filteredCount, total: totalCount })}
         </p>
       </div>

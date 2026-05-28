@@ -22,14 +22,14 @@ interface DamageCounts {
 function CheckIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <path d="M6 16l8 8L26 8" stroke="#3ecf8e" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 16l8 8L26 8" stroke="var(--color-minimal)" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 function QueuedIcon() {
   return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#f59e0b" strokeWidth="2">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="var(--color-warning)" strokeWidth="2">
       <path d="M4 20a12 12 0 0 1 20-9M16 8v8l4 4" strokeLinecap="round" />
       <path d="M28 12a12 12 0 0 1-20 9" strokeLinecap="round" strokeDasharray="3 2" />
     </svg>
@@ -41,13 +41,13 @@ function DamageBar({ counts }: { counts: DamageCounts }) {
   return (
     <div className="w-full flex rounded-full overflow-hidden" style={{ height: 6 }}>
       {minimal > 0 && (
-        <div style={{ flex: minimal / total, backgroundColor: "#3ecf8e" }} />
+        <div style={{ flex: minimal / total, backgroundColor: "var(--color-minimal)" }} />
       )}
       {partial > 0 && (
-        <div style={{ flex: partial / total, backgroundColor: "#f5a623" }} />
+        <div style={{ flex: partial / total, backgroundColor: "var(--color-warning)" }} />
       )}
       {complete > 0 && (
-        <div style={{ flex: complete / total, backgroundColor: "#e84040" }} />
+        <div style={{ flex: complete / total, backgroundColor: "var(--color-critical)" }} />
       )}
     </div>
   );
@@ -110,7 +110,7 @@ export default function ConfirmationScreen({
       {/* Status icon */}
       <div
         className="w-20 h-20 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: queued ? "#f59e0b18" : "#3ecf8e18" }}
+        style={{ backgroundColor: queued ? "color-mix(in srgb, var(--color-warning) 9%, transparent)" : "color-mix(in srgb, var(--color-minimal) 9%, transparent)" }}
       >
         {queued ? <QueuedIcon /> : <CheckIcon />}
       </div>
@@ -149,9 +149,9 @@ export default function ConfirmationScreen({
             </p>
             <DamageBar counts={counts} />
             <div className="flex justify-between text-xs text-text-muted">
-              <span style={{ color: "#3ecf8e" }}>{counts.minimal}</span>
-              <span style={{ color: "#f5a623" }}>{counts.partial}</span>
-              <span style={{ color: "#e84040" }}>{counts.complete}</span>
+              <span style={{ color: "var(--color-minimal)" }}>{counts.minimal}</span>
+              <span style={{ color: "var(--color-warning)" }}>{counts.partial}</span>
+              <span style={{ color: "var(--color-critical)" }}>{counts.complete}</span>
             </div>
           </>
         ) : counts !== null && counts.total === 1 ? (

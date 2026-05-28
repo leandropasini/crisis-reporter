@@ -13,9 +13,9 @@ export interface PopupObservation {
 }
 
 const DAMAGE_COLOR: Record<DamageLevel, string> = {
-  minimal:  "#3ecf8e",
-  partial:  "#f59e0b",
-  complete: "#e84040",
+  minimal:  "var(--color-minimal)",
+  partial:  "var(--color-warning)",
+  complete: "var(--color-critical)",
 };
 
 interface Props {
@@ -34,7 +34,7 @@ export default function ObservationPopup({ observation: obs }: Props) {
   })();
 
   return (
-    <div style={{ width: 220, fontFamily: "system-ui, sans-serif", color: "#f5f5f4" }}>
+    <div style={{ width: 220, fontFamily: "system-ui, sans-serif", color: "var(--color-text-primary)" }}>
       {/* Photo thumbnail */}
       {obs.photo_url && (
         <div style={{ margin: "-14px -20px 10px", height: 110, overflow: "hidden", borderRadius: "8px 8px 0 0" }}>
@@ -59,9 +59,9 @@ export default function ObservationPopup({ observation: obs }: Props) {
           borderRadius: 999,
           fontSize: 11,
           fontWeight: 600,
-          backgroundColor: `${DAMAGE_COLOR[obs.damage_level]}22`,
+          backgroundColor: `color-mix(in srgb, ${DAMAGE_COLOR[obs.damage_level]} 13%, transparent)`,
           color: DAMAGE_COLOR[obs.damage_level],
-          border: `1px solid ${DAMAGE_COLOR[obs.damage_level]}55`,
+          border: `1px solid color-mix(in srgb, ${DAMAGE_COLOR[obs.damage_level]} 33%, transparent)`,
         }}>
           {t(`observation.damage_${obs.damage_level}`)}
         </span>
@@ -72,15 +72,15 @@ export default function ObservationPopup({ observation: obs }: Props) {
           borderRadius: 999,
           fontSize: 11,
           fontWeight: 500,
-          backgroundColor: "#2a2a28",
-          color: "#a8a8a5",
+          backgroundColor: "var(--color-border)",
+          color: "var(--color-text-secondary)",
         }}>
           {t("observation.conf", { confidence: obs.confidence })}
         </span>
       </div>
 
       {/* Meta */}
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#6b6b68" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--color-text-muted)" }}>
         <span>{t(`enum.infra_${obs.infrastructure_type}`)}</span>
         <span>{ago}</span>
       </div>

@@ -8,11 +8,12 @@ interface Props {
   onSelect?: (id: string, name: string) => void;
 }
 
+// Hex literals required: Leaflet PathOptions does not resolve CSS variables
 const BASE: PathOptions = {
-  color: "#e86c2c",
+  color: "#e86c2c",     // --color-accent
   weight: 1.5,
   opacity: 0.9,
-  fillColor: "#e86c2c",
+  fillColor: "#e86c2c", // --color-accent
   fillOpacity: 0.12,
 };
 
