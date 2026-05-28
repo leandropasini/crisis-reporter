@@ -37,7 +37,7 @@ export default function HeatmapLayer({ points }: Props) {
         blur: 20,
         minOpacity: 0.55,
         // Hex literals required: Leaflet heatmap API does not resolve CSS variables
-        gradient: { 0.0: "#3ecf8e", 0.5: "#f59e0b", 1.0: "#e84040" }, // minimal/warning/critical
+        gradient: { 0.0: "#3ecf8e", 0.5: "#f59e0b", 1.0: "#ef4444" }, // minimal/warning/critical
       }).addTo(map);
     }
 

@@ -22,7 +22,7 @@ export interface MappedObservation extends PopupObservation {
 const PIN_COLORS: Record<DamageLevel, string> = {
   minimal:  "#3ecf8e", // --color-minimal
   partial:  "#f59e0b", // --color-warning
-  complete: "#e84040", // --color-critical
+  complete: "#ef4444", // --color-critical
 };
 
 const SEVERITY: Record<DamageLevel, number> = {

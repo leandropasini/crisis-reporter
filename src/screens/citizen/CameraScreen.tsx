@@ -36,11 +36,11 @@ function CameraIcon() {
     <svg width="28" height="24" viewBox="0 0 28 24" fill="none" aria-hidden>
       <path
         d="M10 2L8 5H3a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h22a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-5l-2-3H10Z"
-        stroke="#0a0a09"
+        stroke="var(--color-surface)"
         strokeWidth="1.8"
         fill="none"
       />
-      <circle cx="14" cy="13" r="4.5" stroke="#0a0a09" strokeWidth="1.8" />
+      <circle cx="14" cy="13" r="4.5" stroke="var(--color-surface)" strokeWidth="1.8" />
     </svg>
   );
 }
