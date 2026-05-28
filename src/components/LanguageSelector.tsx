@@ -61,7 +61,7 @@ export default function LanguageSelector() {
           padding: "5px 10px",
           borderRadius: 8,
           border: "1px solid var(--color-border)",
-          background: open ? "var(--color-surface-2)" : "rgba(10,10,9,0.85)",
+          background: open ? "var(--color-surface-2)" : "color-mix(in srgb, var(--color-surface) 85%, transparent)",
           backdropFilter: "blur(8px)",
           color: "var(--color-text-secondary)",
           fontSize: 12,
