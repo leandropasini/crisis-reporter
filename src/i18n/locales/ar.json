@@ -139,6 +139,8 @@
     "app_name": "مُبلِّغ الأزمات",
     "title": "لوحة تحكم الوكيل",
     "report_mode": "وضع التقرير",
+    "filters_open": "الفلاتر",
+    "filters_close": "إغلاق الفلاتر",
     "total_reports": "إجمالي التقارير",
     "map_view": "عرض الخريطة",
     "map_clusters": "مجموعات",

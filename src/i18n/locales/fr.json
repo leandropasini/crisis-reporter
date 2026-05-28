@@ -139,6 +139,8 @@
     "app_name": "Crisis Reporter",
     "title": "Tableau de bord agent",
     "report_mode": "Mode de rapport",
+    "filters_open": "Filtres",
+    "filters_close": "Fermer les filtres",
     "total_reports": "Total des rapports",
     "map_view": "Vue carte",
     "map_clusters": "clusters",

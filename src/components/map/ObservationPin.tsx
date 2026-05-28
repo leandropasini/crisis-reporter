@@ -10,17 +10,17 @@ const PIN_COLORS: Record<DamageLevel, string> = {
   complete: "#ef4444", // --color-critical
 };
 
-function makeIcon(color: string): L.DivIcon {
-  const svg = `
-    <svg width="28" height="36" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
+function makeIcon(color: string, damage: DamageLevel): L.DivIcon {
+  const pulseRing = damage === "complete"
+    ? `<div class="damage-complete-ring"></div>`
+    : "";
+  return L.divIcon({
+    html: `<div style="position:relative;display:inline-block">${pulseRing}<svg width="28" height="36" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
       <path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z"
         fill="${color}" stroke="rgba(0,0,0,0.4)" stroke-width="1.5"/>
       <circle cx="14" cy="14" r="5" fill="white" fill-opacity="0.9"/>
-    </svg>`;
-
-  return L.divIcon({
-    html: svg,
-    className: "",
+    </svg></div>`,
+    className: `damage-${damage}`,
     iconSize: [28, 36],
     iconAnchor: [14, 36],
     popupAnchor: [0, -38],
@@ -36,7 +36,7 @@ interface Props {
 }
 
 export default function ObservationPin({ lat, lng, damageLevel, draggable = false, onDragEnd }: Props) {
-  const icon = makeIcon(PIN_COLORS[damageLevel]);
+  const icon = makeIcon(PIN_COLORS[damageLevel], damageLevel);
 
   return (
     <Marker
