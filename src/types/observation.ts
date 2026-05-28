@@ -18,12 +18,12 @@ export interface ObservationInput {
   damageLevel: DamageLevel;
   infrastructureType: InfrastructureType;
   infrastructureTypeOther?: string;
-  crisisNature: CrisisNature;
-  crisisSubtype: CrisisSubtype;
-  debrisClearingNeeded: boolean;
+  crisisNature?: CrisisNature;
+  crisisSubtype?: CrisisSubtype;
+  debrisClearingNeeded?: boolean;
 
-  // DetailsScreen
-  infrastructureName: string;
+  // DetailsScreen (optional in rapid mode)
+  infrastructureName?: string;
   infrastructureDescription?: string;
   modularFields: ModularFields;
 

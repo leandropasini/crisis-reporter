@@ -138,6 +138,7 @@
     "loading": "Chargement des observations…",
     "app_name": "Crisis Reporter",
     "title": "Tableau de bord agent",
+    "report_mode": "Mode de rapport",
     "total_reports": "Total des rapports",
     "map_view": "Vue carte",
     "map_clusters": "clusters",

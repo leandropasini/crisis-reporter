@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 
 interface Props {
   onCapture: (file: File, previewUrl: string) => void;
+  modeLabel?: string;
+  totalSteps?: number;
 }
 
 // Step progress bar — 5 steps total, amber fill
@@ -45,7 +47,7 @@ function CameraIcon() {
   );
 }
 
-export default function CameraScreen({ onCapture }: Props) {
+export default function CameraScreen({ onCapture, modeLabel, totalSteps = 5 }: Props) {
   const { t } = useTranslation();
   const [preview, setPreview] = useState<string | null>(null);
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
@@ -78,9 +80,9 @@ export default function CameraScreen({ onCapture }: Props) {
 
       {/* Header */}
       <div className="px-4 pt-4 pb-3 space-y-3">
-        <ProgressBar step={1} total={5} />
+        <ProgressBar step={1} total={totalSteps} />
         <p className="text-xs text-text-muted text-center tracking-widest uppercase">
-          {t("camera.step")}
+          {modeLabel ? `${modeLabel} — STEP 1 OF ${totalSteps}` : t("camera.step")}
         </p>
       </div>
 

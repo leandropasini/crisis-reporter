@@ -17,6 +17,8 @@ interface Props {
   data: ObservationInput;
   onSuccess: (payload: ReviewSuccessPayload) => void;
   onBack: () => void;
+  modeLabel?: string;
+  totalSteps?: number;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -62,7 +64,7 @@ function SummaryRow({ label: lbl, value, color }: { label: string; value: string
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
+export default function ReviewScreen({ data, onSuccess, onBack, modeLabel, totalSteps = 5 }: Props) {
   const { t } = useTranslation();
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const isOffline = !navigator.onLine;
@@ -90,8 +92,10 @@ export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
 
       {/* Header */}
       <div className="flex-none" style={{ padding: "16px 16px 12px", display: "flex", flexDirection: "column", gap: "12px" }}>
-        <ProgressBar step={5} total={5} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">{t("review.step")}</p>
+        <ProgressBar step={totalSteps} total={totalSteps} />
+        <p className="text-xs text-text-muted text-center tracking-widest uppercase">
+          {modeLabel ? `${modeLabel} — REVIEW & SUBMIT` : t("review.step")}
+        </p>
       </div>
 
       {/* Scrollable body */}
@@ -125,19 +129,25 @@ export default function ReviewScreen({ data, onSuccess, onBack }: Props) {
 
         {/* Summary */}
         <div className="bg-surface-2 rounded-xl px-4 divide-y divide-border">
-          <SummaryRow label={t("review.label_infrastructure")} value={data.infrastructureName} />
+          {data.infrastructureName && (
+            <SummaryRow label={t("review.label_infrastructure")} value={data.infrastructureName} />
+          )}
           <SummaryRow label={t("review.label_type")}        value={t(`enum.infra_${data.infrastructureType}`)} />
           <SummaryRow
             label={t("review.label_damage")}
             value={t(`enum.damage_${data.damageLevel}`)}
             color={DAMAGE_COLORS[data.damageLevel]}
           />
-          <SummaryRow label={t("review.label_debris")} value={data.debrisClearingNeeded ? t("review.yes") : t("review.no")} />
+          {data.debrisClearingNeeded !== undefined && (
+            <SummaryRow label={t("review.label_debris")} value={data.debrisClearingNeeded ? t("review.yes") : t("review.no")} />
+          )}
           <SummaryRow
             label={t("review.label_location")}
             value={`${data.lat.toFixed(3)}, ${data.lng.toFixed(3)} (${t(`enum.method_${data.locationMethod}`)})`}
           />
-          <SummaryRow label={t("review.label_crisis_type")}  value={t(`enum.subtype_${data.crisisSubtype}`)} />
+          {data.crisisSubtype && (
+            <SummaryRow label={t("review.label_crisis_type")}  value={t(`enum.subtype_${data.crisisSubtype}`)} />
+          )}
           {data.modularFields.electricity_condition && (
             <SummaryRow label={t("review.label_electricity")} value={t(`enum.elec_${data.modularFields.electricity_condition}`)} />
           )}

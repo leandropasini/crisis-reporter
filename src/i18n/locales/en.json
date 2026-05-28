@@ -138,6 +138,7 @@
     "loading": "Loading observations…",
     "app_name": "Crisis Reporter",
     "title": "Agent Dashboard",
+    "report_mode": "Report Mode",
     "total_reports": "Total reports",
     "map_view": "Map view",
     "map_clusters": "clusters",

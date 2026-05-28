@@ -20,6 +20,8 @@ interface Props {
   crisisCenter?: [number, number]; // defaults to POA demo
   onConfirm: (result: LocationResult) => void;
   onBack: () => void;
+  modeLabel?: string;
+  totalSteps?: number;
 }
 
 // Truncate to 3 decimal places → ~50 m precision (privacy)
@@ -66,7 +68,7 @@ function GpsStatusBadge({ status, t }: { status: GpsStatus; t: (key: string) => 
 const POA_CENTER: [number, number] = [-30.029, -51.228];
 const PIN_ID = "location-pin";
 
-export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, onBack }: Props) {
+export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
   const { t } = useTranslation();
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>("loading");
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
@@ -143,9 +145,9 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
 
       {/* Header */}
       <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
-        <ProgressBar step={2} total={5} />
+        <ProgressBar step={2} total={totalSteps} />
         <p className="text-xs text-text-muted text-center tracking-widest uppercase">
-          {t("location.step")}
+          {modeLabel ? `${modeLabel} — STEP 2 OF ${totalSteps}` : t("location.step")}
         </p>
       </div>
 
