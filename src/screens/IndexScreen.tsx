@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import LanguageSelector from "../components/LanguageSelector";
 
 interface Props {
   onSelectCitizen: () => void;
@@ -6,226 +6,211 @@ interface Props {
   onSelectMap: () => void;
 }
 
-function DamageIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-      <path d="M3 13L14 4l11 9M6 11v11h16V11" />
-      <path d="M12 22v-5l2-2M16 22v-4l-2-2M11 12l3 3 3-3" strokeWidth="1.4" />
-      <circle cx="22" cy="6" r="4" fill="var(--color-critical)" stroke="none" />
-      <path d="M22 4v2.5M22 8v.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function MapIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-      <path d="M3 6l8 3 6-3 8 3v16l-8-3-6 3-8-3V6z" />
-      <path d="M11 9v16M17 6v16" />
-      <circle cx="20" cy="10" r="2.5" fill="currentColor" stroke="none" opacity="0.5" />
-    </svg>
-  );
-}
-
-function GlobeIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-      <circle cx="14" cy="14" r="11" />
-      <path d="M14 3c-4 4-4 14 0 22M14 3c4 4 4 14 0 22" />
-      <path d="M3 14h22" />
-      <path d="M5 8h18M5 20h18" />
-    </svg>
-  );
-}
-
-function WaveDecoration() {
-  return (
-    <svg width="100%" height="60" viewBox="0 0 360 60" preserveAspectRatio="none" aria-hidden>
-      <path
-        d="M0 30 Q45 0 90 30 Q135 60 180 30 Q225 0 270 30 Q315 60 360 30 L360 60 L0 60 Z"
-        fill="var(--color-warning)"
-        opacity="0.06"
-      />
-      <path
-        d="M0 40 Q60 10 120 40 Q180 70 240 40 Q300 10 360 40 L360 60 L0 60 Z"
-        fill="var(--color-accent)"
-        opacity="0.05"
-      />
-    </svg>
-  );
-}
+const CARDS = [
+  {
+    id: "citizen",
+    icon: "ti-building-community",
+    iconBg: "rgba(239,68,68,0.12)",
+    iconColor: "#EF4444",
+    title: "I'm reporting damage",
+    desc: "Report building damage in your area",
+  },
+  {
+    id: "map",
+    icon: "ti-map-2",
+    iconBg: "rgba(34,197,94,0.1)",
+    iconColor: "#22C55E",
+    title: "View community map",
+    desc: "See what neighbors are reporting",
+  },
+  {
+    id: "agent",
+    icon: "ti-layout-dashboard",
+    iconBg: "rgba(96,165,250,0.12)",
+    iconColor: "#60A5FA",
+    title: "Agent dashboard",
+    desc: "Coordinate field response",
+  },
+] as const;
 
 export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMap }: Props) {
-  const { t } = useTranslation();
+  const handlers: Record<string, () => void> = {
+    citizen: onSelectCitizen,
+    map: onSelectMap,
+    agent: onSelectAgent,
+  };
 
   return (
     <div
-      className="flex flex-col h-screen select-none"
-      style={{ background: "var(--color-surface)", color: "var(--color-text-primary)" }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100dvh",
+        background: "var(--cr-bg)",
+        color: "var(--cr-text)",
+        userSelect: "none",
+      }}
     >
-      {/* Top wave / flood visual */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, pointerEvents: "none" }}>
-        <WaveDecoration />
+      {/* Topbar */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "16px 20px",
+          flexShrink: 0,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "var(--cr-label)",
+            fontWeight: 600,
+          }}
+        >
+          UN Crisis Reporter
+        </span>
+        <LanguageSelector variant="inline" />
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 gap-8">
-
-        {/* Logo block */}
-        <div className="text-center space-y-1">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            {/* Alert / crisis icon */}
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-              <path
-                d="M11 2L2 19h18L11 2z"
-                fill="color-mix(in srgb, var(--color-warning) 13%, transparent)"
-                stroke="var(--color-warning)"
-                strokeWidth="1.6"
-                strokeLinejoin="round"
-              />
-              <path d="M11 9v4M11 15.5v.5" stroke="var(--color-warning)" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
+      <div
+        style={{
+          flex: 1,
+          overflow: "auto",
+          display: "flex",
+          flexDirection: "column",
+          padding: "8px 20px 24px",
+          gap: 24,
+        }}
+      >
+        {/* Active crisis badge + city */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex" }}>
             <span
               style={{
-                fontSize: 11,
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-                color: "var(--color-text-muted)",
-                fontWeight: 500,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                padding: "5px 12px",
+                borderRadius: 20,
+                background: "var(--cr-primary-dim)",
+                border: "1px solid rgba(232,130,58,0.3)",
+                fontSize: 12,
+                fontWeight: 600,
+                color: "var(--cr-primary)",
               }}
             >
-              Crisis Reporter
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: "var(--cr-primary)",
+                  animation: "pulse-dot 1.6s ease-in-out infinite",
+                  flexShrink: 0,
+                }}
+              />
+              Active crisis
             </span>
           </div>
 
-          <h1
-            style={{
-              fontSize: 26,
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              lineHeight: 1.2,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Porto Alegre
-          </h1>
-          <p style={{ fontSize: 13, color: "var(--color-text-secondary)", letterSpacing: "0.02em" }}>
-            RS Floods 2024
-          </p>
+          <div>
+            <h1
+              style={{
+                fontSize: 38,
+                fontWeight: 700,
+                lineHeight: 1.1,
+                letterSpacing: "-0.02em",
+                color: "var(--cr-text)",
+              }}
+            >
+              Porto Alegre
+            </h1>
+            <p style={{ fontSize: 16, color: "var(--cr-label)", marginTop: 4 }}>
+              RS Floods 2024
+            </p>
+          </div>
         </div>
 
         {/* Cards */}
-        <div className="w-full max-w-sm flex flex-col gap-3">
-
-          {/* Citizen card */}
-          <button
-            type="button"
-            onClick={onSelectCitizen}
-            className="w-full text-left rounded-2xl active:scale-[0.98] transition-transform"
-            style={{
-              background: "var(--color-surface-2)",
-              border: "1px solid color-mix(in srgb, var(--color-accent) 27%, transparent)",
-              padding: "20px 22px",
-            }}
-          >
-            <div className="flex items-start gap-4">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {CARDS.map((card) => (
+            <button
+              key={card.id}
+              type="button"
+              onClick={handlers[card.id]}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+                padding: 20,
+                borderRadius: 18,
+                background: "var(--cr-surface)",
+                border: "1px solid var(--cr-border)",
+                textAlign: "left",
+                cursor: "pointer",
+                transition: "opacity 0.15s",
+              }}
+              onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.8"; }}
+              onMouseUp={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+            >
+              {/* Icon */}
               <span
-                className="flex-none mt-0.5 flex items-center justify-center rounded-xl"
                 style={{
                   width: 48,
                   height: 48,
-                  background: "color-mix(in srgb, var(--color-accent) 9%, transparent)",
-                  color: "var(--color-accent)",
+                  borderRadius: 14,
+                  background: card.iconBg,
+                  color: card.iconColor,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
                 }}
               >
-                <DamageIcon />
+                <i className={`ti ${card.icon}`} style={{ fontSize: 24 }} />
               </span>
-              <div>
-                <p style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)", marginBottom: 3 }}>
-                  {t("index.citizen_title")}
-                </p>
-                <p style={{ fontSize: 12, color: "var(--color-text-muted)", lineHeight: 1.5 }}>
-                  {t("index.citizen_desc")}
-                </p>
-              </div>
-            </div>
-          </button>
 
-          {/* Agent card */}
-          <button
-            type="button"
-            onClick={onSelectAgent}
-            className="w-full text-left rounded-2xl active:scale-[0.98] transition-transform"
-            style={{
-              background: "var(--color-surface-2)",
-              border: "1px solid var(--color-border)",
-              padding: "20px 22px",
-            }}
-          >
-            <div className="flex items-start gap-4">
-              <span
-                className="flex-none mt-0.5 flex items-center justify-center rounded-xl"
-                style={{
-                  width: 48,
-                  height: 48,
-                  background: "color-mix(in srgb, var(--color-minimal) 9%, transparent)",
-                  color: "var(--color-minimal)",
-                }}
-              >
-                <MapIcon />
-              </span>
-              <div>
-                <p style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)", marginBottom: 3 }}>
-                  {t("index.agent_title")}
+              {/* Text */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p
+                  style={{
+                    fontSize: "var(--font-title)",
+                    fontWeight: 700,
+                    color: "var(--cr-text)",
+                    marginBottom: 3,
+                  }}
+                >
+                  {card.title}
                 </p>
-                <p style={{ fontSize: 12, color: "var(--color-text-muted)", lineHeight: 1.5 }}>
-                  {t("index.agent_desc")}
+                <p style={{ fontSize: "var(--font-label)", color: "var(--cr-label)", lineHeight: 1.4 }}>
+                  {card.desc}
                 </p>
               </div>
-            </div>
-          </button>
 
-          {/* Community map card */}
-          <button
-            type="button"
-            onClick={onSelectMap}
-            className="w-full text-left rounded-2xl active:scale-[0.98] transition-transform"
-            style={{
-              background: "var(--color-surface-2)",
-              border: "1px solid var(--color-border)",
-              padding: "20px 22px",
-            }}
-          >
-            <div className="flex items-start gap-4">
-              <span
-                className="flex-none mt-0.5 flex items-center justify-center rounded-xl"
-                style={{
-                  width: 48,
-                  height: 48,
-                  background: "color-mix(in srgb, var(--color-info) 9%, transparent)",
-                  color: "var(--color-info)",
-                }}
-              >
-                <GlobeIcon />
-              </span>
-              <div>
-                <p style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)", marginBottom: 3 }}>
-                  {t("index.map_title")}
-                </p>
-                <p style={{ fontSize: 12, color: "var(--color-text-muted)", lineHeight: 1.5 }}>
-                  {t("index.map_desc")}
-                </p>
-              </div>
-            </div>
-          </button>
+              {/* Chevron */}
+              <i
+                className="ti ti-chevron-right"
+                style={{ fontSize: 18, color: "var(--cr-label)", flexShrink: 0 }}
+              />
+            </button>
+          ))}
         </div>
-      </div>
 
-      {/* Bottom badge */}
-      <div className="flex justify-center pb-8">
-        <span style={{ fontSize: 10, color: "var(--color-border)", letterSpacing: "0.1em" }}>
-          UNHCR · OCHA · WFP
-        </span>
+        {/* Footer */}
+        <p
+          style={{
+            fontSize: 13,
+            color: "rgba(255,255,255,0.25)",
+            textAlign: "center",
+          }}
+        >
+          No account needed to report damage
+        </p>
       </div>
     </div>
   );

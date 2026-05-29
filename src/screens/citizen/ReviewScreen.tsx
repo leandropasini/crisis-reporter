@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { ObservationInput } from "../../types/observation";
 import { submitObservation } from "../../services/submit";
+import LanguageSelector from "../../components/LanguageSelector";
+import BottomNav from "../../components/BottomNav";
 
 type SubmitState = "idle" | "uploading" | "success" | "queued" | "error";
 
@@ -18,54 +20,34 @@ interface Props {
   onSuccess: (payload: ReviewSuccessPayload) => void;
   onBack: () => void;
   modeLabel?: string;
-  totalSteps?: number;
+  totalSteps?: number; // kept for API compat, progress bar always at 100% in review
+  onGoHome?: () => void;
+  onGoMap?: () => void;
 }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const DAMAGE_COLORS: Record<string, string> = {
-  minimal:  "var(--color-minimal)",
-  partial:  "var(--color-warning)",
-  complete: "var(--color-critical)",
+  minimal:  "#22C55E",
+  partial:  "#E8823A",
+  complete: "#EF4444",
 };
 
-// ── Sub-components ────────────────────────────────────────────────────────────
-
-function ProgressBar({ step, total }: { step: number; total: number }) {
+function ProgressBar({ pct }: { pct: number }) {
   return (
-    <div className="w-full h-1 bg-surface-2 rounded-full overflow-hidden">
-      <div className="h-full bg-amber-400 rounded-full"
-        style={{ width: `${(step / total) * 100}%` }} />
+    <div style={{ height: 3, background: "var(--cr-surface2)", borderRadius: 2, overflow: "hidden" }}>
+      <div style={{ height: "100%", width: `${pct}%`, background: "var(--cr-primary)", borderRadius: 2 }} />
     </div>
   );
 }
 
-function OfflineBanner({ text }: { text: string }) {
-  return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
-      style={{ backgroundColor: "var(--color-surface-1)", border: "1px solid var(--color-border)" }}>
-      {/* Cloud-off icon */}
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-text-secondary)" strokeWidth="1.6">
-        <path d="M4 14a4 4 0 0 1-.5-8A5 5 0 0 1 14.5 8H15a3 3 0 0 1 2.5 4.5M3 3l14 14" strokeLinecap="round"/>
-      </svg>
-      <p className="text-sm text-text-secondary">{text}</p>
-    </div>
-  );
-}
-
-function SummaryRow({ label: lbl, value, color }: { label: string; value: string; color?: string }) {
-  return (
-    <div className="flex items-start justify-between gap-4 py-2.5 border-b border-border last:border-0">
-      <span className="text-xs uppercase tracking-wide shrink-0"
-        style={{ fontSize: "var(--font-label)", color: "var(--color-label)" }}>{lbl}</span>
-      <span className="text-sm text-right" style={{ fontSize: "var(--font-value)", color: color ?? "var(--color-value)" }}>{value}</span>
-    </div>
-  );
-}
-
-// ── Screen ────────────────────────────────────────────────────────────────────
-
-export default function ReviewScreen({ data, onSuccess, onBack, modeLabel, totalSteps = 5 }: Props) {
+export default function ReviewScreen({
+  data,
+  onSuccess,
+  onBack,
+  modeLabel,
+  totalSteps: _totalSteps = 3,
+  onGoHome,
+  onGoMap,
+}: Props) {
   const { t } = useTranslation();
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const isOffline = !navigator.onLine;
@@ -86,96 +68,181 @@ export default function ReviewScreen({ data, onSuccess, onBack, modeLabel, total
     }
   }
 
-  const pressingNeeds = data.modularFields.pressing_needs;
+  const headerLabel = modeLabel ? `${modeLabel} — REVIEW` : t("review.step");
 
   return (
-    <div className="flex flex-col h-screen bg-surface text-text-primary">
-
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100dvh",
+        background: "var(--cr-bg)",
+        color: "var(--cr-text)",
+      }}
+    >
       {/* Header */}
-      <div className="flex-none" style={{ padding: "16px 16px 12px", display: "flex", flexDirection: "column", gap: "12px" }}>
-        <ProgressBar step={totalSteps} total={totalSteps} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">
-          {modeLabel ? `${modeLabel} — REVIEW & SUBMIT` : t("review.step")}
-        </p>
+      <div style={{ flexShrink: 0, padding: "16px 20px 12px" }}>
+        <ProgressBar pct={100} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: 10,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 13,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--cr-label)",
+              fontWeight: 600,
+            }}
+          >
+            {headerLabel}
+          </span>
+          <LanguageSelector variant="inline" />
+        </div>
       </div>
 
-      {/* Scrollable body */}
-      <div className="flex-1 min-h-0 overflow-y-auto" style={{ padding: "0 16px 16px", display: "flex", flexDirection: "column", gap: "16px" }}>
-
+      {/* Body */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "8px 20px 12px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+        }}
+      >
         {/* Offline banner */}
-        {(isOffline || submitState === "queued") && <OfflineBanner text={t("review.offline")} />}
-
-        {/* Queued state feedback */}
-        {submitState === "queued" && !isOffline && (
-          <p className="text-xs text-amber-400 text-center">
-            {t("review.queued_error")}
-          </p>
+        {(isOffline || submitState === "queued") && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "12px 16px",
+              borderRadius: 12,
+              background: "var(--cr-surface)",
+              border: "1px solid var(--cr-border)",
+            }}
+          >
+            <i className="ti ti-cloud-off" style={{ fontSize: 18, color: "var(--cr-label)" }} />
+            <p style={{ fontSize: 14, color: "var(--cr-label)" }}>{t("review.offline")}</p>
+          </div>
         )}
 
-        {/* Error state feedback */}
         {submitState === "error" && (
-          <p className="text-xs text-center" style={{ color: "var(--color-critical)" }}>
+          <p style={{ fontSize: 13, color: "var(--cr-critical)", textAlign: "center" }}>
             {t("review.submit_error")}
           </p>
         )}
 
-        {/* Photo thumbnail */}
-        <div className="rounded-xl overflow-hidden aspect-[4/3] bg-surface-2">
+        {/* Photo */}
+        <div
+          style={{
+            borderRadius: 20,
+            overflow: "hidden",
+            aspectRatio: "4/3",
+            background: "var(--cr-surface)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <img
             src={data.photoPreviewUrl}
             alt={t("review.photo_alt")}
-            className="w-full h-full object-cover"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </div>
 
-        {/* Summary */}
-        <div className="bg-surface-2 rounded-xl px-4 divide-y divide-border">
-          {data.infrastructureName && (
-            <SummaryRow label={t("review.label_infrastructure")} value={data.infrastructureName} />
-          )}
-          <SummaryRow label={t("review.label_type")}        value={t(`enum.infra_${data.infrastructureType}`)} />
-          <SummaryRow
-            label={t("review.label_damage")}
-            value={t(`enum.damage_${data.damageLevel}`)}
-            color={DAMAGE_COLORS[data.damageLevel]}
-          />
-          {data.debrisClearingNeeded !== undefined && (
-            <SummaryRow label={t("review.label_debris")} value={data.debrisClearingNeeded ? t("review.yes") : t("review.no")} />
-          )}
-          <SummaryRow
-            label={t("review.label_location")}
-            value={`${data.lat.toFixed(3)}, ${data.lng.toFixed(3)} (${t(`enum.method_${data.locationMethod}`)})`}
-          />
-          {data.crisisSubtype && (
-            <SummaryRow label={t("review.label_crisis_type")}  value={t(`enum.subtype_${data.crisisSubtype}`)} />
-          )}
-          {data.modularFields.electricity_condition && (
-            <SummaryRow label={t("review.label_electricity")} value={t(`enum.elec_${data.modularFields.electricity_condition}`)} />
-          )}
-          {data.modularFields.health_services && (
-            <SummaryRow label={t("review.label_health")} value={t(`enum.health_${data.modularFields.health_services}`)} />
-          )}
-          {pressingNeeds && pressingNeeds.length > 0 && (
-            <SummaryRow label={t("review.label_needs")} value={pressingNeeds.map((n) => t(`enum.need_${n}`)).join(", ")} />
-          )}
+        {/* Summary card */}
+        <div
+          style={{
+            background: "var(--cr-surface)",
+            borderRadius: 18,
+            overflow: "hidden",
+          }}
+        >
+          {[
+            {
+              label: t("review.label_type"),
+              value: t(`enum.infra_${data.infrastructureType}`),
+              color: "var(--cr-text)",
+            },
+            {
+              label: t("review.label_damage"),
+              value: t(`enum.damage_${data.damageLevel}`),
+              color: DAMAGE_COLORS[data.damageLevel] ?? "var(--cr-text)",
+            },
+            {
+              label: t("review.label_location"),
+              value: `${data.lat.toFixed(3)}°, ${data.lng.toFixed(3)}°`,
+              color: "var(--cr-label)",
+              sub: data.address,
+            },
+          ].map((row, i, arr) => (
+            <div
+              key={row.label}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 16,
+                padding: "16px 20px",
+                borderBottom: i < arr.length - 1 ? "0.5px solid var(--cr-border)" : "none",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 13,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  color: "var(--cr-label)",
+                  flexShrink: 0,
+                }}
+              >
+                {row.label}
+              </span>
+              <div style={{ textAlign: "right" }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: row.color }}>{row.value}</p>
+                {row.sub && <p style={{ fontSize: 12, color: "var(--cr-label)", marginTop: 2 }}>{row.sub}</p>}
+              </div>
+            </div>
+          ))}
         </div>
-
-        {data.infrastructureDescription && (
-          <div className="bg-surface-2 rounded-xl px-4 py-3">
-            <p className="text-xs text-text-muted uppercase tracking-wide mb-1">{t("review.notes_title")}</p>
-            <p className="text-sm text-text-secondary">{data.infrastructureDescription}</p>
-          </div>
-        )}
       </div>
 
       {/* Footer */}
-      <div className="flex-none border-t border-border" style={{ padding: "12px 16px 32px", display: "flex", gap: "12px" }}>
+      <div
+        style={{
+          flexShrink: 0,
+          padding: "12px 20px",
+          borderTop: "1px solid var(--cr-border)",
+          display: "flex",
+          gap: 10,
+        }}
+      >
         <button
           type="button"
           onClick={onBack}
           disabled={submitState === "uploading"}
-          className="flex-1 rounded-xl border text-sm font-medium active:opacity-70 disabled:opacity-40"
-          style={{ minHeight: "var(--min-touch)", minWidth: 120, borderColor: "var(--color-border)", color: "var(--color-label)" }}
+          style={{
+            flex: 1,
+            minHeight: "var(--min-touch)",
+            borderRadius: 16,
+            border: "1px solid var(--cr-border)",
+            background: "var(--cr-surface)",
+            color: "var(--cr-label)",
+            fontSize: 15,
+            fontWeight: 500,
+            cursor: "pointer",
+            opacity: submitState === "uploading" ? 0.4 : 1,
+          }}
         >
           {t("common.back")}
         </button>
@@ -183,8 +250,18 @@ export default function ReviewScreen({ data, onSuccess, onBack, modeLabel, total
           type="button"
           onClick={handleSubmit}
           disabled={submitState === "uploading"}
-          className="flex-1 rounded-xl text-white text-sm font-semibold disabled:opacity-60 active:opacity-80 transition-opacity"
-          style={{ minHeight: "var(--min-touch)", minWidth: 120, backgroundColor: "var(--color-primary)" }}
+          style={{
+            flex: 2,
+            minHeight: "var(--min-touch)",
+            borderRadius: 16,
+            border: "none",
+            background: "var(--cr-primary)",
+            color: "#fff",
+            fontSize: 15,
+            fontWeight: 700,
+            cursor: submitState === "uploading" ? "not-allowed" : "pointer",
+            opacity: submitState === "uploading" ? 0.6 : 1,
+          }}
         >
           {submitState === "uploading"
             ? t("review.submitting")
@@ -192,9 +269,11 @@ export default function ReviewScreen({ data, onSuccess, onBack, modeLabel, total
             ? t("review.retry")
             : isOffline
             ? t("review.save_offline")
-            : t("review.submit")}
+            : "Submit report →"}
         </button>
       </div>
+
+      <BottomNav active="report" onHome={onGoHome} onMap={onGoMap} />
     </div>
   );
 }
