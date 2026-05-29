@@ -1,5 +1,35 @@
 @import "tailwindcss";
 
+/* ── Crisis Reporter design tokens (v0.3) ── */
+:root {
+  --cr-bg: #0a0a0a;
+  --cr-surface: #1a1a1a;
+  --cr-surface2: #222222;
+  --cr-border: rgba(255, 255, 255, 0.1);
+  --cr-primary: #E8823A;
+  --cr-primary-dim: rgba(232, 130, 58, 0.12);
+  --cr-text: #FFFFFF;
+  --cr-label: rgba(255, 255, 255, 0.55);
+  --cr-critical: #EF4444;
+  --cr-severe: #F59E0B;
+  --cr-minimal: #22C55E;
+  --cr-info: #60A5FA;
+  --font-label: 13px;
+  --font-value: 16px;
+  --font-title: 17px;
+  --min-touch: 48px;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes ping {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
 @theme {
   /* Colors */
   --color-surface: #0a0a09;

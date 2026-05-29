@@ -1,53 +1,39 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import LanguageSelector from "../../components/LanguageSelector";
+import BottomNav from "../../components/BottomNav";
 
 interface Props {
   onCapture: (file: File, previewUrl: string) => void;
   modeLabel?: string;
   totalSteps?: number;
+  onGoHome?: () => void;
+  onGoMap?: () => void;
 }
 
-// Step progress bar — 5 steps total, amber fill
-function ProgressBar({ step, total }: { step: number; total: number }) {
+function ProgressBar({ pct }: { pct: number }) {
   return (
-    <div className="w-full h-1 bg-surface-2 rounded-full overflow-hidden">
+    <div style={{ height: 3, background: "var(--cr-surface2)", borderRadius: 2, overflow: "hidden" }}>
       <div
-        className="h-full bg-amber-400 rounded-full transition-all duration-300"
-        style={{ width: `${(step / total) * 100}%` }}
+        style={{
+          height: "100%",
+          width: `${pct}%`,
+          background: "var(--cr-primary)",
+          borderRadius: 2,
+          transition: "width 0.3s",
+        }}
       />
     </div>
   );
 }
 
-// Four L-shaped corner brackets that frame the viewfinder
-function ViewfinderCorners() {
-  const corner = "absolute w-8 h-8 border-warning";
-  const size = "border-[3px]";
-  return (
-    <>
-      <span className={`${corner} ${size} top-0 left-0 border-t border-l`} />
-      <span className={`${corner} ${size} top-0 right-0 border-t border-r`} />
-      <span className={`${corner} ${size} bottom-0 left-0 border-b border-l`} />
-      <span className={`${corner} ${size} bottom-0 right-0 border-b border-r`} />
-    </>
-  );
-}
-
-function CameraIcon() {
-  return (
-    <svg width="28" height="24" viewBox="0 0 28 24" fill="none" aria-hidden>
-      <path
-        d="M10 2L8 5H3a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h22a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-5l-2-3H10Z"
-        stroke="var(--color-surface)"
-        strokeWidth="1.8"
-        fill="none"
-      />
-      <circle cx="14" cy="13" r="4.5" stroke="var(--color-surface)" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-export default function CameraScreen({ onCapture, modeLabel, totalSteps = 5 }: Props) {
+export default function CameraScreen({
+  onCapture,
+  modeLabel,
+  totalSteps = 3,
+  onGoHome,
+  onGoMap,
+}: Props) {
   const { t } = useTranslation();
   const [preview, setPreview] = useState<string | null>(null);
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
@@ -61,7 +47,6 @@ export default function CameraScreen({ onCapture, modeLabel, totalSteps = 5 }: P
     const url = URL.createObjectURL(file);
     setPreview(url);
     setCapturedFile(file);
-    // reset input so the same file can be re-selected after retake
     e.target.value = "";
   }
 
@@ -75,108 +60,236 @@ export default function CameraScreen({ onCapture, modeLabel, totalSteps = 5 }: P
     if (capturedFile && preview) onCapture(capturedFile, preview);
   }
 
-  return (
-    <div className="flex flex-col h-screen bg-surface text-text-primary select-none">
+  const stepNum = 1;
+  const pct = (stepNum / totalSteps) * 100;
+  const headerLabel = modeLabel
+    ? `${modeLabel} — STEP ${stepNum} OF ${totalSteps}`
+    : t("camera.step");
 
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100dvh",
+        background: "var(--cr-bg)",
+        color: "var(--cr-text)",
+        userSelect: "none",
+      }}
+    >
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 space-y-3">
-        <ProgressBar step={1} total={totalSteps} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">
-          {modeLabel ? `${modeLabel} — STEP 1 OF ${totalSteps}` : t("camera.step")}
-        </p>
+      <div style={{ flexShrink: 0, padding: "16px 20px 12px" }}>
+        <ProgressBar pct={pct} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: 10,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 13,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--cr-label)",
+              fontWeight: 600,
+            }}
+          >
+            {headerLabel}
+          </span>
+          <LanguageSelector variant="inline" />
+        </div>
       </div>
 
       {/* Viewfinder / Preview */}
-      <div className="flex-1 flex items-center justify-center px-6 py-2">
-        <div className="relative w-full max-w-sm aspect-[3/4] rounded-lg overflow-hidden bg-surface-2">
-          <ViewfinderCorners />
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "8px 20px",
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            maxWidth: 360,
+            aspectRatio: "1",
+            borderRadius: 20,
+            overflow: "hidden",
+            background: "#111",
+          }}
+        >
+          {/* Corner brackets */}
+          {!preview && (
+            <>
+              {[
+                { top: 0, left: 0, borderTop: "2px solid var(--cr-primary)", borderLeft: "2px solid var(--cr-primary)" },
+                { top: 0, right: 0, borderTop: "2px solid var(--cr-primary)", borderRight: "2px solid var(--cr-primary)" },
+                { bottom: 0, left: 0, borderBottom: "2px solid var(--cr-primary)", borderLeft: "2px solid var(--cr-primary)" },
+                { bottom: 0, right: 0, borderBottom: "2px solid var(--cr-primary)", borderRight: "2px solid var(--cr-primary)" },
+              ].map((style, i) => (
+                <span
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    width: 28,
+                    height: 28,
+                    ...style,
+                  }}
+                />
+              ))}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 10,
+                }}
+              >
+                <i className="ti ti-camera" style={{ fontSize: 36, color: "var(--cr-label)", opacity: 0.4 }} />
+                <span style={{ fontSize: 16, color: "var(--cr-label)" }}>Point at the scene</span>
+              </div>
+            </>
+          )}
 
-          {preview ? (
+          {preview && (
             <img
               src={preview}
               alt={t("camera.take_photo")}
-              className="absolute inset-0 w-full h-full object-cover"
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
             />
-          ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-text-muted">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden>
-                <path
-                  d="M18 8L15 13H7a3 3 0 0 0-3 3v20a3 3 0 0 0 3 3h34a3 3 0 0 0 3-3V16a3 3 0 0 0-3-3h-8l-3-5H18Z"
-                  stroke="currentColor" strokeWidth="2" fill="none"
-                />
-                <circle cx="24" cy="25" r="7" stroke="currentColor" strokeWidth="2" />
-              </svg>
-              <span className="text-sm">{t("camera.point_at_building")}</span>
-            </div>
           )}
         </div>
       </div>
 
       {/* Controls */}
-      <div className="pb-8 px-6 flex flex-col items-center gap-5">
-
+      <div
+        style={{
+          flexShrink: 0,
+          padding: "12px 20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
         {preview ? (
-          /* Post-capture: Retake + Next */
-          <div className="flex w-full max-w-sm gap-3">
+          <div style={{ display: "flex", gap: 10 }}>
             <button
               type="button"
               onClick={handleRetake}
-              className="flex-1 rounded-xl border text-sm font-medium active:opacity-70"
-              style={{ minHeight: "var(--min-touch)", minWidth: 120, borderColor: "var(--color-border)", color: "var(--color-label)" }}
+              style={{
+                flex: 1,
+                minHeight: "var(--min-touch)",
+                borderRadius: 16,
+                border: "1px solid var(--cr-border)",
+                background: "var(--cr-surface)",
+                color: "var(--cr-label)",
+                fontSize: 15,
+                fontWeight: 500,
+                cursor: "pointer",
+              }}
             >
               {t("camera.retake")}
             </button>
             <button
               type="button"
               onClick={handleNext}
-              className="flex-1 rounded-xl text-white text-sm font-semibold active:opacity-80"
-              style={{ minHeight: "var(--min-touch)", minWidth: 120, backgroundColor: "var(--color-primary)" }}
+              style={{
+                flex: 2,
+                minHeight: "var(--min-touch)",
+                borderRadius: 16,
+                border: "none",
+                background: "var(--cr-primary)",
+                color: "#fff",
+                fontSize: 17,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
             >
               {t("camera.use_photo")}
             </button>
           </div>
         ) : (
-          /* Idle: capture button */
           <>
-            {/* Primary: camera shutter */}
             <button
               type="button"
               onClick={() => cameraInputRef.current?.click()}
-              aria-label={t("camera.take_photo")}
-              className="w-[72px] h-[72px] rounded-full bg-white flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                minHeight: "var(--min-touch)",
+                padding: 20,
+                borderRadius: 16,
+                border: "none",
+                background: "var(--cr-primary)",
+                color: "#fff",
+                fontSize: 17,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
             >
-              <CameraIcon />
+              <i className="ti ti-camera" style={{ fontSize: 22 }} />
+              {t("camera.take_photo")}
             </button>
-            <span className="text-xs text-text-muted">{t("camera.take_photo")}</span>
 
-            {/* Secondary: gallery */}
             <button
               type="button"
               onClick={() => galleryInputRef.current?.click()}
-              className="text-sm text-text-secondary underline underline-offset-2 active:opacity-60"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                minHeight: "var(--min-touch)",
+                padding: 16,
+                borderRadius: 16,
+                border: "1px solid var(--cr-border)",
+                background: "var(--cr-surface)",
+                color: "var(--cr-label)",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             >
+              <i className="ti ti-photo" style={{ fontSize: 18 }} />
               {t("camera.choose_gallery")}
             </button>
           </>
         )}
-
-        {/* Hidden inputs */}
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <input
-          ref={galleryInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
       </div>
+
+      {/* Hidden file inputs */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
+
+      <BottomNav
+        active="report"
+        onHome={onGoHome}
+        onReport={undefined}
+        onMap={onGoMap}
+      />
     </div>
   );
 }
