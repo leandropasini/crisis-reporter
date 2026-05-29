@@ -4,12 +4,13 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import { supabase, isSupabaseConfigured } from "../../services/supabase";
 import ClusterLayer, { type MappedObservation } from "../../components/map/ClusterLayer";
 import HeatmapLayer from "../../components/map/HeatmapLayer";
-import FilterPanel, { type FilterState, type MapMode } from "../../components/agent/FilterPanel";
 import ObservationDetail from "../../components/agent/ObservationDetail";
 import ExportButton from "../../components/agent/ExportButton";
-import { useCrisisMode, MODE_META } from "../../contexts/CrisisModeContext";
+import LanguageSelector from "../../components/LanguageSelector";
+import BottomNav from "../../components/BottomNav";
+import { useCrisisMode } from "../../contexts/CrisisModeContext";
 import "../../components/map/map.css";
-import type { CrisisMode, DamageLevel, InfrastructureType, ObservationSource } from "../../types/schema";
+import type { DamageLevel, InfrastructureType } from "../../types/schema";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -99,30 +100,35 @@ const DEMO_OBSERVATIONS: MappedObservation[] = [
   },
 ];
 
+const DAMAGE_COLORS: Record<string, string> = {
+  minimal:  "#22C55E",
+  partial:  "#E8823A",
+  complete: "#EF4444",
+};
+
+type QuickFilter = "all" | "critical" | "health" | "education";
+
 interface Props {
   crisisId?: string;
   center?: [number, number];
   zoom?: number;
+  onGoHome?: () => void;
 }
 
 export default function DashboardScreen({
   crisisId = import.meta.env.VITE_DEMO_CRISIS_ID ?? "00000000-0000-0000-0000-000000000001",
   center = [-30.029, -51.228],
   zoom = 13,
+  onGoHome,
 }: Props) {
   const { t } = useTranslation();
   const [observations, setObservations] = useState<MappedObservation[]>([]);
   const [loading, setLoading] = useState(true);
-  const { mode, setMode } = useCrisisMode();
+  const { mode: _mode } = useCrisisMode();
   const [selectedObs, setSelectedObs] = useState<MappedObservation | null>(null);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
+  const [mapMode, setMapMode] = useState<"clusters" | "heatmap">("clusters");
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
-  const [filters, setFilters] = useState<FilterState>({
-    damageLevels: new Set<DamageLevel>(DAMAGE_LEVELS),
-    infraType: "all",
-    source: "all",
-    mapMode: "clusters",
-  });
 
   useEffect(() => {
     async function fetchObservations() {
@@ -141,7 +147,6 @@ export default function DashboardScreen({
           .eq("status", "active") as { data: MappedObservation[] | null; error: unknown };
 
         if (!error && data && data.length > 0) {
-          // DB uses latitude/longitude; MappedObservation uses lat/lng
           const mapped = (data as any[]).map((r) => ({ ...r, lat: r.latitude, lng: r.longitude }));
           setObservations(mapped);
         } else {
@@ -162,115 +167,102 @@ export default function DashboardScreen({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  function toggleDamage(level: DamageLevel) {
-    setFilters((prev) => {
-      const next = new Set(prev.damageLevels);
-      if (next.has(level)) {
-        if (next.size === 1) return prev;
-        next.delete(level);
-      } else {
-        next.add(level);
-      }
-      return { ...prev, damageLevels: next };
-    });
+  function applyQuickFilter(obs: MappedObservation[]): MappedObservation[] {
+    switch (quickFilter) {
+      case "critical":  return obs.filter((o) => o.damage_level === "complete" || o.damage_level === "partial");
+      case "health":    return obs.filter((o) => o.infrastructure_type === "community");
+      case "education": return obs.filter((o) => o.infrastructure_type === "public_recreation");
+      default: return obs;
+    }
   }
 
-  const filtered = observations.filter((o) => {
-    if (!filters.damageLevels.has(o.damage_level)) return false;
-    if (filters.infraType !== "all" && o.infrastructure_type !== filters.infraType) return false;
-    if (filters.source !== "all" && o.source !== filters.source) return false;
-    return true;
-  });
+  const filtered = applyQuickFilter(observations);
 
-  const damageCounts = DAMAGE_LEVELS.reduce<Record<DamageLevel, number>>((acc, lvl) => {
-    acc[lvl] = observations.filter((o) => o.damage_level === lvl).length;
-    return acc;
-  }, { minimal: 0, partial: 0, complete: 0 });
+  const totalCount    = observations.length;
+  const criticalCount = observations.filter((o) => o.damage_level === "complete" || o.damage_level === "partial").length;
+  const since6h       = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString();
+  const last6hCount   = observations.filter((o) => o.client_created_at >= since6h).length;
 
-  const MODE_OPTIONS: { value: CrisisMode; label: string }[] = [
-    { value: "rapid",      label: "Rapid" },
-    { value: "full",       label: "Full" },
-    { value: "contextual", label: "Contextual" },
+  const criticalList = [...observations]
+    .filter((o) => o.damage_level === "complete" || o.damage_level === "partial")
+    .sort((a, b) => {
+      const priority = (o: MappedObservation) => {
+        let score = o.damage_level === "complete" ? 10 : 5;
+        if (o.infrastructure_type === "community") score += 3;
+        if (o.infrastructure_type === "public_recreation") score += 2;
+        return score;
+      };
+      return priority(b) - priority(a);
+    })
+    .slice(0, 5);
+
+  const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
+    { id: "all",       label: "All levels" },
+    { id: "critical",  label: "Critical" },
+    { id: "health",    label: "Health" },
+    { id: "education", label: "Education" },
   ];
 
-  const exportSlot = (
-    <ExportButton
-      crisisId={crisisId}
-      filters={{ damageLevels: filters.damageLevels, infraType: filters.infraType }}
-      rows={filtered}
-    />
-  );
-
-  const filterPanel = (
-    <FilterPanel
-      filters={filters}
-      totalCount={observations.length}
-      filteredCount={filtered.length}
-      loading={loading}
-      damageCounts={damageCounts}
-      onToggleDamage={toggleDamage}
-      onInfraChange={(v) => setFilters((f) => ({ ...f, infraType: v as InfrastructureType | "all" }))}
-      onSourceChange={(v) => setFilters((f) => ({ ...f, source: v as ObservationSource | "all" }))}
-      onMapModeChange={(v: MapMode) => setFilters((f) => ({ ...f, mapMode: v }))}
-      exportSlot={exportSlot}
-    />
-  );
-
-  const modeSelector = (
-    <div style={{ padding: "14px 16px 12px", borderBottom: "1px solid var(--color-border)" }}>
-      <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--color-label)", marginBottom: 8 }}>
-        {t("dashboard.report_mode")}
-      </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        {MODE_OPTIONS.map((opt) => {
-          const active = mode === opt.value;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setMode(opt.value)}
-              style={{
-                minHeight: "var(--min-touch)",
-                padding: "0 14px",
-                borderRadius: 10,
-                border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
-                backgroundColor: active
-                  ? "color-mix(in srgb, var(--color-primary) 12%, var(--color-surface-2))"
-                  : "var(--color-surface-2)",
-                color: active ? "var(--color-primary)" : "var(--color-label)",
-                textAlign: "left",
-                cursor: "pointer",
-                transition: "border-color 0.15s, background-color 0.15s",
-              }}
-            >
-              <span style={{ display: "block", fontWeight: 600, fontSize: 12 }}>{opt.label}</span>
-              <span style={{ fontSize: 11, opacity: 0.7 }}>{MODE_META[opt.value].totalSteps} steps</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-
   const mapArea = (
-    <main style={{ flex: 1, position: "relative", height: "100%" }}>
+    <div
+      style={{
+        height: 220,
+        borderRadius: 16,
+        overflow: "hidden",
+        position: "relative",
+        flexShrink: 0,
+      }}
+    >
       {loading && (
-        <div style={{
-          position: "absolute",
-          top: 12,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 1000,
-          background: "var(--color-surface-2)",
-          border: "1px solid var(--color-border)",
-          borderRadius: 8,
-          padding: "6px 14px",
-          fontSize: 12,
-          color: "var(--color-text-secondary)",
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1000,
+            background: "var(--cr-surface)",
+            border: "1px solid var(--cr-border)",
+            borderRadius: 8,
+            padding: "5px 12px",
+            fontSize: 12,
+            color: "var(--cr-label)",
+          }}
+        >
           {t("dashboard.loading")}
         </div>
       )}
+      {/* Heat/Cluster toggle */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 10,
+          right: 10,
+          zIndex: 1001,
+          display: "flex",
+          gap: 4,
+        }}
+      >
+        {(["clusters", "heatmap"] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => setMapMode(m)}
+            style={{
+              padding: "5px 10px",
+              borderRadius: 8,
+              border: `1px solid ${mapMode === m ? "var(--cr-primary)" : "var(--cr-border)"}`,
+              background: mapMode === m ? "var(--cr-primary-dim)" : "rgba(0,0,0,0.6)",
+              color: mapMode === m ? "var(--cr-primary)" : "var(--cr-label)",
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {m === "clusters" ? "Clusters" : "Heat"}
+          </button>
+        ))}
+      </div>
       <MapContainer
         center={center}
         zoom={zoom}
@@ -282,92 +274,361 @@ export default function DashboardScreen({
           attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
           maxZoom={20}
         />
-        {!loading && filters.mapMode === "clusters" && (
+        {!loading && mapMode === "clusters" && (
           <ClusterLayer observations={filtered} onSelect={setSelectedObs} />
         )}
-        {!loading && filters.mapMode === "heatmap" && (
+        {!loading && mapMode === "heatmap" && (
           <HeatmapLayer points={filtered} />
         )}
       </MapContainer>
+    </div>
+  );
 
-      {selectedObs && (
-        <ObservationDetail
-          observation={selectedObs}
-          onClose={() => setSelectedObs(null)}
+  const content = (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        overflowY: "auto",
+        padding: "16px 20px",
+        gap: 16,
+      }}
+    >
+      {/* Metric cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+        {/* Total */}
+        <div
+          style={{
+            background: "var(--cr-surface)",
+            borderRadius: 14,
+            padding: "14px 12px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+          }}
+        >
+          <span style={{ fontSize: 28, fontWeight: 700, color: "var(--cr-text)", lineHeight: 1 }}>
+            {loading ? "—" : totalCount}
+          </span>
+          <span style={{ fontSize: 11, color: "var(--cr-label)" }}>Total</span>
+        </div>
+
+        {/* Critical */}
+        <div
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            borderRadius: 14,
+            padding: "14px 12px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+          }}
+        >
+          <span style={{ fontSize: 28, fontWeight: 700, color: "#EF4444", lineHeight: 1 }}>
+            {loading ? "—" : criticalCount}
+          </span>
+          <span style={{ fontSize: 11, color: "var(--cr-label)" }}>severe+complete</span>
+        </div>
+
+        {/* Last 6h */}
+        <div
+          style={{
+            background: "rgba(232,130,58,0.08)",
+            border: "1px solid rgba(232,130,58,0.25)",
+            borderRadius: 14,
+            padding: "14px 12px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+          }}
+        >
+          <span style={{ fontSize: 28, fontWeight: 700, color: "var(--cr-primary)", lineHeight: 1 }}>
+            {loading ? "—" : last6hCount}
+          </span>
+          <span style={{ fontSize: 11, color: "var(--cr-label)" }}>↑ increasing</span>
+        </div>
+      </div>
+
+      {/* Map */}
+      {mapArea}
+
+      {/* Quick filters */}
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2 }}>
+        {QUICK_FILTERS.map((f) => {
+          const active = quickFilter === f.id;
+          return (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => setQuickFilter(f.id)}
+              style={{
+                flexShrink: 0,
+                padding: "8px 16px",
+                borderRadius: 20,
+                border: `1px solid ${active ? "var(--cr-primary)" : "var(--cr-border)"}`,
+                background: active ? "var(--cr-primary-dim)" : "var(--cr-surface)",
+                color: active ? "var(--cr-primary)" : "var(--cr-label)",
+                fontSize: 13,
+                fontWeight: active ? 600 : 400,
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              {f.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Critical list */}
+      <div>
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            color: "var(--cr-label)",
+            marginBottom: 10,
+          }}
+        >
+          Most Critical — Act Now
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {criticalList.length === 0 ? (
+            <p style={{ fontSize: 14, color: "var(--cr-label)", padding: "12px 0" }}>
+              No critical reports in current filter
+            </p>
+          ) : (
+            criticalList.map((obs) => {
+              const dotColor = DAMAGE_COLORS[obs.damage_level] ?? "var(--cr-label)";
+              const isCrit = obs.damage_level === "complete";
+              return (
+                <button
+                  key={obs.id}
+                  type="button"
+                  onClick={() => setSelectedObs(obs)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "12px 16px",
+                    borderRadius: 14,
+                    border: "1px solid var(--cr-border)",
+                    background: `${dotColor}0a`,
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "opacity 0.15s",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: dotColor,
+                      flexShrink: 0,
+                      animation: isCrit ? "pulse-dot 1.2s ease-in-out infinite" : "none",
+                    }}
+                  />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "var(--cr-text)",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {obs.infrastructure_name ?? "Unknown"}
+                    </p>
+                    <p style={{ fontSize: 12, color: "var(--cr-label)", marginTop: 2 }}>
+                      {obs.infrastructure_type} · {obs.damage_level}
+                    </p>
+                  </div>
+                  <i className="ti ti-chevron-right" style={{ fontSize: 16, color: "var(--cr-label)", flexShrink: 0 }} />
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Base actions */}
+      <div style={{ display: "flex", gap: 10, paddingTop: 4 }}>
+        <ExportButton
+          crisisId={crisisId}
+          filters={{
+            damageLevels: new Set<DamageLevel>(DAMAGE_LEVELS),
+            infraType: "all" as InfrastructureType | "all",
+          }}
+          rows={filtered}
         />
-      )}
-    </main>
+        <button
+          type="button"
+          onClick={() => {/* crisis settings TODO */}}
+          style={{
+            flex: 1,
+            minHeight: "var(--min-touch)",
+            borderRadius: 14,
+            border: "none",
+            background: "var(--cr-primary)",
+            color: "#fff",
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          <i className="ti ti-settings" style={{ fontSize: 18 }} />
+          Crisis settings
+        </button>
+      </div>
+    </div>
   );
 
   if (isMobile) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-surface)", color: "var(--color-text-primary)" }}>
-
-        {/* Collapsible accordion (above map) */}
-        {filtersOpen && (
-          <div style={{
-            overflowY: "auto",
-            maxHeight: "60vh",
-            borderBottom: "1px solid var(--color-border)",
-            background: "var(--color-surface)",
-          }}>
-            {modeSelector}
-            {filterPanel}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100dvh",
+          background: "var(--cr-bg)",
+          color: "var(--cr-text)",
+        }}
+      >
+        {/* Mobile header */}
+        <div style={{ flexShrink: 0, padding: "14px 20px", borderBottom: "1px solid var(--cr-border)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--cr-label)", fontWeight: 600 }}>
+                Agent Dashboard
+              </p>
+              <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)" }}>Porto Alegre · RS Floods</p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  padding: "4px 10px",
+                  borderRadius: 20,
+                  background: "rgba(239,68,68,0.12)",
+                  border: "1px solid rgba(239,68,68,0.3)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "#EF4444",
+                }}
+              >
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", animation: "pulse-dot 1s ease-in-out infinite" }} />
+                Live
+              </span>
+              <LanguageSelector variant="inline" />
+            </div>
           </div>
-        )}
-
-        {/* Map takes remaining space */}
-        <div style={{ flex: 1, position: "relative" }}>
-          {mapArea}
-
-          {/* Floating "Filters" button */}
-          <button
-            type="button"
-            onClick={() => setFiltersOpen((o) => !o)}
-            style={{
-              position: "absolute",
-              bottom: 24,
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 1001,
-              minHeight: "var(--min-touch)",
-              padding: "0 24px",
-              borderRadius: 24,
-              border: `1px solid ${filtersOpen ? "var(--color-primary)" : "var(--color-border)"}`,
-              backgroundColor: filtersOpen
-                ? "color-mix(in srgb, var(--color-primary) 15%, var(--color-surface-2))"
-                : "var(--color-surface-2)",
-              color: filtersOpen ? "var(--color-primary)" : "var(--color-value)",
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: "pointer",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M2 4h12M4 8h8M6 12h4" strokeLinecap="round" />
-            </svg>
-            {filtersOpen ? t("dashboard.filters_close") : t("dashboard.filters_open")}
-          </button>
         </div>
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          {content}
+        </div>
+        {selectedObs && (
+          <ObservationDetail observation={selectedObs} onClose={() => setSelectedObs(null)} />
+        )}
+        <BottomNav active="map" onHome={onGoHome} onMap={undefined} />
       </div>
     );
   }
 
   // Desktop layout
   return (
-    <div style={{ display: "flex", height: "100vh", background: "var(--color-surface)", color: "var(--color-text-primary)" }}>
-
-      {/* Left sidebar: mode selector + filter panel */}
-      <div style={{ display: "flex", flexDirection: "column", flexShrink: 0, overflowY: "auto" }}>
-        {modeSelector}
-        {filterPanel}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100dvh",
+        background: "var(--cr-bg)",
+        color: "var(--cr-text)",
+      }}
+    >
+      {/* Desktop header */}
+      <div
+        style={{
+          flexShrink: 0,
+          padding: "14px 24px",
+          borderBottom: "1px solid var(--cr-border)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>
+          <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--cr-label)", fontWeight: 600 }}>
+            Agent Dashboard
+          </p>
+          <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)" }}>Porto Alegre · RS Floods</p>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "4px 10px",
+              borderRadius: 20,
+              background: "rgba(239,68,68,0.12)",
+              border: "1px solid rgba(239,68,68,0.3)",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#EF4444",
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", animation: "pulse-dot 1s ease-in-out infinite" }} />
+            Live
+          </span>
+          <LanguageSelector variant="inline" />
+        </div>
       </div>
 
-      {mapArea}
+      {/* Desktop: sidebar + full map */}
+      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+        {/* Sidebar */}
+        <div style={{ width: 360, flexShrink: 0, overflowY: "auto", borderRight: "1px solid var(--cr-border)" }}>
+          {content}
+        </div>
+
+        {/* Full map */}
+        <main style={{ flex: 1, position: "relative" }}>
+          <MapContainer
+            center={center}
+            zoom={zoom}
+            style={{ height: "100%", width: "100%" }}
+            zoomControl={false}
+          >
+            <TileLayer
+              url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
+              maxZoom={20}
+            />
+            {!loading && mapMode === "clusters" && (
+              <ClusterLayer observations={filtered} onSelect={setSelectedObs} />
+            )}
+            {!loading && mapMode === "heatmap" && (
+              <HeatmapLayer points={filtered} />
+            )}
+          </MapContainer>
+          {selectedObs && (
+            <ObservationDetail observation={selectedObs} onClose={() => setSelectedObs(null)} />
+          )}
+        </main>
+      </div>
     </div>
   );
 }
