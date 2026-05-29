@@ -77,10 +77,7 @@ function AppInner() {
   // ── Agent mode ───────────────────────────────────────────────────────────────
   if (appMode === "agent") {
     return (
-      <>
-        <LanguageSelector />
-        <DashboardScreen />
-      </>
+      <DashboardScreen onGoHome={() => setAppMode("index")} />
     );
   }
 
@@ -88,7 +85,7 @@ function AppInner() {
   if (appMode === "map") {
     return (
       <>
-        <LanguageSelector />
+        <LanguageSelector variant="fixed" />
         <CommunityMapScreen
           crisisId={CRISIS_ID}
           onBack={() => setAppMode("index")}
@@ -100,34 +97,27 @@ function AppInner() {
   // ── Confirmation ──────────────────────────────────────────────────────────────
   if (appMode === "citizen" && confirmed) {
     return (
-      <>
-        <LanguageSelector />
-        <ConfirmationScreen
-          {...confirmed}
-          onReportAnother={handleReportAnother}
-          onViewMap={() => setAppMode("map")}
-        />
-      </>
+      <ConfirmationScreen
+        {...confirmed}
+        onReportAnother={handleReportAnother}
+        onViewMap={() => setAppMode("map")}
+      />
     );
   }
 
   // ── Index ──────────────────────────────────────────────────────────────────────
   if (appMode === "index") {
     return (
-      <>
-        <LanguageSelector />
-        <IndexScreen
-          onSelectCitizen={startCitizenFlow}
-          onSelectAgent={() => setAppMode("agent")}
-          onSelectMap={() => setAppMode("map")}
-        />
-      </>
+      <IndexScreen
+        onSelectCitizen={startCitizenFlow}
+        onSelectAgent={() => setAppMode("agent")}
+        onSelectMap={() => setAppMode("map")}
+      />
     );
   }
 
   // ── Citizen flow ───────────────────────────────────────────────────────────────
 
-  // Build observationInput for full/contextual modes
   const fullObservationInput: ObservationInput | null =
     cameraData && locationData && classificationData && detailsData
       ? {
@@ -150,7 +140,6 @@ function AppInner() {
         }
       : null;
 
-  // Build observationInput for rapid mode (no details step)
   const rapidObservationInput: ObservationInput | null =
     cameraData && locationData && rapidData
       ? {
@@ -172,15 +161,19 @@ function AppInner() {
   const ml = modeMeta.label;
   const ts = modeMeta.totalSteps;
 
+  const navProps = {
+    onGoHome: () => setAppMode("index"),
+    onGoMap: () => setAppMode("map"),
+  };
+
   return (
     <>
-      <LanguageSelector />
-
       {step === "camera" && (
         <CameraScreen
           onCapture={handleCameraCapture}
           modeLabel={ml}
           totalSteps={ts}
+          {...navProps}
         />
       )}
 
@@ -190,36 +183,41 @@ function AppInner() {
           onBack={() => setStep("camera")}
           modeLabel={ml}
           totalSteps={ts}
+          {...navProps}
         />
       )}
 
-      {/* Rapid mode: single combined damage+infra step */}
       {step === "rapid-classification" && (
         <RapidClassificationScreen
           onConfirm={handleRapidConfirm}
           onBack={() => setStep("location")}
+          {...navProps}
         />
       )}
 
-      {/* Full / Contextual mode: classification step */}
       {step === "classification" && (
-        <ClassificationScreen
-          onConfirm={handleClassificationConfirm}
-          onBack={() => setStep("location")}
-          modeLabel={ml}
-          totalSteps={ts}
-        />
+        <>
+          <LanguageSelector variant="fixed" />
+          <ClassificationScreen
+            onConfirm={handleClassificationConfirm}
+            onBack={() => setStep("location")}
+            modeLabel={ml}
+            totalSteps={ts}
+          />
+        </>
       )}
 
-      {/* Full / Contextual mode: details step */}
       {step === "details" && (
-        <DetailsScreen
-          modularFieldsEnabled={crisisMode === "contextual"}
-          onConfirm={handleDetailsConfirm}
-          onBack={() => setStep("classification")}
-          modeLabel={ml}
-          totalSteps={ts}
-        />
+        <>
+          <LanguageSelector variant="fixed" />
+          <DetailsScreen
+            modularFieldsEnabled={crisisMode === "contextual"}
+            onConfirm={handleDetailsConfirm}
+            onBack={() => setStep("classification")}
+            modeLabel={ml}
+            totalSteps={ts}
+          />
+        </>
       )}
 
       {step === "review" && observationInput && (
@@ -229,6 +227,7 @@ function AppInner() {
           onBack={() => setStep(crisisMode === "rapid" ? "rapid-classification" : "details")}
           modeLabel={ml}
           totalSteps={ts}
+          {...navProps}
         />
       )}
     </>

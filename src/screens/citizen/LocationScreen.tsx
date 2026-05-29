@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CrisisMap from "../../components/map/CrisisMap";
+import LanguageSelector from "../../components/LanguageSelector";
+import BottomNav from "../../components/BottomNav";
 import type { FeatureCollection } from "geojson";
 import buildingsData from "../../data/buildings-poa-sample.geojson";
 
@@ -17,58 +19,47 @@ export interface LocationResult {
 }
 
 interface Props {
-  crisisCenter?: [number, number]; // defaults to POA demo
+  crisisCenter?: [number, number];
   onConfirm: (result: LocationResult) => void;
   onBack: () => void;
   modeLabel?: string;
   totalSteps?: number;
+  onGoHome?: () => void;
+  onGoMap?: () => void;
 }
 
-// Truncate to 3 decimal places → ~50 m precision (privacy)
 function trunc(n: number) {
   return Math.round(n * 1000) / 1000;
 }
 
-function ProgressBar({ step, total }: { step: number; total: number }) {
+function ProgressBar({ pct }: { pct: number }) {
   return (
-    <div className="w-full h-1 bg-surface-2 rounded-full overflow-hidden">
+    <div style={{ height: 3, background: "var(--cr-surface2)", borderRadius: 2, overflow: "hidden" }}>
       <div
-        className="h-full bg-amber-400 rounded-full transition-all duration-300"
-        style={{ width: `${(step / total) * 100}%` }}
+        style={{
+          height: "100%",
+          width: `${pct}%`,
+          background: "var(--cr-primary)",
+          borderRadius: 2,
+          transition: "width 0.3s",
+        }}
       />
     </div>
-  );
-}
-
-function GpsStatusBadge({ status, t }: { status: GpsStatus; t: (key: string) => string }) {
-  if (status === "loading") {
-    return (
-      <span className="flex items-center gap-2 text-sm text-text-secondary">
-        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-        {t("location.gps_loading")}
-      </span>
-    );
-  }
-  if (status === "ok") {
-    return (
-      <span className="flex items-center gap-2 text-sm text-text-secondary">
-        <span className="w-2 h-2 rounded-full bg-low" />
-        {t("location.gps_ok")}
-      </span>
-    );
-  }
-  return (
-    <span className="flex items-center gap-2 text-sm text-amber-400">
-      <span className="w-2 h-2 rounded-full bg-amber-400" />
-      {t("location.gps_failed")}
-    </span>
   );
 }
 
 const POA_CENTER: [number, number] = [-30.029, -51.228];
 const PIN_ID = "location-pin";
 
-export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
+export default function LocationScreen({
+  crisisCenter = POA_CENTER,
+  onConfirm,
+  onBack,
+  modeLabel,
+  totalSteps = 3,
+  onGoHome,
+  onGoMap,
+}: Props) {
   const { t } = useTranslation();
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>("loading");
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
@@ -140,42 +131,85 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
     ? [{ id: PIN_ID, lat: pin.lat, lng: pin.lng, damageLevel: "minimal" as const, draggable: true }]
     : [];
 
+  const stepNum = 2;
+  const pct = (stepNum / totalSteps) * 100;
+  const headerLabel = modeLabel
+    ? `${modeLabel} — STEP ${stepNum} OF ${totalSteps}`
+    : t("location.step");
+
   return (
-    <div className="flex flex-col h-screen bg-surface text-text-primary">
-
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100dvh",
+        background: "var(--cr-bg)",
+        color: "var(--cr-text)",
+      }}
+    >
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
-        <ProgressBar step={2} total={totalSteps} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">
-          {modeLabel ? `${modeLabel} — STEP 2 OF ${totalSteps}` : t("location.step")}
-        </p>
+      <div style={{ flexShrink: 0, padding: "16px 20px 12px" }}>
+        <ProgressBar pct={pct} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: 10,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 13,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--cr-label)",
+              fontWeight: 600,
+            }}
+          >
+            {headerLabel}
+          </span>
+          <LanguageSelector variant="inline" />
+        </div>
       </div>
 
-      {/* Map — 60% viewport height */}
-      <div className="flex-none" style={{ height: "60vh" }}>
-        <CrisisMap
-          center={mapCenter}
-          zoom={15}
-          buildings={buildingsData as FeatureCollection}
-          selectedBuildingId={selectedBuilding?.id}
-          onBuildingClick={(id, name) => setSelectedBuilding({ id, name })}
-          pins={pins}
-          onPinDragEnd={handlePinDrag}
-          className="rounded-none"
-        />
+      {/* Map */}
+      <div style={{ flexShrink: 0, height: 300, padding: "0 20px" }}>
+        <div style={{ height: "100%", borderRadius: 20, overflow: "hidden" }}>
+          <CrisisMap
+            center={mapCenter}
+            zoom={15}
+            buildings={buildingsData as FeatureCollection}
+            selectedBuildingId={selectedBuilding?.id}
+            onBuildingClick={(id, name) => setSelectedBuilding({ id, name })}
+            pins={pins}
+            onPinDragEnd={handlePinDrag}
+            className="rounded-none"
+          />
+        </div>
       </div>
 
-      {/* Building selected banner */}
+      {/* Building banner */}
       {selectedBuilding && (
-        <div className="flex-none flex items-center justify-between px-4 py-2.5 bg-surface-2 border-b border-border">
-          <span className="text-sm text-text-secondary">
-            Edifício selecionado:{" "}
-            <span className="font-semibold text-text-primary">{selectedBuilding.name}</span>
+        <div
+          style={{
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "10px 20px",
+            background: "var(--cr-surface)",
+            borderBottom: "1px solid var(--cr-border)",
+          }}
+        >
+          <span style={{ fontSize: 14, color: "var(--cr-label)" }}>
+            Building:{" "}
+            <span style={{ fontWeight: 600, color: "var(--cr-text)" }}>{selectedBuilding.name}</span>
           </span>
           <button
             type="button"
             onClick={() => setSelectedBuilding(null)}
-            className="text-text-muted text-lg leading-none active:opacity-60"
+            style={{ background: "none", border: "none", color: "var(--cr-label)", fontSize: 18, cursor: "pointer", padding: "0 4px" }}
             aria-label={t("location.remove_selection")}
           >
             ×
@@ -184,15 +218,45 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
       )}
 
       {/* Bottom panel */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
+      <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
 
         {/* GPS status */}
-        <GpsStatusBadge status={gpsStatus} t={t} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background:
+                gpsStatus === "ok"
+                  ? "#22C55E"
+                  : gpsStatus === "loading"
+                  ? "var(--cr-primary)"
+                  : "var(--cr-severe)",
+              animation: gpsStatus === "loading" ? "pulse-dot 1.2s ease-in-out infinite" : "none",
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: 15, fontWeight: 600, color: "var(--cr-text)" }}>
+            {gpsStatus === "ok"
+              ? t("location.gps_ok")
+              : gpsStatus === "loading"
+              ? t("location.gps_loading")
+              : t("location.gps_failed")}
+          </span>
+        </div>
 
-        {/* Address field — always visible when GPS failed */}
+        {/* Address field when GPS failed */}
         {gpsStatus === "failed" && (
-          <div className="space-y-1">
-            <label className="text-xs text-text-muted uppercase tracking-wide">
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label
+              style={{
+                fontSize: 13,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "var(--cr-label)",
+              }}
+            >
               {t("location.address_label")}
             </label>
             <input
@@ -200,32 +264,76 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
               value={address}
               onChange={handleAddressChange}
               placeholder={t("location.address_placeholder")}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-amber-400 transition-colors"
+              style={{
+                width: "100%",
+                background: "var(--cr-surface)",
+                border: "1px solid var(--cr-border)",
+                borderRadius: 12,
+                padding: "12px 14px",
+                fontSize: 15,
+                color: "var(--cr-text)",
+                outline: "none",
+              }}
             />
           </div>
         )}
 
-        {/* Coordinates display */}
+        {/* Location card */}
         {pin && (
-          <div className="flex gap-4 text-xs text-text-muted font-mono">
-            <span>{t("location.lat")} {pin.lat.toFixed(3)}</span>
-            <span>{t("location.lng")} {pin.lng.toFixed(3)}</span>
-            <span className="ml-auto uppercase tracking-wide">{t(`enum.method_${method}`)}</span>
+          <div
+            style={{
+              background: "var(--cr-surface)",
+              borderRadius: 14,
+              padding: "14px 16px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 13,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "var(--cr-label)",
+              }}
+            >
+              GPS
+            </span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: "var(--cr-text)" }}>
+              Porto Alegre, Rio Grande do Sul
+            </span>
+            <span style={{ fontSize: 13, color: "var(--cr-label)" }}>
+              {pin.lat.toFixed(3)}°S, {pin.lng.toFixed(3)}°W
+            </span>
           </div>
         )}
 
         {/* Privacy note */}
-        <p className="text-xs text-text-muted leading-relaxed">
-          {t("location.privacy_note")}
-        </p>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+          <i className="ti ti-lock" style={{ fontSize: 14, color: "rgba(255,255,255,0.3)", marginTop: 1, flexShrink: 0 }} />
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", lineHeight: 1.4 }}>
+            {t("location.privacy_note")}
+          </p>
+        </div>
 
         {/* Actions */}
-        <div className="flex gap-3 mt-auto">
+        <div style={{ display: "flex", gap: 10, marginTop: "auto", paddingTop: 8 }}>
           <button
             type="button"
             onClick={onBack}
-            className="flex-1 rounded-xl border text-sm font-medium active:opacity-70"
-            style={{ minHeight: "var(--min-touch)", minWidth: 120, borderColor: "var(--color-border)", color: "var(--color-label)" }}
+            style={{
+              flex: 1,
+              minHeight: "var(--min-touch)",
+              borderRadius: 16,
+              border: "1px solid var(--cr-border)",
+              background: "var(--cr-surface)",
+              color: "var(--cr-label)",
+              fontSize: 15,
+              fontWeight: 500,
+              cursor: "pointer",
+              padding: 18,
+            }}
           >
             {t("common.back")}
           </button>
@@ -233,13 +341,26 @@ export default function LocationScreen({ crisisCenter = POA_CENTER, onConfirm, o
             type="button"
             onClick={handleConfirm}
             disabled={!canConfirm}
-            className="flex-1 rounded-xl text-white text-sm font-semibold disabled:opacity-40 active:opacity-80 transition-opacity"
-            style={{ minHeight: "var(--min-touch)", minWidth: 120, backgroundColor: "var(--color-primary)" }}
+            style={{
+              flex: 2,
+              minHeight: "var(--min-touch)",
+              borderRadius: 16,
+              border: "none",
+              background: canConfirm ? "var(--cr-primary)" : "var(--cr-surface2)",
+              color: canConfirm ? "#fff" : "var(--cr-label)",
+              fontSize: 15,
+              fontWeight: 700,
+              cursor: canConfirm ? "pointer" : "not-allowed",
+              padding: 18,
+              transition: "background 0.15s",
+            }}
           >
-            {t("location.confirm")}
+            Confirm location →
           </button>
         </div>
       </div>
+
+      <BottomNav active="report" onHome={onGoHome} onMap={onGoMap} />
     </div>
   );
 }

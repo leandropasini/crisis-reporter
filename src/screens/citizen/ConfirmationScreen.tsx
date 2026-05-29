@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "../../services/supabase";
 import { encodeGeohash, decodeGeohashBbox } from "../../utils/geohash";
 import type { ReviewSuccessPayload } from "./ReviewScreen";
+import LanguageSelector from "../../components/LanguageSelector";
+import BottomNav from "../../components/BottomNav";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -13,45 +15,10 @@ interface Props extends ReviewSuccessPayload {
   onViewMap?: () => void;
 }
 
-interface DamageCounts {
+interface AreaStats {
   total: number;
-  minimal: number;
-  partial: number;
-  complete: number;
-}
-
-function CheckIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <path d="M6 16l8 8L26 8" stroke="var(--color-minimal)" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function QueuedIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="var(--color-warning)" strokeWidth="2">
-      <path d="M4 20a12 12 0 0 1 20-9M16 8v8l4 4" strokeLinecap="round" />
-      <path d="M28 12a12 12 0 0 1-20 9" strokeLinecap="round" strokeDasharray="3 2" />
-    </svg>
-  );
-}
-
-function DamageBar({ counts }: { counts: DamageCounts }) {
-  const { minimal, partial, complete, total } = counts;
-  return (
-    <div className="w-full flex rounded-full overflow-hidden" style={{ height: 6 }}>
-      {minimal > 0 && (
-        <div style={{ flex: minimal / total, backgroundColor: "var(--color-minimal)" }} />
-      )}
-      {partial > 0 && (
-        <div style={{ flex: partial / total, backgroundColor: "var(--color-warning)" }} />
-      )}
-      {complete > 0 && (
-        <div style={{ flex: complete / total, backgroundColor: "var(--color-critical)" }} />
-      )}
-    </div>
-  );
+  contributors: number;
+  last6h: number;
 }
 
 export default function ConfirmationScreen({
@@ -65,8 +32,8 @@ export default function ConfirmationScreen({
   onViewMap,
 }: Props) {
   const { t } = useTranslation();
-  const [counts, setCounts] = useState<DamageCounts | null>(null);
-  const [loadingArea, setLoadingArea] = useState(true);
+  const [stats, setStats] = useState<AreaStats | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const shortId = id.replace(/-/g, "").slice(0, 8).toUpperCase();
   const geohash = encodeGeohash(lat, lng, geohashPrecision);
@@ -75,31 +42,34 @@ export default function ConfirmationScreen({
     async function fetchAreaStats() {
       try {
         const since48h = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+        const since6h  = new Date(Date.now() -  6 * 60 * 60 * 1000).toISOString();
         const bbox = decodeGeohashBbox(geohash);
 
         const { data, error } = await db
           .from("observations")
-          .select("damage_level")
+          .select("damage_level, client_created_at")
           .eq("crisis_id", crisisId)
           .gte("latitude", bbox.minLat)
           .lte("latitude", bbox.maxLat)
           .gte("longitude", bbox.minLng)
           .lte("longitude", bbox.maxLng)
-          .gte("client_created_at", since48h) as { data: { damage_level: string }[] | null; error: unknown };
+          .gte("client_created_at", since48h) as {
+            data: { damage_level: string; client_created_at: string }[] | null;
+            error: unknown;
+          };
 
         if (!error && data) {
-          const c = { total: data.length, minimal: 0, partial: 0, complete: 0 };
-          for (const row of data) {
-            if (row.damage_level === "minimal") c.minimal++;
-            else if (row.damage_level === "partial") c.partial++;
-            else if (row.damage_level === "complete") c.complete++;
-          }
-          setCounts(c);
+          const last6h = data.filter((r) => r.client_created_at >= since6h).length;
+          setStats({
+            total: data.length,
+            contributors: data.length, // one per report in this context
+            last6h,
+          });
         }
       } catch {
-        // network unavailable — show fallback
+        // network unavailable
       } finally {
-        setLoadingArea(false);
+        setLoading(false);
       }
     }
 
@@ -107,83 +77,221 @@ export default function ConfirmationScreen({
   }, [crisisId, geohash]);
 
   return (
-    <div className="flex flex-col h-screen bg-surface text-text-primary items-center justify-center px-6 gap-6">
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100dvh",
+        background: "var(--cr-bg)",
+        color: "var(--cr-text)",
+      }}
+    >
+      {/* Header */}
+      <div style={{ flexShrink: 0, padding: "16px 20px 12px" }}>
+        <div style={{ height: 3, background: "#22C55E", borderRadius: 2 }} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: 10,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 13,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--cr-label)",
+              fontWeight: 600,
+            }}
+          >
+            REPORT RECEIVED
+          </span>
+          <LanguageSelector variant="inline" />
+        </div>
+      </div>
 
-      {/* Status icon */}
+      {/* Body */}
       <div
-        className="w-20 h-20 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: queued ? "color-mix(in srgb, var(--color-warning) 9%, transparent)" : "color-mix(in srgb, var(--color-minimal) 9%, transparent)" }}
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "16px 20px 24px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 20,
+        }}
       >
-        {queued ? <QueuedIcon /> : <CheckIcon />}
-      </div>
-
-      {/* Message */}
-      <div className="text-center space-y-2">
-        <p className="text-lg font-semibold text-text-primary">
-          {queued ? t("confirmation.saved_locally") : t("confirmation.received")}
-        </p>
-        <p className="text-sm text-text-muted">
-          {queued
-            ? t("confirmation.will_sync")
-            : t("confirmation.added_to_map")}
-        </p>
-      </div>
-
-      {/* Report ID badge */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-surface-2 rounded-lg border border-border">
-        <span className="text-xs text-text-muted uppercase tracking-wide">ID</span>
-        <span
-          className="text-sm text-text-muted tracking-widest"
-          style={{ fontFamily: "JetBrains Mono, ui-monospace, monospace" }}
+        {/* Checkmark */}
+        <div
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: "50%",
+            background: queued ? "rgba(245,158,11,0.12)" : "rgba(34,197,94,0.12)",
+            border: `1px solid ${queued ? "rgba(245,158,11,0.3)" : "rgba(34,197,94,0.3)"}`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
-          {shortId}
-        </span>
-      </div>
+          <i
+            className={`ti ${queued ? "ti-clock" : "ti-check"}`}
+            style={{
+              fontSize: 36,
+              color: queued ? "#F59E0B" : "#22C55E",
+            }}
+          />
+        </div>
 
-      {/* Community impact */}
-      <div className="w-full max-w-xs bg-surface-2 border border-border rounded-xl px-4 py-4 text-center space-y-3">
-        {loadingArea ? (
-          <p className="text-sm text-text-muted">{t("confirmation.loading_area")}</p>
-        ) : counts !== null && counts.total >= 2 ? (
-          <>
-            <p className="text-sm text-text-muted leading-relaxed">
-              {t("confirmation.area_count_48h", { count: counts.total })}
+        {/* Message */}
+        <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 6 }}>
+          <p style={{ fontSize: 24, fontWeight: 700, color: "var(--cr-text)" }}>
+            {queued ? t("confirmation.saved_locally") : t("confirmation.received")}
+          </p>
+          <p style={{ fontSize: 15, color: "var(--cr-label)" }}>
+            {queued ? t("confirmation.will_sync") : "Added to the collective response picture"}
+          </p>
+        </div>
+
+        {/* ID badge */}
+        <div
+          style={{
+            padding: "7px 16px",
+            background: "#1a1a1a",
+            border: "1px solid var(--cr-border)",
+            borderRadius: 10,
+          }}
+        >
+          <span style={{ fontSize: 12, color: "var(--cr-label)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
+            ID: {shortId}
+          </span>
+        </div>
+
+        {/* Community impact */}
+        <div
+          style={{
+            width: "100%",
+            background: "var(--cr-surface)",
+            borderRadius: 18,
+            padding: "18px 20px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+          }}
+        >
+          <p
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              color: "var(--cr-label)",
+            }}
+          >
+            Community Impact View
+          </p>
+
+          {loading ? (
+            <p style={{ fontSize: 14, color: "var(--cr-label)", textAlign: "center" }}>
+              {t("confirmation.loading_area")}
             </p>
-            <DamageBar counts={counts} />
-            <div className="flex justify-between text-xs text-text-muted">
-              <span style={{ color: "var(--color-minimal)" }}>{counts.minimal}</span>
-              <span style={{ color: "var(--color-warning)" }}>{counts.partial}</span>
-              <span style={{ color: "var(--color-critical)" }}>{counts.complete}</span>
-            </div>
-          </>
-        ) : counts !== null && counts.total === 1 ? (
-          <p className="text-sm text-text-muted leading-relaxed">
-            {t("confirmation.your_first")}
-          </p>
-        ) : (
-          <p className="text-sm text-text-muted leading-relaxed">
-            {t("confirmation.first_report")}
-          </p>
-        )}
+          ) : stats && stats.total >= 1 ? (
+            <>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontSize: 48, fontWeight: 700, color: "var(--cr-text)", lineHeight: 1 }}>
+                  {stats.total}
+                </span>
+                <span style={{ fontSize: 13, color: "var(--cr-label)" }}>
+                  reports within / 1.2 km radius
+                </span>
+              </div>
+              <p style={{ fontSize: 13, color: "var(--cr-primary)", fontWeight: 500 }}>
+                +{stats.last6h} in last 6 hours · last 48h
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+                {[
+                  { label: "Buildings", value: stats.total },
+                  { label: "Contributors", value: stats.contributors },
+                  { label: "Trending", icon: "ti-trending-up", iconColor: "#22C55E" },
+                ].map((cell) => (
+                  <div
+                    key={cell.label}
+                    style={{
+                      background: "#111",
+                      borderRadius: 12,
+                      padding: 12,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    {cell.icon ? (
+                      <i className={`ti ${cell.icon}`} style={{ fontSize: 22, color: cell.iconColor }} />
+                    ) : (
+                      <span style={{ fontSize: 22, fontWeight: 700, color: "var(--cr-text)" }}>{cell.value}</span>
+                    )}
+                    <span style={{ fontSize: 11, color: "var(--cr-label)" }}>{cell.label}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p style={{ fontSize: 14, color: "var(--cr-label)", lineHeight: 1.5, textAlign: "center" }}>
+              Your report is the first in this area —
+              be the signal that activates the network
+            </p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
+          <button
+            type="button"
+            onClick={onViewMap}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 10,
+              width: "100%",
+              minHeight: "var(--min-touch)",
+              borderRadius: 16,
+              border: "none",
+              background: "var(--cr-primary)",
+              color: "#fff",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            <i className="ti ti-map-2" style={{ fontSize: 20 }} />
+            View community map
+          </button>
+          <button
+            type="button"
+            onClick={onReportAnother}
+            style={{
+              width: "100%",
+              minHeight: "var(--min-touch)",
+              borderRadius: 16,
+              border: "1px solid var(--cr-border)",
+              background: "var(--cr-surface)",
+              color: "var(--cr-label)",
+              fontSize: 15,
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            Submit another report
+          </button>
+        </div>
       </div>
 
-      {/* Actions */}
-      <div className="w-full max-w-xs space-y-3 pt-2">
-        <button
-          type="button"
-          onClick={onReportAnother}
-          className="w-full py-3 rounded-xl bg-accent text-white text-sm font-semibold active:opacity-80"
-        >
-          {t("confirmation.report_another")}
-        </button>
-        <button
-          type="button"
-          onClick={onViewMap}
-          className="w-full py-3 rounded-xl border border-border text-text-secondary text-sm font-medium active:opacity-70"
-        >
-          {t("confirmation.view_map")}
-        </button>
-      </div>
+      <BottomNav active="report" onHome={onReportAnother} onMap={onViewMap} />
     </div>
   );
 }

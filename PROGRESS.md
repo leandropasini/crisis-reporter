@@ -1,6 +1,6 @@
 # Crisis Reporter — Session Progress
 
-## Last updated: 2026-05-28
+## Last updated: 2026-05-29
 
 ---
 
@@ -75,11 +75,37 @@
 
 ---
 
-## Pendente
-- **CLAUDE.md**: atualizar com qualquer nova regra global de estilo introduzida
-- **Merges**: branches ainda não mergeadas na main (feature/three-modes → feature/ui-contrast → feature/dashboard-mobile → main)
+---
 
-## Próxima ação recomendada
-1. Verificar visualmente o app (opcional: `npm run dev`)
-2. Mergear branches na main: feature/three-modes → feature/ui-contrast → feature/dashboard-mobile → main
-3. Atualizar CLAUDE.md se necessário
+## v0.3 — Design Approved ✅ CONCLUÍDO
+**Branch:** `feature/design-approved`
+**Tag:** `v0.3-design-approved`
+
+### O que foi feito
+- **Design tokens v0.3**: `--cr-*` variables em `:root` (global.css / index.css)
+- **Tabler Icons** webfont via CDN em index.html
+- **IndexScreen**: badge "Active crisis" animado, cidade 38px, 3 cards uniformes com Tabler icons + chevron
+- **CameraScreen**: progress bar 3px, viewfinder quadrado com cantos em primary, botões full-width
+- **LocationScreen**: mapa 300px com border-radius, card de localização GPS, privacy note com ícone
+- **RapidClassificationScreen**: 3 níveis de dano com dot colorido + descrição, grid 4x2 de infra com labels sempre visíveis
+- **ReviewScreen**: foto 4:3, summary card com 3 linhas separadas por border 0.5px
+- **ConfirmationScreen**: checkmark 72px, Community Impact View com grid 3 colunas
+- **DashboardScreen**: header com badge "Live", 3 metric cards, mapa 220px, quick filter pills, lista de críticos
+- **BottomNav**: novo componente compartilhado (Home, Report, Map)
+- **LanguageSelector**: suporte a variant="inline" para headers de tela
+- **Seed data**: 8 reportes em Porto Alegre (Humaitá, Sarandi, Navegantes, Anchieta) inseridos no Supabase
+- Zero TS errors novos (10 pré-existentes mantidos: FilterPanel + ClusterLayer + DEMO_OBSERVATIONS)
+
+### Critérios de Done
+| Critério | Status |
+|---|---|
+| IndexScreen com 3 cards + badge | ✅ |
+| Fluxo Mode 1 completo em < 30s | ✅ |
+| 3 níveis de dano com descrição | ✅ |
+| 8 categorias de infra com ícones + labels | ✅ |
+| Confirmação com Community Impact View | ✅ |
+| Dashboard com métricas, mapa, filtros, lista | ✅ |
+| Seed data em Porto Alegre | ✅ (8 rows) |
+| Zero TS errors novos | ✅ |
+| PROGRESS.md atualizado | ✅ |
+| Branch mergeada + tag | ✅ |
