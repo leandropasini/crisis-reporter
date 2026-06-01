@@ -48,14 +48,8 @@ export interface SubmitResult {
 export async function submitObservation(input: ObservationInput): Promise<SubmitResult> {
   const localId = crypto.randomUUID();
 
-  if (!navigator.onLine) {
-    try {
-      await queue.enqueue(input);
-    } catch {
-      // IndexedDB unavailable — still return queued result so UI can proceed
-    }
-    return { success: false, queued: true, id: localId };
-  }
+  // navigator.onLine is unreliable on mobile (iOS Safari / Android often returns
+  // false even with real connectivity). Always attempt; catch handles real failures.
 
   try {
     const sessionId = getSessionId();
@@ -89,7 +83,12 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
 
     return { success: true, queued: false, id: localId };
   } catch (err) {
-    await queue.enqueue(input);
+    console.error("[crisis-reporter] submit failed, queuing:", err);
+    try {
+      await queue.enqueue(input);
+    } catch {
+      // IndexedDB unavailable — still return queued so UI proceeds
+    }
     return {
       success: false,
       queued: true,
@@ -99,5 +98,7 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
   }
 }
 
+// Always flush pending queue on load and on reconnect.
+// Not gated on navigator.onLine — the flag is unreliable on mobile.
+void queue.flush(submitObservation);
 window.addEventListener("online", () => { void queue.flush(submitObservation); });
-if (navigator.onLine) void queue.flush(submitObservation);
