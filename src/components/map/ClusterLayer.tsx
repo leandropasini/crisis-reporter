@@ -22,16 +22,17 @@ export interface MappedObservation extends PopupObservation {
 const PIN_COLORS: Record<DamageLevel, string> = {
   minimal:  "#3ecf8e", // --color-minimal
   partial:  "#f59e0b", // --color-warning
+  severe:   "#F59E0B", // amber
   complete: "#ef4444", // --color-critical
 };
 
 const SEVERITY: Record<DamageLevel, number> = {
-  minimal: 0, partial: 1, complete: 2,
+  minimal: 0, partial: 1, severe: 2, complete: 3,
 };
 
 function pinIcon(damage: DamageLevel): L.DivIcon {
   const color = PIN_COLORS[damage];
-  const pulseRing = damage === "complete"
+  const pulseRing = damage === "complete" || damage === "severe"
     ? `<div class="damage-complete-ring"></div>`
     : "";
   return L.divIcon({

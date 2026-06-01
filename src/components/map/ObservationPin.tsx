@@ -7,11 +7,12 @@ import type { DamageLevel } from "../../types/schema";
 const PIN_COLORS: Record<DamageLevel, string> = {
   minimal:  "#3ecf8e", // --color-minimal
   partial:  "#f59e0b", // --color-warning
+  severe:   "#F59E0B", // amber
   complete: "#ef4444", // --color-critical
 };
 
 function makeIcon(color: string, damage: DamageLevel): L.DivIcon {
-  const pulseRing = damage === "complete"
+  const pulseRing = damage === "complete" || damage === "severe"
     ? `<div class="damage-complete-ring"></div>`
     : "";
   return L.divIcon({

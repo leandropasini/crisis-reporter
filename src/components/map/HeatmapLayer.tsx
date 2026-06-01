@@ -8,6 +8,7 @@ import type { DamageLevel } from "../../types/schema";
 const HEAT_WEIGHT: Record<DamageLevel, number> = {
   minimal:  0.3,
   partial:  0.6,
+  severe:   0.85,
   complete: 1.0,
 };
 

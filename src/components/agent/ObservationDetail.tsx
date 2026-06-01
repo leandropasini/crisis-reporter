@@ -5,6 +5,7 @@ import type { DamageLevel } from "../../types/schema";
 const DAMAGE_COLOR: Record<DamageLevel, string> = {
   minimal:  "var(--color-minimal)",
   partial:  "var(--color-warning)",
+  severe:   "#F59E0B",
   complete: "var(--color-critical)",
 };
 

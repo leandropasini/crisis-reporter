@@ -1,10 +1,11 @@
 import { useTranslation } from "react-i18next";
 import type { DamageLevel, InfrastructureType, ObservationSource } from "../../types/schema";
 
-const DAMAGE_LEVELS: DamageLevel[] = ["minimal", "partial", "complete"];
+const DAMAGE_LEVELS: DamageLevel[] = ["minimal", "partial", "severe", "complete"];
 const DAMAGE_COLOR: Record<DamageLevel, string> = {
   minimal:  "var(--color-minimal)",
   partial:  "var(--color-warning)",
+  severe:   "#F59E0B",
   complete: "var(--color-critical)",
 };
 
@@ -68,6 +69,7 @@ export default function FilterPanel({
   const DAMAGE_LABEL: Record<DamageLevel, string> = {
     minimal:  t("dashboard.damage_minimal"),
     partial:  t("dashboard.damage_partial"),
+    severe:   t("dashboard.damage_severe"),
     complete: t("dashboard.damage_complete"),
   };
 
