@@ -23,6 +23,10 @@ export const InfrastructureType = {
   TRANSPORT_COMM:    "transport_comm",
   COMMUNITY:         "community",
   PUBLIC_RECREATION: "public_recreation",
+  SCHOOL:            "school",
+  HEALTH_CENTER:     "health_center",
+  BRIDGE:            "bridge",
+  POWER_STATION:     "power_station",
   OTHER:             "other",
 } as const;
 export type InfrastructureType = (typeof InfrastructureType)[keyof typeof InfrastructureType];

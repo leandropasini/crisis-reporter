@@ -48,12 +48,12 @@ function pinIcon(damage: DamageLevel): L.DivIcon {
   });
 }
 
-function clusterIcon(cluster: L.MarkerCluster): L.DivIcon {
+function clusterIcon(cluster: { getAllChildMarkers: () => L.Marker[] }): L.DivIcon {
   const children = cluster.getAllChildMarkers();
   const count = children.length;
 
   let dominant: DamageLevel = "minimal";
-  children.forEach((m) => {
+  children.forEach((m: L.Marker) => {
     const cls = (m.options.icon as L.DivIcon | undefined)?.options.className ?? "";
     const levels: DamageLevel[] = ["complete", "partial", "minimal"];
     for (const lvl of levels) {
