@@ -37,6 +37,7 @@
     "damage_section": "损毁程度 *",
     "damage_minimal": "轻微损毁 / 无损毁",
     "damage_partial": "部分损毁",
+    "damage_severe": "重度损毁",
     "damage_complete": "严重损毁",
     "infra_section": "基础设施类型 *",
     "infra_placeholder": "描述基础设施类型…",
@@ -151,6 +152,7 @@
     "showing": "显示 {{filtered}} / {{total}} 条报告",
     "damage_minimal": "轻微",
     "damage_partial": "部分",
+    "damage_severe": "重度",
     "damage_complete": "严重",
     "infra_all": "所有类型",
     "infra_residential": "住宅",
@@ -205,6 +207,7 @@
     "time_days": "{{n}} 天前",
     "damage_minimal": "轻微",
     "damage_partial": "部分",
+    "damage_severe": "重度",
     "damage_complete": "严重"
   },
   "lang": {
@@ -219,6 +222,7 @@
   "enum": {
     "damage_minimal": "轻微",
     "damage_partial": "部分",
+    "damage_severe": "重度",
     "damage_complete": "严重",
     "infra_residential": "住宅",
     "infra_commercial": "商业",

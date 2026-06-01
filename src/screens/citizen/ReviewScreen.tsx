@@ -28,6 +28,7 @@ interface Props {
 const DAMAGE_COLORS: Record<string, string> = {
   minimal:  "#22C55E",
   partial:  "#E8823A",
+  severe:   "#F59E0B",
   complete: "#EF4444",
 };
 

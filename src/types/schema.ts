@@ -10,6 +10,7 @@ export type CrisisMode = (typeof CrisisMode)[keyof typeof CrisisMode];
 export const DamageLevel = {
   MINIMAL:  "minimal",
   PARTIAL:  "partial",
+  SEVERE:   "severe",
   COMPLETE: "complete",
 } as const;
 export type DamageLevel = (typeof DamageLevel)[keyof typeof DamageLevel];

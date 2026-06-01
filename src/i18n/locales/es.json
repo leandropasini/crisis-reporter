@@ -37,6 +37,7 @@
     "damage_section": "Nivel de daño *",
     "damage_minimal": "Daño mínimo / Sin daño",
     "damage_partial": "Daño parcial",
+    "damage_severe": "Daño grave",
     "damage_complete": "Daño total",
     "infra_section": "Tipo de infraestructura *",
     "infra_placeholder": "Describa el tipo de infraestructura…",
@@ -151,6 +152,7 @@
     "showing": "Mostrando {{filtered}} de {{total}} informes",
     "damage_minimal": "Mínimo",
     "damage_partial": "Parcial",
+    "damage_severe": "Grave",
     "damage_complete": "Total",
     "infra_all": "Todos los tipos",
     "infra_residential": "Residencial",
@@ -205,6 +207,7 @@
     "time_days": "hace {{n}} d",
     "damage_minimal": "Mínimo",
     "damage_partial": "Parcial",
+    "damage_severe": "Grave",
     "damage_complete": "Total"
   },
   "lang": {
@@ -219,6 +222,7 @@
   "enum": {
     "damage_minimal": "Mínimo",
     "damage_partial": "Parcial",
+    "damage_severe": "Grave",
     "damage_complete": "Total",
     "infra_residential": "Residencial",
     "infra_commercial": "Comercial",

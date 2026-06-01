@@ -103,6 +103,7 @@ const DEMO_OBSERVATIONS: MappedObservation[] = [
 const DAMAGE_COLORS: Record<string, string> = {
   minimal:  "#22C55E",
   partial:  "#E8823A",
+  severe:   "#F59E0B",
   complete: "#EF4444",
 };
 
@@ -169,7 +170,9 @@ export default function DashboardScreen({
 
   function applyQuickFilter(obs: MappedObservation[]): MappedObservation[] {
     switch (quickFilter) {
-      case "critical":  return obs.filter((o) => o.damage_level === "complete" || o.damage_level === "partial");
+      case "critical":  return obs.filter(
+        (o) => o.damage_level === "complete" || o.damage_level === "severe" || o.damage_level === "partial"
+      );
       case "health":    return obs.filter((o) => o.infrastructure_type === "community");
       case "education": return obs.filter((o) => o.infrastructure_type === "public_recreation");
       default: return obs;
@@ -179,12 +182,14 @@ export default function DashboardScreen({
   const filtered = applyQuickFilter(observations);
 
   const totalCount    = observations.length;
-  const criticalCount = observations.filter((o) => o.damage_level === "complete" || o.damage_level === "partial").length;
+  const criticalCount = observations.filter(
+    (o) => o.damage_level === "complete" || o.damage_level === "severe" || o.damage_level === "partial"
+  ).length;
   const since6h       = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString();
   const last6hCount   = observations.filter((o) => o.client_created_at >= since6h).length;
 
   const criticalList = [...observations]
-    .filter((o) => o.damage_level === "complete" || o.damage_level === "partial")
+    .filter((o) => o.damage_level === "complete" || o.damage_level === "severe" || o.damage_level === "partial")
     .sort((a, b) => {
       const priority = (o: MappedObservation) => {
         let score = o.damage_level === "complete" ? 10 : 5;
@@ -404,7 +409,7 @@ export default function DashboardScreen({
           ) : (
             criticalList.map((obs) => {
               const dotColor = DAMAGE_COLORS[obs.damage_level] ?? "var(--cr-label)";
-              const isCrit = obs.damage_level === "complete";
+              const isCrit = obs.damage_level === "complete" || obs.damage_level === "severe";
               return (
                 <button
                   key={obs.id}

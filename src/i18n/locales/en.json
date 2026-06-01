@@ -37,6 +37,7 @@
     "damage_section": "Damage level *",
     "damage_minimal": "Minimal / No damage",
     "damage_partial": "Partially damaged",
+    "damage_severe": "Severe damage",
     "damage_complete": "Completely damaged",
     "infra_section": "Infrastructure type *",
     "infra_placeholder": "Describe infrastructure type…",
@@ -151,6 +152,7 @@
     "showing": "Showing {{filtered}} of {{total}} reports",
     "damage_minimal": "Minimal",
     "damage_partial": "Partial",
+    "damage_severe": "Severe",
     "damage_complete": "Complete",
     "infra_all": "All types",
     "infra_residential": "Residential",
@@ -205,6 +207,7 @@
     "time_days": "{{n}}d ago",
     "damage_minimal": "Minimal",
     "damage_partial": "Partial",
+    "damage_severe": "Severe",
     "damage_complete": "Complete"
   },
   "lang": {
@@ -219,6 +222,7 @@
   "enum": {
     "damage_minimal": "Minimal",
     "damage_partial": "Partial",
+    "damage_severe": "Severe",
     "damage_complete": "Complete",
     "infra_residential": "Residential",
     "infra_commercial": "Commercial",
