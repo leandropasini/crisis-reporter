@@ -32,6 +32,7 @@ const DAMAGE_OPTIONS: {
 }[] = [
   { value: "minimal",  label: "Minimal",  desc: "Cracks in plaster, broken windows",    color: "#22C55E" },
   { value: "partial",  label: "Partial",  desc: "Large wall cracks, partial roof loss",  color: "#E8823A" },
+  { value: "severe",   label: "Severe",   desc: "Collapsed walls, unsafe to enter",      color: "#F59E0B" },
   { value: "complete", label: "Complete", desc: "Complete collapse, rubble only",         color: "#EF4444" },
 ];
 

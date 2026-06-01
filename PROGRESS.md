@@ -87,7 +87,7 @@
 - **IndexScreen**: badge "Active crisis" animado, cidade 38px, 3 cards uniformes com Tabler icons + chevron
 - **CameraScreen**: progress bar 3px, viewfinder quadrado com cantos em primary, botões full-width
 - **LocationScreen**: mapa 300px com border-radius, card de localização GPS, privacy note com ícone
-- **RapidClassificationScreen**: 3 níveis de dano com dot colorido + descrição, grid 4x2 de infra com labels sempre visíveis
+- **RapidClassificationScreen**: **4 níveis de dano** (Minimal/Partial/Severe/Complete) com dot colorido + descrição, grid 4x2 de infra com labels sempre visíveis
 - **ReviewScreen**: foto 4:3, summary card com 3 linhas separadas por border 0.5px
 - **ConfirmationScreen**: checkmark 72px, Community Impact View com grid 3 colunas
 - **DashboardScreen**: header com badge "Live", 3 metric cards, mapa 220px, quick filter pills, lista de críticos
@@ -101,7 +101,7 @@
 |---|---|
 | IndexScreen com 3 cards + badge | ✅ |
 | Fluxo Mode 1 completo em < 30s | ✅ |
-| 3 níveis de dano com descrição | ✅ |
+| 4 níveis de dano com descrição (Minimal/Partial/Severe/Complete) | ✅ |
 | 8 categorias de infra com ícones + labels | ✅ |
 | Confirmação com Community Impact View | ✅ |
 | Dashboard com métricas, mapa, filtros, lista | ✅ |
@@ -109,3 +109,18 @@
 | Zero TS errors novos | ✅ |
 | PROGRESS.md atualizado | ✅ |
 | Branch mergeada + tag | ✅ |
+
+---
+
+## v0.3 patch — Severe damage level + submit fix ✅ CONCLUÍDO
+**Branch:** `feature/design-approved` (2026-06-01)
+**Tag:** `v0.3-design-approved` (retagged)
+
+### O que foi feito
+- **Submit fix**: removido `navigator.onLine` gate que bloqueava submit em mobile (iOS Safari / Android WebView)
+- **schema.ts**: `DamageLevel.SEVERE = "severe"` adicionado entre PARTIAL e COMPLETE
+- **RapidClassificationScreen**: 4º nível de dano — Severe (#F59E0B) "Collapsed walls, unsafe to enter"
+- **ReviewScreen + DashboardScreen**: `DAMAGE_COLORS` atualizado com `severe: "#F59E0B"`
+- **DashboardScreen**: `criticalCount`, `criticalList`, `applyQuickFilter`, `isCrit` incluem "severe"
+- **i18n**: `damage_severe` adicionado em EN/ES/FR/AR/ZH/RU (4 seções cada)
+- Zero TS errors (npx tsc --noEmit limpo)

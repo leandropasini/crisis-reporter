@@ -37,6 +37,7 @@
     "damage_section": "مستوى الضرر *",
     "damage_minimal": "ضرر طفيف / لا ضرر",
     "damage_partial": "ضرر جزئي",
+    "damage_severe": "ضرر شديد",
     "damage_complete": "ضرر كلي",
     "infra_section": "نوع البنية التحتية *",
     "infra_placeholder": "صف نوع البنية التحتية…",
@@ -151,6 +152,7 @@
     "showing": "عرض {{filtered}} من {{total}} تقرير",
     "damage_minimal": "طفيف",
     "damage_partial": "جزئي",
+    "damage_severe": "شديد",
     "damage_complete": "كلي",
     "infra_all": "جميع الأنواع",
     "infra_residential": "سكني",
@@ -205,6 +207,7 @@
     "time_days": "منذ {{n}} ي",
     "damage_minimal": "طفيف",
     "damage_partial": "جزئي",
+    "damage_severe": "شديد",
     "damage_complete": "كلي"
   },
   "lang": {
@@ -219,6 +222,7 @@
   "enum": {
     "damage_minimal": "طفيف",
     "damage_partial": "جزئي",
+    "damage_severe": "شديد",
     "damage_complete": "كلي",
     "infra_residential": "سكني",
     "infra_commercial": "تجاري",

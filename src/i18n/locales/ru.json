@@ -37,6 +37,7 @@
     "damage_section": "Степень разрушений *",
     "damage_minimal": "Минимальные / Нет разрушений",
     "damage_partial": "Частичные разрушения",
+    "damage_severe": "Тяжёлые разрушения",
     "damage_complete": "Полные разрушения",
     "infra_section": "Тип инфраструктуры *",
     "infra_placeholder": "Опишите тип инфраструктуры…",
@@ -153,6 +154,7 @@
     "showing": "Показано {{filtered}} из {{total}} отчётов",
     "damage_minimal": "Минимальные",
     "damage_partial": "Частичные",
+    "damage_severe": "Тяжёлые",
     "damage_complete": "Полные",
     "infra_all": "Все типы",
     "infra_residential": "Жилой",
@@ -209,6 +211,7 @@
     "time_days": "{{n}} д назад",
     "damage_minimal": "Минимальные",
     "damage_partial": "Частичные",
+    "damage_severe": "Тяжёлые",
     "damage_complete": "Полные"
   },
   "lang": {
@@ -223,6 +226,7 @@
   "enum": {
     "damage_minimal": "Минимальные",
     "damage_partial": "Частичные",
+    "damage_severe": "Тяжёлые",
     "damage_complete": "Полные",
     "infra_residential": "Жилой",
     "infra_commercial": "Коммерческий",
