@@ -11,7 +11,8 @@ import LanguageSelector from "../../components/LanguageSelector";
 import BottomNav from "../../components/BottomNav";
 import { useCrisisMode } from "../../contexts/CrisisModeContext";
 import "../../components/map/map.css";
-import type { DamageLevel, InfrastructureType } from "../../types/schema";
+import type { DamageLevel, InfrastructureType, DisasterType } from "../../types/schema";
+import { DISASTER_TYPE_LABELS } from "../../constants/disasterDamage";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -137,12 +138,42 @@ export default function DashboardScreen({
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [demoMode, setDemoMode] = useState(() => localStorage.getItem(DEMO_MODE_KEY) === "true");
   const [showSettings, setShowSettings] = useState(false);
+  const [disasterType, setDisasterType] = useState<DisasterType>("generic");
 
   function toggleDemoMode() {
     const next = !demoMode;
     setDemoMode(next);
     localStorage.setItem(DEMO_MODE_KEY, String(next));
     onDemoModeChange?.(next);
+  }
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    async function fetchCrisisConfig() {
+      try {
+        const { data } = await db
+          .from("crises")
+          .select("disaster_type")
+          .eq("id", crisisId)
+          .single() as { data: { disaster_type: string } | null };
+        if (data?.disaster_type) {
+          setDisasterType(data.disaster_type as DisasterType);
+        }
+      } catch {
+        // keep default 'generic'
+      }
+    }
+    fetchCrisisConfig();
+  }, [crisisId]);
+
+  async function handleDisasterTypeChange(newType: DisasterType) {
+    setDisasterType(newType);
+    if (!isSupabaseConfigured) return;
+    try {
+      await db.from("crises").update({ disaster_type: newType }).eq("id", crisisId);
+    } catch {
+      // UI updated; DB failure is non-fatal for demo purposes
+    }
   }
 
   useEffect(() => {
@@ -478,87 +509,117 @@ export default function DashboardScreen({
       </div>
 
       {/* Base actions */}
-      <div style={{ display: "flex", gap: 10, paddingTop: 4 }}>
-        <ExportButton
-          crisisId={crisisId}
-          filters={{
-            damageLevels: new Set<DamageLevel>(DAMAGE_LEVELS),
-            infraType: "all" as InfrastructureType | "all",
-          }}
-          rows={filtered}
-        />
-        <button
-          type="button"
-          onClick={() => setShowSettings((v) => !v)}
-          style={{
-            flex: 1,
-            minHeight: "var(--min-touch)",
-            borderRadius: 14,
-            border: "none",
-            background: showSettings ? "var(--cr-surface2)" : "var(--cr-primary)",
-            color: "#fff",
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-          }}
-        >
-          <IconSettings size={18} />
-          Crisis settings
-        </button>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 4 }}>
+        <div style={{ display: "flex", gap: 10 }}>
+          <ExportButton
+            crisisId={crisisId}
+            filters={{
+              damageLevels: new Set<DamageLevel>(DAMAGE_LEVELS),
+              infraType: "all" as InfrastructureType | "all",
+            }}
+            rows={filtered}
+          />
+          <button
+            type="button"
+            onClick={() => setShowSettings((v) => !v)}
+            style={{
+              flex: 1,
+              minHeight: "var(--min-touch)",
+              borderRadius: 14,
+              border: "none",
+              background: showSettings ? "var(--cr-surface2)" : "var(--cr-primary)",
+              color: "#fff",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+            }}
+          >
+            <IconSettings size={18} />
+            Crisis settings
+          </button>
+        </div>
 
         {showSettings && (
           <div
             style={{
-              marginTop: 10,
               padding: "14px 16px",
               background: "var(--cr-surface)",
               border: "1px solid var(--cr-border)",
               borderRadius: 14,
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
             }}
           >
-            <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 700, marginBottom: 12 }}>
-              Demo Settings
-            </p>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 600, color: "var(--cr-text)" }}>Demo Mode</p>
-                <p style={{ fontSize: 12, color: "var(--cr-label)", marginTop: 2 }}>
-                  {demoMode ? "GPS locked: Porto Alegre (−30.029, −51.228)" : "GPS real do dispositivo"}
-                </p>
+            {/* Disaster type selector */}
+            <div>
+              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 700, marginBottom: 10 }}>
+                Disaster Type
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {(Object.keys(DISASTER_TYPE_LABELS) as DisasterType[]).map((type) => {
+                  const active = disasterType === type;
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => handleDisasterTypeChange(type)}
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: 20,
+                        border: `1px solid ${active ? "var(--cr-primary)" : "var(--cr-border)"}`,
+                        background: active ? "var(--cr-primary-dim)" : "var(--cr-surface)",
+                        color: active ? "var(--cr-primary)" : "var(--cr-label)",
+                        fontSize: 13,
+                        fontWeight: active ? 600 : 400,
+                        cursor: "pointer",
+                        minHeight: "var(--min-touch)",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      {DISASTER_TYPE_LABELS[type]}
+                    </button>
+                  );
+                })}
               </div>
-              <button
-                type="button"
-                onClick={toggleDemoMode}
-                style={{
-                  width: 44,
-                  height: 24,
-                  borderRadius: 12,
-                  border: "none",
-                  background: demoMode ? "var(--cr-primary)" : "var(--cr-border)",
-                  cursor: "pointer",
-                  position: "relative",
-                  flexShrink: 0,
-                  transition: "background 0.2s",
-                }}
-                aria-pressed={demoMode}
-              >
-                <span
+            </div>
+
+            {/* Demo mode toggle */}
+            <div>
+              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 700, marginBottom: 10 }}>
+                Demo Settings
+              </p>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: "var(--cr-text)" }}>Demo Mode</p>
+                  <p style={{ fontSize: 12, color: "var(--cr-label)", marginTop: 2 }}>
+                    {demoMode ? "GPS locked: Porto Alegre (−30.029, −51.228)" : "GPS real do dispositivo"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleDemoMode}
                   style={{
-                    position: "absolute",
-                    top: 2,
-                    left: demoMode ? 22 : 2,
-                    width: 20,
-                    height: 20,
-                    borderRadius: "50%",
-                    background: "#fff",
-                    transition: "left 0.2s",
+                    width: 44, height: 24, borderRadius: 12, border: "none",
+                    background: demoMode ? "var(--cr-primary)" : "var(--cr-border)",
+                    cursor: "pointer", position: "relative", flexShrink: 0, transition: "background 0.2s",
                   }}
-                />
-              </button>
+                  aria-pressed={demoMode}
+                >
+                  <span
+                    style={{
+                      position: "absolute", top: 2,
+                      left: demoMode ? 22 : 2,
+                      width: 20, height: 20, borderRadius: "50%",
+                      background: "#fff", transition: "left 0.2s",
+                    }}
+                  />
+                </button>
+              </div>
             </div>
           </div>
         )}
