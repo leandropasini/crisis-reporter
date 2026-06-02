@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconCloudOff } from "@tabler/icons-react";
 import type { ObservationInput } from "../../types/observation";
+import { getDisplayLevel } from "../../constants/disasterDamage";
 import { submitObservation } from "../../services/submit";
 import LanguageSelector from "../../components/LanguageSelector";
 import BottomNav from "../../components/BottomNav";
@@ -178,8 +179,8 @@ export default function ReviewScreen({
             },
             {
               label: t("review.label_damage"),
-              value: t(`enum.damage_${data.damageLevel}`),
-              color: DAMAGE_COLORS[data.damageLevel] ?? "var(--cr-text)",
+              value: data.damageLevelLabel ?? t(`enum.damage_${data.damageLevel}`),
+              color: DAMAGE_COLORS[getDisplayLevel(data.damageLevel)] ?? "var(--cr-text)",
             },
             {
               label: t("review.label_location"),

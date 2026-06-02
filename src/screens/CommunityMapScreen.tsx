@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../services/supabase";
+import { getDisplayLevel } from "../constants/disasterDamage";
 import CrisisMap from "../components/map/CrisisMap";
 import type { PinData } from "../components/map/CrisisMap";
 import BottomNav from "../components/BottomNav";
@@ -25,7 +26,7 @@ interface ObservationRow {
   id: string;
   latitude: number;
   longitude: number;
-  damage_level: DamageLevel;
+  damage_level: string;
 }
 
 export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBack, onGoHome, onGoReport }: Props) {
@@ -50,7 +51,7 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
             id: row.id,
             lat: row.latitude,
             lng: row.longitude,
-            damageLevel: row.damage_level,
+            damageLevel: getDisplayLevel(row.damage_level),
           }))
         );
       }
