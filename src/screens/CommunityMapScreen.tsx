@@ -35,7 +35,7 @@ export default function CommunityMapScreen({ crisisId, refreshKey, onBack, onGoH
 
   async function fetchPins() {
     try {
-      const since48h = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+      const since48h = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
       const { data, error } = await db
         .from("observations")
         .select("id, latitude, longitude, damage_level")

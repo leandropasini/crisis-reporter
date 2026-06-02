@@ -1,4 +1,7 @@
 import LanguageSelector from "../components/LanguageSelector";
+import { IconBuildingCommunity, IconMap2, IconLayoutDashboard, IconChevronRight } from "@tabler/icons-react";
+import type { ComponentType } from "react";
+import type { IconProps } from "@tabler/icons-react";
 
 interface Props {
   onSelectCitizen: () => void;
@@ -6,10 +9,17 @@ interface Props {
   onSelectMap: () => void;
 }
 
-const CARDS = [
+const CARDS: {
+  id: "citizen" | "map" | "agent";
+  Icon: ComponentType<IconProps>;
+  iconBg: string;
+  iconColor: string;
+  title: string;
+  desc: string;
+}[] = [
   {
     id: "citizen",
-    icon: "ti-building-community",
+    Icon: IconBuildingCommunity,
     iconBg: "rgba(239,68,68,0.12)",
     iconColor: "#EF4444",
     title: "I'm reporting damage",
@@ -17,7 +27,7 @@ const CARDS = [
   },
   {
     id: "map",
-    icon: "ti-map-2",
+    Icon: IconMap2,
     iconBg: "rgba(34,197,94,0.1)",
     iconColor: "#22C55E",
     title: "View community map",
@@ -25,13 +35,13 @@ const CARDS = [
   },
   {
     id: "agent",
-    icon: "ti-layout-dashboard",
+    Icon: IconLayoutDashboard,
     iconBg: "rgba(96,165,250,0.12)",
     iconColor: "#60A5FA",
     title: "Agent dashboard",
     desc: "Coordinate field response",
   },
-] as const;
+];
 
 export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMap }: Props) {
   const handlers: Record<string, () => void> = {
@@ -172,7 +182,7 @@ export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMa
                   flexShrink: 0,
                 }}
               >
-                <i className={`ti ${card.icon}`} style={{ fontSize: 24 }} />
+                <card.Icon size={24} />
               </span>
 
               {/* Text */}
@@ -193,10 +203,7 @@ export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMa
               </div>
 
               {/* Chevron */}
-              <i
-                className="ti ti-chevron-right"
-                style={{ fontSize: 18, color: "var(--cr-label)", flexShrink: 0 }}
-              />
+              <IconChevronRight size={18} style={{ color: "var(--cr-label)", flexShrink: 0 }} />
             </button>
           ))}
         </div>

@@ -17,7 +17,9 @@ import type { ObservationInput } from "./types/observation";
 type AppMode = "index" | "citizen" | "agent" | "map";
 type CitizenStep = "camera" | "location" | "classification" | "rapid-classification" | "details" | "review";
 
-const CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "00000000-0000-0000-0000-000000000001";
+const CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "c0000000-0000-0000-0000-000000000001";
+
+const DEMO_MODE_KEY = "crisis_demo_mode";
 
 function AppInner() {
   const { mode: crisisMode } = useCrisisMode();
@@ -26,6 +28,7 @@ function AppInner() {
   const [appMode, setAppMode] = useState<AppMode>("index");
   const [step, setStep] = useState<CitizenStep>("camera");
   const [confirmed, setConfirmed] = useState<ReviewSuccessPayload | null>(null);
+  const [demoMode, setDemoMode] = useState(() => localStorage.getItem(DEMO_MODE_KEY) === "true");
 
   const [cameraData, setCameraData]   = useState<{ file: File; previewUrl: string } | null>(null);
   const [locationData, setLocationData]   = useState<LocationResult | null>(null);
@@ -77,7 +80,10 @@ function AppInner() {
   // ── Agent mode ───────────────────────────────────────────────────────────────
   if (appMode === "agent") {
     return (
-      <DashboardScreen onGoHome={() => setAppMode("index")} />
+      <DashboardScreen
+        onGoHome={() => setAppMode("index")}
+        onDemoModeChange={setDemoMode}
+      />
     );
   }
 
@@ -186,6 +192,7 @@ function AppInner() {
           onBack={() => setStep("camera")}
           modeLabel={ml}
           totalSteps={ts}
+          demoMode={demoMode}
           {...navProps}
         />
       )}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IconCloudOff } from "@tabler/icons-react";
 import type { ObservationInput } from "../../types/observation";
 import { submitObservation } from "../../services/submit";
 import LanguageSelector from "../../components/LanguageSelector";
@@ -131,7 +132,7 @@ export default function ReviewScreen({
               border: "1px solid var(--cr-border)",
             }}
           >
-            <i className="ti ti-cloud-off" style={{ fontSize: 18, color: "var(--cr-label)" }} />
+            <IconCloudOff size={18} style={{ color: "var(--cr-label)" }} />
             <p style={{ fontSize: 14, color: "var(--cr-label)" }}>{t("review.offline")}</p>
           </div>
         )}

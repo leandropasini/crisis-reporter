@@ -1,5 +1,11 @@
 import { useState } from "react";
+import type { ComponentType } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  IconHome, IconBuildingStore, IconBuildingBank, IconBolt,
+  IconActivityHeartbeat, IconSchool, IconRoad, IconDots, IconCheck,
+} from "@tabler/icons-react";
+import type { IconProps } from "@tabler/icons-react";
 import LanguageSelector from "../../components/LanguageSelector";
 import BottomNav from "../../components/BottomNav";
 import type { DamageLevel, InfrastructureType } from "../../types/schema";
@@ -39,16 +45,16 @@ const DAMAGE_OPTIONS: {
 const INFRA_OPTIONS: {
   value: InfrastructureType;
   label: string;
-  icon: string;
+  Icon: ComponentType<IconProps>;
 }[] = [
-  { value: "residential",       label: "Residential", icon: "ti-home" },
-  { value: "commercial",        label: "Commercial",  icon: "ti-building-store" },
-  { value: "government",        label: "Government",  icon: "ti-building-bank" },
-  { value: "utility",           label: "Utility",     icon: "ti-bolt" },
-  { value: "community",         label: "Health",      icon: "ti-activity-heartbeat" },
-  { value: "public_recreation", label: "Education",   icon: "ti-school" },
-  { value: "transport_comm",    label: "Transport",   icon: "ti-road" },
-  { value: "other",             label: "Other",       icon: "ti-dots" },
+  { value: "residential",       label: "Residential", Icon: IconHome },
+  { value: "commercial",        label: "Commercial",  Icon: IconBuildingStore },
+  { value: "government",        label: "Government",  Icon: IconBuildingBank },
+  { value: "utility",           label: "Utility",     Icon: IconBolt },
+  { value: "community",         label: "Health",      Icon: IconActivityHeartbeat },
+  { value: "public_recreation", label: "Education",   Icon: IconSchool },
+  { value: "transport_comm",    label: "Transport",   Icon: IconRoad },
+  { value: "other",             label: "Other",       Icon: IconDots },
 ];
 
 export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome, onGoMap }: Props) {
@@ -156,10 +162,7 @@ export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome,
                   </div>
                   {/* Check */}
                   {sel && (
-                    <i
-                      className="ti ti-check"
-                      style={{ fontSize: 18, color: opt.color, flexShrink: 0 }}
-                    />
+                    <IconCheck size={18} style={{ color: opt.color, flexShrink: 0 }} />
                   )}
                 </button>
               );
@@ -211,7 +214,7 @@ export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome,
                     minHeight: "var(--min-touch)",
                   }}
                 >
-                  <i className={`ti ${opt.icon}`} style={{ fontSize: 22 }} />
+                  <opt.Icon size={22} />
                   <span style={{ fontSize: 11, textAlign: "center", lineHeight: 1.2 }}>{opt.label}</span>
                 </button>
               );

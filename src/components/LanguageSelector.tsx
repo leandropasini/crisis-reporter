@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IconWorld } from "@tabler/icons-react";
 
 const LANGUAGES = [
   { code: "en", label: "EN" },
@@ -60,7 +61,7 @@ export default function LanguageSelector({ variant = "fixed" }: Props) {
         minHeight: 32,
       }}
     >
-      <i className="ti ti-world" style={{ fontSize: 14 }} />
+      <IconWorld size={14} />
       <span style={{ color: "var(--cr-text)", fontWeight: 500 }}>{current.label}</span>
     </button>
   );

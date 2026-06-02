@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IconChevronRight, IconSettings } from "@tabler/icons-react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { supabase, isSupabaseConfigured } from "../../services/supabase";
 import ClusterLayer, { type MappedObservation } from "../../components/map/ClusterLayer";
@@ -109,18 +110,22 @@ const DAMAGE_COLORS: Record<string, string> = {
 
 type QuickFilter = "all" | "critical" | "health" | "education";
 
+const DEMO_MODE_KEY = "crisis_demo_mode";
+
 interface Props {
   crisisId?: string;
   center?: [number, number];
   zoom?: number;
   onGoHome?: () => void;
+  onDemoModeChange?: (enabled: boolean) => void;
 }
 
 export default function DashboardScreen({
-  crisisId = import.meta.env.VITE_DEMO_CRISIS_ID ?? "00000000-0000-0000-0000-000000000001",
+  crisisId = import.meta.env.VITE_DEMO_CRISIS_ID ?? "c0000000-0000-0000-0000-000000000001",
   center = [-30.029, -51.228],
   zoom = 13,
   onGoHome,
+  onDemoModeChange,
 }: Props) {
   const { t } = useTranslation();
   const [observations, setObservations] = useState<MappedObservation[]>([]);
@@ -130,6 +135,15 @@ export default function DashboardScreen({
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [mapMode, setMapMode] = useState<"clusters" | "heatmap">("clusters");
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [demoMode, setDemoMode] = useState(() => localStorage.getItem(DEMO_MODE_KEY) === "true");
+  const [showSettings, setShowSettings] = useState(false);
+
+  function toggleDemoMode() {
+    const next = !demoMode;
+    setDemoMode(next);
+    localStorage.setItem(DEMO_MODE_KEY, String(next));
+    onDemoModeChange?.(next);
+  }
 
   useEffect(() => {
     async function fetchObservations() {
@@ -275,8 +289,8 @@ export default function DashboardScreen({
         zoomControl={false}
       >
         <TileLayer
-          url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
           maxZoom={20}
         />
         {!loading && mapMode === "clusters" && (
@@ -455,7 +469,7 @@ export default function DashboardScreen({
                       {obs.infrastructure_type} · {obs.damage_level}
                     </p>
                   </div>
-                  <i className="ti ti-chevron-right" style={{ fontSize: 16, color: "var(--cr-label)", flexShrink: 0 }} />
+                  <IconChevronRight size={16} style={{ color: "var(--cr-label)", flexShrink: 0 }} />
                 </button>
               );
             })
@@ -475,13 +489,13 @@ export default function DashboardScreen({
         />
         <button
           type="button"
-          onClick={() => {/* crisis settings TODO */}}
+          onClick={() => setShowSettings((v) => !v)}
           style={{
             flex: 1,
             minHeight: "var(--min-touch)",
             borderRadius: 14,
             border: "none",
-            background: "var(--cr-primary)",
+            background: showSettings ? "var(--cr-surface2)" : "var(--cr-primary)",
             color: "#fff",
             fontSize: 14,
             fontWeight: 600,
@@ -492,9 +506,62 @@ export default function DashboardScreen({
             gap: 8,
           }}
         >
-          <i className="ti ti-settings" style={{ fontSize: 18 }} />
+          <IconSettings size={18} />
           Crisis settings
         </button>
+
+        {showSettings && (
+          <div
+            style={{
+              marginTop: 10,
+              padding: "14px 16px",
+              background: "var(--cr-surface)",
+              border: "1px solid var(--cr-border)",
+              borderRadius: 14,
+            }}
+          >
+            <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 700, marginBottom: 12 }}>
+              Demo Settings
+            </p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: "var(--cr-text)" }}>Demo Mode</p>
+                <p style={{ fontSize: 12, color: "var(--cr-label)", marginTop: 2 }}>
+                  {demoMode ? "GPS locked: Porto Alegre (−30.029, −51.228)" : "GPS real do dispositivo"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleDemoMode}
+                style={{
+                  width: 44,
+                  height: 24,
+                  borderRadius: 12,
+                  border: "none",
+                  background: demoMode ? "var(--cr-primary)" : "var(--cr-border)",
+                  cursor: "pointer",
+                  position: "relative",
+                  flexShrink: 0,
+                  transition: "background 0.2s",
+                }}
+                aria-pressed={demoMode}
+              >
+                <span
+                  style={{
+                    position: "absolute",
+                    top: 2,
+                    left: demoMode ? 22 : 2,
+                    width: 20,
+                    height: 20,
+                    borderRadius: "50%",
+                    background: "#fff",
+                    transition: "left 0.2s",
+                  }}
+                />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -618,8 +685,8 @@ export default function DashboardScreen({
             zoomControl={false}
           >
             <TileLayer
-              url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               maxZoom={20}
             />
             {!loading && mapMode === "clusters" && (

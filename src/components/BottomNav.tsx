@@ -1,3 +1,5 @@
+import { IconHome, IconBuildingCommunity, IconMap2 } from "@tabler/icons-react";
+
 interface Props {
   active: "home" | "report" | "map";
   onHome?: () => void;
@@ -7,9 +9,9 @@ interface Props {
 
 export default function BottomNav({ active, onHome, onReport, onMap }: Props) {
   const items = [
-    { id: "home" as const, icon: "ti-home", label: "Home", onClick: onHome },
-    { id: "report" as const, icon: "ti-building-community", label: "Report", onClick: onReport },
-    { id: "map" as const, icon: "ti-map-2", label: "Map", onClick: onMap },
+    { id: "home" as const, Icon: IconHome, label: "Home", onClick: onHome },
+    { id: "report" as const, Icon: IconBuildingCommunity, label: "Report", onClick: onReport },
+    { id: "map" as const, Icon: IconMap2, label: "Map", onClick: onMap },
   ];
 
   return (
@@ -44,7 +46,7 @@ export default function BottomNav({ active, onHome, onReport, onMap }: Props) {
               transition: "color 0.15s",
             }}
           >
-            <i className={`ti ${item.icon}`} style={{ fontSize: 22 }} />
+            <item.Icon size={22} />
             <span style={{ fontSize: 12, fontWeight: isActive ? 600 : 400 }}>{item.label}</span>
           </button>
         );

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IconCamera, IconPhoto } from "@tabler/icons-react";
 import LanguageSelector from "../../components/LanguageSelector";
 import BottomNav from "../../components/BottomNav";
 
@@ -154,7 +155,7 @@ export default function CameraScreen({
                   gap: 10,
                 }}
               >
-                <i className="ti ti-camera" style={{ fontSize: 36, color: "var(--cr-label)", opacity: 0.4 }} />
+                <IconCamera size={36} style={{ color: "var(--cr-label)", opacity: 0.4 }} />
                 <span style={{ fontSize: 16, color: "var(--cr-label)" }}>Point at the scene</span>
               </div>
             </>
@@ -238,7 +239,7 @@ export default function CameraScreen({
                 cursor: "pointer",
               }}
             >
-              <i className="ti ti-camera" style={{ fontSize: 22 }} />
+              <IconCamera size={22} />
               {t("camera.take_photo")}
             </button>
 
@@ -260,7 +261,7 @@ export default function CameraScreen({
                 cursor: "pointer",
               }}
             >
-              <i className="ti ti-photo" style={{ fontSize: 18 }} />
+              <IconPhoto size={18} />
               {t("camera.choose_gallery")}
             </button>
           </>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IconCheck, IconClock, IconMap2, IconTrendingUp } from "@tabler/icons-react";
 import { supabase } from "../../services/supabase";
 import { encodeGeohash, decodeGeohashBbox } from "../../utils/geohash";
 import type { ReviewSuccessPayload } from "./ReviewScreen";
@@ -137,13 +138,10 @@ export default function ConfirmationScreen({
             justifyContent: "center",
           }}
         >
-          <i
-            className={`ti ${queued ? "ti-clock" : "ti-check"}`}
-            style={{
-              fontSize: 36,
-              color: queued ? "#F59E0B" : "#22C55E",
-            }}
-          />
+          {queued
+            ? <IconClock size={36} style={{ color: "#F59E0B" }} />
+            : <IconCheck size={36} style={{ color: "#22C55E" }} />
+          }
         </div>
 
         {/* Message */}
@@ -230,7 +228,7 @@ export default function ConfirmationScreen({
                     }}
                   >
                     {cell.icon ? (
-                      <i className={`ti ${cell.icon}`} style={{ fontSize: 22, color: cell.iconColor }} />
+                      <IconTrendingUp size={22} style={{ color: cell.iconColor }} />
                     ) : (
                       <span style={{ fontSize: 22, fontWeight: 700, color: "var(--cr-text)" }}>{cell.value}</span>
                     )}
@@ -268,7 +266,7 @@ export default function ConfirmationScreen({
               cursor: "pointer",
             }}
           >
-            <i className="ti ti-map-2" style={{ fontSize: 20 }} />
+            <IconMap2 size={20} />
             View community map
           </button>
           <button

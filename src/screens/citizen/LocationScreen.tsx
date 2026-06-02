@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IconLock } from "@tabler/icons-react";
 import CrisisMap from "../../components/map/CrisisMap";
 import LanguageSelector from "../../components/LanguageSelector";
 import BottomNav from "../../components/BottomNav";
@@ -24,6 +25,7 @@ interface Props {
   onBack: () => void;
   modeLabel?: string;
   totalSteps?: number;
+  demoMode?: boolean;
   onGoHome?: () => void;
   onGoMap?: () => void;
 }
@@ -57,18 +59,23 @@ export default function LocationScreen({
   onBack,
   modeLabel,
   totalSteps = 3,
+  demoMode = false,
   onGoHome,
   onGoMap,
 }: Props) {
   const { t } = useTranslation();
-  const [gpsStatus, setGpsStatus] = useState<GpsStatus>("loading");
-  const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
+  const [gpsStatus, setGpsStatus] = useState<GpsStatus>(demoMode ? "ok" : "loading");
+  const [pin, setPin] = useState<{ lat: number; lng: number } | null>(
+    demoMode ? { lat: trunc(POA_CENTER[0]), lng: trunc(POA_CENTER[1]) } : null
+  );
   const [method, setMethod] = useState<LocationMethod>("gps");
   const [address, setAddress] = useState("");
   const [selectedBuilding, setSelectedBuilding] = useState<{ id: string; name: string } | null>(null);
   const methodRef = useRef<LocationMethod>("gps");
 
   useEffect(() => {
+    if (demoMode) return;
+
     if (!navigator.geolocation) {
       setGpsStatus("failed");
       setMethod("manual_pin");
@@ -95,7 +102,7 @@ export default function LocationScreen({
       { timeout: 8000, enableHighAccuracy: true }
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [demoMode]);
 
   function handlePinDrag(_id: string, lat: number, lng: number) {
     setPin({ lat: trunc(lat), lng: trunc(lng) });
@@ -298,7 +305,7 @@ export default function LocationScreen({
                 color: "var(--cr-label)",
               }}
             >
-              {gpsStatus === "ok" ? "GPS" : "Manual"}
+              {demoMode ? "Demo" : gpsStatus === "ok" ? "GPS" : "Manual"}
             </span>
             <span style={{ fontSize: 16, fontWeight: 700, color: "var(--cr-text)" }}>
               {pin.lat.toFixed(5)}°, {pin.lng.toFixed(5)}°
@@ -308,7 +315,7 @@ export default function LocationScreen({
 
         {/* Privacy note */}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-          <i className="ti ti-lock" style={{ fontSize: 14, color: "rgba(255,255,255,0.3)", marginTop: 1, flexShrink: 0 }} />
+          <IconLock size={14} style={{ color: "rgba(255,255,255,0.3)", marginTop: 1, flexShrink: 0 }} />
           <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", lineHeight: 1.4 }}>
             {t("location.privacy_note")}
           </p>
