@@ -75,6 +75,7 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
       language:                   i18n.language as UnLanguage,
       client_created_at:          new Date().toISOString(),
       modular_fields:             input.modularFields,
+      is_demo:                    input.isDemo ?? false,
     };
 
     const { error } = await db.from("observations").insert(insertData);

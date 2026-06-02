@@ -30,4 +30,5 @@ export interface ObservationInput {
   // Context
   crisisId: string;
   buildingId?: string;
+  isDemo?: boolean;
 }
