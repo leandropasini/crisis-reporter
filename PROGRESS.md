@@ -133,3 +133,13 @@
 - `is_demo` flag propagated through ObservationInput → ObservationInsert → Supabase
 - Desktop: cards side-by-side via `.landing-cards` media query
 - Zero new TS errors
+
+## v0.5-disaster-types (2026-06-02)
+- Disaster-contextual damage options in Step 3 (citizen flow)
+- 7 disaster types: flood (5 opts), earthquake (5), hurricane (5), landslide (4), fire (4), drought (4), generic (4)
+- DEMO mode hardcodes flood; LIVE mode fetches disaster_type from DB on mount
+- Agent Dashboard: disaster type selector in Crisis Settings (7 pill buttons, updates DB)
+- DB migration 006: damage_level enum → text, is_demo column, disaster_type on crises, anon UPDATE RLS
+- getDisplayLevel() maps any stored value back to DamageLevel color bucket for map pins
+- ReviewScreen uses damageLevelLabel for display; falls back to i18n key for legacy values
+- Zero new TS errors
