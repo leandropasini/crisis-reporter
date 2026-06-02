@@ -8,14 +8,17 @@ import {
 import type { IconProps } from "@tabler/icons-react";
 import LanguageSelector from "../../components/LanguageSelector";
 import BottomNav from "../../components/BottomNav";
-import type { DamageLevel, InfrastructureType } from "../../types/schema";
+import type { InfrastructureType, DisasterType } from "../../types/schema";
+import { DISASTER_DAMAGE_OPTIONS } from "../../constants/disasterDamage";
 
 export interface RapidClassificationData {
-  damageLevel: DamageLevel;
+  damageLevel: string;
+  damageLevelLabel: string;
   infrastructureType: InfrastructureType;
 }
 
 interface Props {
+  disasterType: DisasterType;
   onConfirm: (data: RapidClassificationData) => void;
   onBack: () => void;
   onGoHome?: () => void;
@@ -30,17 +33,12 @@ function ProgressBar({ pct }: { pct: number }) {
   );
 }
 
-const DAMAGE_OPTIONS: {
-  value: DamageLevel;
-  label: string;
-  desc: string;
-  color: string;
-}[] = [
-  { value: "minimal",  label: "Minimal",  desc: "Cracks in plaster, broken windows",    color: "#22C55E" },
-  { value: "partial",  label: "Partial",  desc: "Large wall cracks, partial roof loss",  color: "#E8823A" },
-  { value: "severe",   label: "Severe",   desc: "Collapsed walls, unsafe to enter",      color: "#F59E0B" },
-  { value: "complete", label: "Complete", desc: "Complete collapse, rubble only",         color: "#EF4444" },
-];
+const DISPLAY_COLORS: Record<string, string> = {
+  minimal:  "#22C55E",
+  partial:  "#E8823A",
+  severe:   "#F59E0B",
+  complete: "#EF4444",
+};
 
 const INFRA_OPTIONS: {
   value: InfrastructureType;
@@ -57,16 +55,21 @@ const INFRA_OPTIONS: {
   { value: "other",             label: "Other",       Icon: IconDots },
 ];
 
-export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome, onGoMap }: Props) {
+export default function RapidClassificationScreen({ disasterType, onConfirm, onBack, onGoHome, onGoMap }: Props) {
   const { t } = useTranslation();
-  const [damageLevel, setDamage] = useState<DamageLevel | null>(null);
+  const [damageLevel, setDamage] = useState<string | null>(null);
   const [infraType, setInfra]    = useState<InfrastructureType | null>(null);
 
   const canAdvance = damageLevel !== null && infraType !== null;
 
   function handleConfirm() {
     if (!damageLevel || !infraType) return;
-    onConfirm({ damageLevel, infrastructureType: infraType });
+    const selectedOption = DISASTER_DAMAGE_OPTIONS[disasterType].find((o) => o.value === damageLevel);
+    onConfirm({
+      damageLevel,
+      damageLevelLabel: selectedOption?.label ?? damageLevel,
+      infrastructureType: infraType,
+    });
   }
 
   return (
@@ -123,8 +126,9 @@ export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome,
             {t("classification.damage_section")}
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {DAMAGE_OPTIONS.map((opt) => {
+            {DISASTER_DAMAGE_OPTIONS[disasterType].map((opt) => {
               const sel = damageLevel === opt.value;
+              const color = DISPLAY_COLORS[opt.displayLevel] ?? "#E8823A";
               return (
                 <button
                   key={opt.value}
@@ -132,37 +136,26 @@ export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome,
                   onClick={() => setDamage(opt.value)}
                   style={{
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: "flex-start",
                     gap: 14,
                     padding: "16px 20px",
                     borderRadius: 16,
-                    border: `1px solid ${sel ? opt.color : "var(--cr-border)"}`,
-                    background: sel ? `${opt.color}18` : "var(--cr-surface)",
+                    border: `1px solid ${sel ? color : "var(--cr-border)"}`,
+                    background: sel ? `${color}18` : "var(--cr-surface)",
                     cursor: "pointer",
                     textAlign: "left",
                     transition: "border-color 0.15s, background 0.15s",
                   }}
                 >
-                  {/* Dot */}
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: "50%",
-                      background: opt.color,
-                      flexShrink: 0,
-                    }}
-                  />
-                  {/* Text */}
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0, marginTop: 5 }} />
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: 16, fontWeight: 600, color: "var(--cr-text)", marginBottom: 2 }}>
                       {opt.label}
                     </p>
-                    <p style={{ fontSize: 13, color: "var(--cr-label)" }}>{opt.desc}</p>
+                    <p style={{ fontSize: 13, color: "var(--cr-label)" }}>{opt.description}</p>
                   </div>
-                  {/* Check */}
                   {sel && (
-                    <IconCheck size={18} style={{ color: opt.color, flexShrink: 0 }} />
+                    <IconCheck size={18} style={{ color, flexShrink: 0, marginTop: 2 }} />
                   )}
                 </button>
               );
