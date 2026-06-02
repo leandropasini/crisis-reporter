@@ -73,6 +73,10 @@ export const CrisisStatus = {
 } as const;
 export type CrisisStatus = (typeof CrisisStatus)[keyof typeof CrisisStatus];
 
+export type DisasterType =
+  | "flood" | "earthquake" | "hurricane"
+  | "landslide" | "fire" | "drought" | "generic";
+
 export const UnLanguage = {
   AR: "ar",
   ZH: "zh",

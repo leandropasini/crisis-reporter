@@ -20,6 +20,7 @@ interface CrisisRow {
   ended_at: string | null;
   status: CrisisStatus;
   geohash_precision: number;
+  disaster_type: string;
   created_at: string;
 }
 
@@ -43,7 +44,7 @@ interface ObservationRow {
   infrastructure_description: string | null;
   infrastructure_type: InfrastructureType;
   infrastructure_type_other: string | null;
-  damage_level: DamageLevel;
+  damage_level: string;
   debris_clearing_needed: boolean;
   photo_url: string;
   photo_thumbnail_url: string | null;
@@ -70,7 +71,7 @@ export interface ObservationInsert {
   crisis_id: string;
   infrastructure_name: string;
   infrastructure_type: InfrastructureType;
-  damage_level: DamageLevel;
+  damage_level: string;
   debris_clearing_needed: boolean;
   photo_url: string;
   latitude: number;

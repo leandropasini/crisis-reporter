@@ -1,5 +1,5 @@
 import type {
-  CrisisNature, CrisisSubtype, DamageLevel,
+  CrisisNature, CrisisSubtype,
   InfrastructureType, ModularFields,
 } from "./schema";
 
@@ -15,7 +15,8 @@ export interface ObservationInput {
   address?: string;
 
   // ClassificationScreen
-  damageLevel: DamageLevel;
+  damageLevel: string;
+  damageLevelLabel?: string;
   infrastructureType: InfrastructureType;
   infrastructureTypeOther?: string;
   crisisNature?: CrisisNature;
