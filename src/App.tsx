@@ -19,18 +19,20 @@ type CitizenStep = "camera" | "location" | "classification" | "rapid-classificat
 
 const CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "c0000000-0000-0000-0000-000000000001";
 
-const DEMO_MODE_KEY = "crisis_demo_mode";
+interface Props {
+  mode: "demo" | "live";
+}
 
-function AppInner() {
+function AppInner({ mode }: Props) {
   const { mode: crisisMode } = useCrisisMode();
   const modeMeta = MODE_META[crisisMode];
+  const isDemo = mode === "demo";
 
   const [appMode, setAppMode] = useState<AppMode>("index");
   const [step, setStep] = useState<CitizenStep>("camera");
   const [confirmed, setConfirmed] = useState<ReviewSuccessPayload | null>(null);
-  const [demoMode, setDemoMode] = useState(() => localStorage.getItem(DEMO_MODE_KEY) === "true");
 
-  const [cameraData, setCameraData]   = useState<{ file: File; previewUrl: string } | null>(null);
+  const [cameraData, setCameraData]       = useState<{ file: File; previewUrl: string } | null>(null);
   const [locationData, setLocationData]   = useState<LocationResult | null>(null);
   const [classificationData, setClassificationData] = useState<ClassificationData | null>(null);
   const [rapidData, setRapidData]         = useState<RapidClassificationData | null>(null);
@@ -82,7 +84,6 @@ function AppInner() {
     return (
       <DashboardScreen
         onGoHome={() => setAppMode("index")}
-        onDemoModeChange={setDemoMode}
       />
     );
   }
@@ -94,6 +95,7 @@ function AppInner() {
         <LanguageSelector variant="fixed" />
         <CommunityMapScreen
           crisisId={CRISIS_ID}
+          isDemo={isDemo}
           refreshKey={confirmed?.id}
           onBack={() => setAppMode("index")}
           onGoHome={() => setAppMode("index")}
@@ -130,38 +132,40 @@ function AppInner() {
   const fullObservationInput: ObservationInput | null =
     cameraData && locationData && classificationData && detailsData
       ? {
-          photoFile: cameraData.file,
-          photoPreviewUrl: cameraData.previewUrl,
-          lat: locationData.lat,
-          lng: locationData.lng,
-          locationMethod: locationData.locationMethod,
-          address: locationData.address,
-          damageLevel: classificationData.damageLevel,
-          infrastructureType: classificationData.infrastructureType,
-          infrastructureTypeOther: classificationData.infrastructureTypeOther,
-          crisisNature: classificationData.crisisNature,
-          crisisSubtype: classificationData.crisisSubtype,
-          debrisClearingNeeded: classificationData.debrisClearingNeeded,
-          infrastructureName: detailsData.infrastructureName,
-          infrastructureDescription: detailsData.infrastructureDescription,
-          modularFields: detailsData.modularFields,
-          crisisId: CRISIS_ID,
+          photoFile:                  cameraData.file,
+          photoPreviewUrl:            cameraData.previewUrl,
+          lat:                        locationData.lat,
+          lng:                        locationData.lng,
+          locationMethod:             locationData.locationMethod,
+          address:                    locationData.address,
+          damageLevel:                classificationData.damageLevel,
+          infrastructureType:         classificationData.infrastructureType,
+          infrastructureTypeOther:    classificationData.infrastructureTypeOther,
+          crisisNature:               classificationData.crisisNature,
+          crisisSubtype:              classificationData.crisisSubtype,
+          debrisClearingNeeded:       classificationData.debrisClearingNeeded,
+          infrastructureName:         detailsData.infrastructureName,
+          infrastructureDescription:  detailsData.infrastructureDescription,
+          modularFields:              detailsData.modularFields,
+          crisisId:                   CRISIS_ID,
+          isDemo,
         }
       : null;
 
   const rapidObservationInput: ObservationInput | null =
     cameraData && locationData && rapidData
       ? {
-          photoFile: cameraData.file,
-          photoPreviewUrl: cameraData.previewUrl,
-          lat: locationData.lat,
-          lng: locationData.lng,
-          locationMethod: locationData.locationMethod,
-          address: locationData.address,
-          damageLevel: rapidData.damageLevel,
+          photoFile:          cameraData.file,
+          photoPreviewUrl:    cameraData.previewUrl,
+          lat:                locationData.lat,
+          lng:                locationData.lng,
+          locationMethod:     locationData.locationMethod,
+          address:            locationData.address,
+          damageLevel:        rapidData.damageLevel,
           infrastructureType: rapidData.infrastructureType,
-          modularFields: {},
-          crisisId: CRISIS_ID,
+          modularFields:      {},
+          crisisId:           CRISIS_ID,
+          isDemo,
         }
       : null;
 
@@ -172,7 +176,7 @@ function AppInner() {
 
   const navProps = {
     onGoHome: () => setAppMode("index"),
-    onGoMap: () => setAppMode("map"),
+    onGoMap:  () => setAppMode("map"),
   };
 
   return (
@@ -192,7 +196,7 @@ function AppInner() {
           onBack={() => setStep("camera")}
           modeLabel={ml}
           totalSteps={ts}
-          demoMode={demoMode}
+          demoMode={isDemo}
           {...navProps}
         />
       )}
@@ -244,10 +248,30 @@ function AppInner() {
   );
 }
 
-export default function App() {
+export default function App({ mode }: Props) {
   return (
     <CrisisModeProvider>
-      <AppInner />
+      {mode === "demo" && (
+        <div
+          style={{
+            position: "fixed",
+            top: 14,
+            right: 16,
+            zIndex: 9999,
+            background: "var(--cr-primary)",
+            color: "#fff",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.1em",
+            padding: "3px 9px",
+            borderRadius: 20,
+            pointerEvents: "none",
+          }}
+        >
+          DEMO
+        </div>
+      )}
+      <AppInner mode={mode} />
     </CrisisModeProvider>
   );
 }

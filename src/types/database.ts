@@ -93,6 +93,7 @@ export interface ObservationInsert {
   synced_at?: string;
   created_at?: string;
   modular_fields?: ModularFields;
+  is_demo?: boolean;
 }
 
 interface AreaStatsRow {

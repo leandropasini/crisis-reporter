@@ -305,11 +305,17 @@ export default function LocationScreen({
                 color: "var(--cr-label)",
               }}
             >
-              {demoMode ? "Demo" : gpsStatus === "ok" ? "GPS" : "Manual"}
+              {demoMode ? "DEMO LOCATION" : gpsStatus === "ok" ? "GPS" : "Manual"}
             </span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: "var(--cr-text)" }}>
-              {pin.lat.toFixed(5)}°, {pin.lng.toFixed(5)}°
-            </span>
+            {demoMode ? (
+              <span style={{ fontSize: 16, fontWeight: 700, color: "var(--cr-text)" }}>
+                Porto Alegre, Rio Grande do Sul
+              </span>
+            ) : (
+              <span style={{ fontSize: 16, fontWeight: 700, color: "var(--cr-text)" }}>
+                {pin.lat.toFixed(5)}°, {pin.lng.toFixed(5)}°
+              </span>
+            )}
           </div>
         )}
 

@@ -14,6 +14,7 @@ const POLL_INTERVAL_MS = 15_000;
 
 interface Props {
   crisisId: string;
+  isDemo: boolean;
   refreshKey?: string;
   onBack: () => void;
   onGoHome?: () => void;
@@ -27,7 +28,7 @@ interface ObservationRow {
   damage_level: DamageLevel;
 }
 
-export default function CommunityMapScreen({ crisisId, refreshKey, onBack, onGoHome, onGoReport }: Props) {
+export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBack, onGoHome, onGoReport }: Props) {
   const { t } = useTranslation();
   const [pins, setPins] = useState<PinData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +41,7 @@ export default function CommunityMapScreen({ crisisId, refreshKey, onBack, onGoH
         .from("observations")
         .select("id, latitude, longitude, damage_level")
         .eq("crisis_id", crisisId)
+        .eq("is_demo", isDemo)
         .gte("client_created_at", since48h) as { data: ObservationRow[] | null; error: unknown };
 
       if (!error && data) {
@@ -66,7 +68,7 @@ export default function CommunityMapScreen({ crisisId, refreshKey, onBack, onGoH
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [crisisId, refreshKey]);
+  }, [crisisId, isDemo, refreshKey]);
 
   return (
     <div className="flex flex-col h-screen bg-surface text-text-primary">
