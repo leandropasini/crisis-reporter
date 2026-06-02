@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./i18n";
 import IndexScreen from "./screens/IndexScreen";
 import CameraScreen from "./screens/citizen/CameraScreen";
@@ -13,6 +13,11 @@ import CommunityMapScreen from "./screens/CommunityMapScreen";
 import LanguageSelector from "./components/LanguageSelector";
 import { CrisisModeProvider, useCrisisMode, MODE_META } from "./contexts/CrisisModeContext";
 import type { ObservationInput } from "./types/observation";
+import type { DisasterType } from "./types/schema";
+import { supabase, isSupabaseConfigured } from "./services/supabase";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
 
 type AppMode = "index" | "citizen" | "agent" | "map";
 type CitizenStep = "camera" | "location" | "classification" | "rapid-classification" | "details" | "review";
@@ -37,6 +42,26 @@ function AppInner({ mode }: Props) {
   const [classificationData, setClassificationData] = useState<ClassificationData | null>(null);
   const [rapidData, setRapidData]         = useState<RapidClassificationData | null>(null);
   const [detailsData, setDetailsData]     = useState<DetailsData | null>(null);
+  const [disasterType, setDisasterType]   = useState<DisasterType>(isDemo ? "flood" : "generic");
+
+  useEffect(() => {
+    if (isDemo || !isSupabaseConfigured) return;
+    async function fetchDisasterType() {
+      try {
+        const { data } = await db
+          .from("crises")
+          .select("disaster_type")
+          .eq("id", CRISIS_ID)
+          .single() as { data: { disaster_type: string } | null };
+        if (data?.disaster_type) {
+          setDisasterType(data.disaster_type as DisasterType);
+        }
+      } catch {
+        // keep default 'generic'
+      }
+    }
+    fetchDisasterType();
+  }, [isDemo]);
 
   function startCitizenFlow() {
     setCameraData(null);
@@ -139,6 +164,7 @@ function AppInner({ mode }: Props) {
           locationMethod:             locationData.locationMethod,
           address:                    locationData.address,
           damageLevel:                classificationData.damageLevel,
+          damageLevelLabel:           classificationData.damageLevelLabel,
           infrastructureType:         classificationData.infrastructureType,
           infrastructureTypeOther:    classificationData.infrastructureTypeOther,
           crisisNature:               classificationData.crisisNature,
@@ -162,6 +188,7 @@ function AppInner({ mode }: Props) {
           locationMethod:     locationData.locationMethod,
           address:            locationData.address,
           damageLevel:        rapidData.damageLevel,
+          damageLevelLabel:   rapidData.damageLevelLabel,
           infrastructureType: rapidData.infrastructureType,
           modularFields:      {},
           crisisId:           CRISIS_ID,
@@ -203,6 +230,7 @@ function AppInner({ mode }: Props) {
 
       {step === "rapid-classification" && (
         <RapidClassificationScreen
+          disasterType={disasterType}
           onConfirm={handleRapidConfirm}
           onBack={() => setStep("location")}
           {...navProps}
@@ -213,6 +241,7 @@ function AppInner({ mode }: Props) {
         <>
           <LanguageSelector variant="fixed" />
           <ClassificationScreen
+            disasterType={disasterType}
             onConfirm={handleClassificationConfirm}
             onBack={() => setStep("location")}
             modeLabel={ml}
