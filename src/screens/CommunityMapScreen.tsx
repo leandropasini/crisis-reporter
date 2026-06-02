@@ -3,17 +3,21 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "../services/supabase";
 import CrisisMap from "../components/map/CrisisMap";
 import type { PinData } from "../components/map/CrisisMap";
+import BottomNav from "../components/BottomNav";
 import type { DamageLevel } from "../types/schema";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
 
 const POA_CENTER: [number, number] = [-30.0290, -51.2280];
-const POLL_INTERVAL_MS = 60_000;
+const POLL_INTERVAL_MS = 15_000;
 
 interface Props {
   crisisId: string;
+  refreshKey?: string;
   onBack: () => void;
+  onGoHome?: () => void;
+  onGoReport?: () => void;
 }
 
 interface ObservationRow {
@@ -23,7 +27,7 @@ interface ObservationRow {
   damage_level: DamageLevel;
 }
 
-export default function CommunityMapScreen({ crisisId, onBack }: Props) {
+export default function CommunityMapScreen({ crisisId, refreshKey, onBack, onGoHome, onGoReport }: Props) {
   const { t } = useTranslation();
   const [pins, setPins] = useState<PinData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,7 +66,7 @@ export default function CommunityMapScreen({ crisisId, onBack }: Props) {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [crisisId]);
+  }, [crisisId, refreshKey]);
 
   return (
     <div className="flex flex-col h-screen bg-surface text-text-primary">
@@ -106,7 +110,7 @@ export default function CommunityMapScreen({ crisisId, onBack }: Props) {
       {/* Legend */}
       <div
         className="flex-none flex items-center justify-center gap-5 border-t border-border"
-        style={{ padding: "10px 16px 20px" }}
+        style={{ padding: "10px 16px 12px" }}
       >
         {(["minimal", "partial", "complete"] as DamageLevel[]).map((level) => (
           <div key={level} className="flex items-center gap-1.5">
@@ -122,6 +126,8 @@ export default function CommunityMapScreen({ crisisId, onBack }: Props) {
           </div>
         ))}
       </div>
+
+      <BottomNav active="map" onHome={onGoHome} onReport={onGoReport} />
     </div>
   );
 }

@@ -298,13 +298,10 @@ export default function LocationScreen({
                 color: "var(--cr-label)",
               }}
             >
-              GPS
+              {gpsStatus === "ok" ? "GPS" : "Manual"}
             </span>
             <span style={{ fontSize: 16, fontWeight: 700, color: "var(--cr-text)" }}>
-              Porto Alegre, Rio Grande do Sul
-            </span>
-            <span style={{ fontSize: 13, color: "var(--cr-label)" }}>
-              {pin.lat.toFixed(3)}°S, {pin.lng.toFixed(3)}°W
+              {pin.lat.toFixed(5)}°, {pin.lng.toFixed(5)}°
             </span>
           </div>
         )}

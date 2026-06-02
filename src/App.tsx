@@ -88,7 +88,10 @@ function AppInner() {
         <LanguageSelector variant="fixed" />
         <CommunityMapScreen
           crisisId={CRISIS_ID}
+          refreshKey={confirmed?.id}
           onBack={() => setAppMode("index")}
+          onGoHome={() => setAppMode("index")}
+          onGoReport={startCitizenFlow}
         />
       </>
     );

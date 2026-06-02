@@ -1,16 +1,25 @@
-import { MapContainer, TileLayer } from "react-leaflet";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import type { FeatureCollection } from "geojson";
 import type { DamageLevel } from "../../types/schema";
 import BuildingLayer from "./BuildingLayer";
 import ObservationPin from "./ObservationPin";
 import "./map.css";
 
+function FlyToCenter({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(center, map.getZoom(), { animate: true, duration: 0.6 });
+  }, [center, map]);
+  return null;
+}
+
 // Porto Alegre Centro Histórico — default demo
 const POA_CENTER: [number, number] = [-30.0290, -51.2280];
 const TILE_URL =
-  "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png";
+  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
 const TILE_ATTRIBUTION =
-  '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/about">OpenStreetMap</a> contributors';
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>';
 
 export interface PinData {
   id: string;
@@ -54,6 +63,7 @@ export default function CrisisMap({
         detectRetina
         maxZoom={20}
       />
+      <FlyToCenter center={center} />
 
       {buildings && (
         <BuildingLayer
