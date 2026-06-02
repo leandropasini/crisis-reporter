@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  DamageLevel, InfrastructureType, CrisisNature, CrisisSubtype,
+  InfrastructureType, CrisisNature, CrisisSubtype,
 } from "../../types/schema";
+import type { DisasterType } from "../../types/schema";
+import { DISASTER_DAMAGE_OPTIONS } from "../../constants/disasterDamage";
 
 export interface ClassificationData {
-  damageLevel: DamageLevel;
+  damageLevel: string;
+  damageLevelLabel: string;
   infrastructureType: InfrastructureType;
   infrastructureTypeOther?: string;
   crisisNature: CrisisNature;
@@ -14,6 +17,7 @@ export interface ClassificationData {
 }
 
 interface Props {
+  disasterType: DisasterType;
   defaultSubtype?: CrisisSubtype;
   onConfirm: (data: ClassificationData) => void;
   onBack: () => void;
@@ -22,28 +26,6 @@ interface Props {
 }
 
 // ── Icons ────────────────────────────────────────────────────────────────────
-
-function HouseIcon({ variant = "intact" }: { variant?: "intact" | "cracked" | "destroyed" }) {
-  if (variant === "cracked") return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M3 13L14 4l11 9M6 11v11h7M22 11v11h-5" />
-      <path d="M13 22v-6l2 2 1-4 2 4" strokeWidth="1.4" />
-    </svg>
-  );
-  if (variant === "destroyed") return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M3 13L14 4l11 9" strokeDasharray="3 2" />
-      <path d="M6 13v9M22 13v9M6 22h16" />
-      <path d="M10 22v-5l2-2M18 22v-4l-3-3M12 12l3 3 3-3" strokeWidth="1.4" />
-    </svg>
-  );
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M3 13L14 4l11 9M6 11v11h16V11" />
-      <rect x="11" y="16" width="6" height="6" rx="0.5" />
-    </svg>
-  );
-}
 
 function InfraIcon({ type }: { type: InfrastructureType }) {
   switch (type) {
@@ -131,9 +113,9 @@ function subtypeToNature(sub: CrisisSubtype): CrisisNature {
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
+export default function ClassificationScreen({ disasterType, defaultSubtype, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
   const { t } = useTranslation();
-  const [damageLevel, setDamageLevel] = useState<DamageLevel | null>(null);
+  const [damageLevel, setDamageLevel] = useState<string | null>(null);
   const [infraType, setInfraType] = useState<InfrastructureType | null>(null);
   const [infraOther, setInfraOther] = useState("");
   const [subtype, setSubtype] = useState<CrisisSubtype | null>(defaultSubtype ?? null);
@@ -149,8 +131,10 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
 
   function handleConfirm() {
     if (!canAdvance || !damageLevel || !infraType || !subtype || !crisisNature) return;
+    const selectedOption = DISASTER_DAMAGE_OPTIONS[disasterType].find((o) => o.value === damageLevel);
     onConfirm({
       damageLevel,
+      damageLevelLabel: selectedOption?.label ?? damageLevel,
       infrastructureType: infraType,
       infrastructureTypeOther: infraType === "other" ? infraOther.trim() : undefined,
       crisisNature,
@@ -159,11 +143,12 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
     });
   }
 
-  const DAMAGE_OPTIONS: { value: DamageLevel; tKey: string; variant: "intact" | "cracked" | "destroyed"; color: string }[] = [
-    { value: "minimal",  tKey: "classification.damage_minimal",  variant: "intact",    color: "var(--color-minimal)" },
-    { value: "partial",  tKey: "classification.damage_partial",   variant: "cracked",   color: "var(--color-warning)" },
-    { value: "complete", tKey: "classification.damage_complete",  variant: "destroyed", color: "var(--color-critical)" },
-  ];
+  const DISPLAY_COLORS: Record<string, string> = {
+    minimal:  "var(--color-minimal)",
+    partial:  "var(--color-warning)",
+    severe:   "#F59E0B",
+    complete: "var(--color-critical)",
+  };
 
   const INFRA_OPTIONS: { value: InfrastructureType; tKey: string }[] = [
     { value: "residential",       tKey: "classification.infra_residential" },
@@ -221,26 +206,36 @@ export default function ClassificationScreen({ defaultSubtype, onConfirm, onBack
         <section>
           <SectionLabel>{t("classification.damage_section")}</SectionLabel>
           <div className="space-y-2">
-            {DAMAGE_OPTIONS.map((opt) => {
+            {DISASTER_DAMAGE_OPTIONS[disasterType].map((opt) => {
               const selected = damageLevel === opt.value;
+              const color = DISPLAY_COLORS[opt.displayLevel] ?? "var(--color-primary)";
               return (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => setDamageLevel(opt.value)}
-                  className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border transition-all active:scale-[0.99]"
+                  className="w-full flex items-start gap-4 px-4 py-3.5 rounded-xl border transition-all active:scale-[0.99]"
                   style={{
-                    borderColor: selected ? opt.color : "var(--color-border)",
-                    backgroundColor: selected ? `color-mix(in srgb, ${opt.color} 9%, transparent)` : "var(--color-surface-2)",
-                    color: selected ? opt.color : "var(--color-text-secondary)",
+                    borderColor: selected ? color : "var(--color-border)",
+                    backgroundColor: selected ? `color-mix(in srgb, ${color} 9%, transparent)` : "var(--color-surface-2)",
                   }}
                 >
-                  <span style={{ color: selected ? opt.color : "var(--color-text-muted)" }}>
-                    <HouseIcon variant={opt.variant} />
-                  </span>
-                  <span className="text-sm font-medium text-left">{t(opt.tKey)}</span>
+                  <span
+                    style={{
+                      width: 10, height: 10, borderRadius: "50%",
+                      background: color, flexShrink: 0, marginTop: 5,
+                    }}
+                  />
+                  <div style={{ flex: 1, textAlign: "left" }}>
+                    <p className="text-sm font-semibold" style={{ color: selected ? color : "var(--color-value)" }}>
+                      {opt.label}
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--color-label)" }}>
+                      {opt.description}
+                    </p>
+                  </div>
                   {selected && (
-                    <span className="ml-auto w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: opt.color }}>
+                    <span className="ml-auto flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: color, marginTop: 2 }}>
                       <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                         <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
                       </svg>
