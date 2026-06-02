@@ -124,3 +124,12 @@
 - **DashboardScreen**: `criticalCount`, `criticalList`, `applyQuickFilter`, `isCrit` incluem "severe"
 - **i18n**: `damage_severe` adicionado em EN/ES/FR/AR/ZH/RU (4 seções cada)
 - Zero TS errors (npx tsc --noEmit limpo)
+
+## v0.4-landing (2026-06-02)
+- Landing page at `/` with Demo card (IconPlayerPlay) and Live card (IconDeviceMobile)
+- `/demo`: GPS locked to Porto Alegre (-30.029, -51.228), is_demo=true filter on community map, DEMO badge overlay
+- `/app`: real GPS, is_demo=false filter, clean experience without badge
+- React Router v6 added; BrowserRouter routes wired in main.tsx
+- `is_demo` flag propagated through ObservationInput → ObservationInsert → Supabase
+- Desktop: cards side-by-side via `.landing-cards` media query
+- Zero new TS errors
