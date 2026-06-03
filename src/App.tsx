@@ -290,7 +290,7 @@ export default function App({ mode }: Props) {
             position: "fixed",
             top: 14,
             right: 16,
-            zIndex: 9000,
+            zIndex: 50,
             background: "var(--cr-primary)",
             color: "#fff",
             fontSize: 11,
