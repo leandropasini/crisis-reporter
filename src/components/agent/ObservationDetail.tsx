@@ -78,47 +78,15 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
       zIndex: 300,
       overflowY: "auto",
     }}>
-      {/* Photo */}
-      {obs.photo_url ? (
-        <div style={{ position: "relative", flexShrink: 0 }}>
-          <img
-            src={obs.photo_url}
-            alt={obs.infrastructure_name}
-            onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none"; }}
-            style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }}
-          />
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            style={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              border: "none",
-              background: "rgba(0,0,0,0.6)",
-              color: "var(--color-text-primary)",
-              fontSize: 14,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >✕</button>
-        </div>
-      ) : (
-        <div style={{ position: "relative", flexShrink: 0, height: 56, background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0 12px" }}>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            style={{ background: "none", border: "none", color: "var(--color-text-muted)", fontSize: 18, cursor: "pointer" }}
-          >✕</button>
-        </div>
-      )}
+      {/* Header */}
+      <div style={{ flexShrink: 0, height: 56, background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0 12px" }}>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          style={{ background: "none", border: "none", color: "var(--color-text-muted)", fontSize: 18, cursor: "pointer" }}
+        >✕</button>
+      </div>
 
       {/* Content */}
       <div style={{ flex: 1, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 0 }}>

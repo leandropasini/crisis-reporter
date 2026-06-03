@@ -267,6 +267,9 @@ export default function DashboardScreen({
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [showSettings, setShowSettings] = useState(false);
   const [disasterType, setDisasterType] = useState<DisasterType>(isDemo ? "flood" : "generic");
+  const [crisisTitle, setCrisisTitle] = useState(
+    isDemo ? "RS Floods 2024 · Porto Alegre" : "Active Crisis"
+  );
 
   useEffect(() => {
     if (isDemo || !isSupabaseConfigured) return;
@@ -274,14 +277,18 @@ export default function DashboardScreen({
       try {
         const { data } = await db
           .from("crises")
-          .select("disaster_type")
+          .select("disaster_type, name, location")
           .eq("id", crisisId)
-          .single() as { data: { disaster_type: string } | null };
+          .single() as { data: { disaster_type: string; name: string; location: string } | null };
         if (data?.disaster_type) {
           setDisasterType(data.disaster_type as DisasterType);
         }
+        if (data) {
+          const title = [data.name, data.location].filter(Boolean).join(" · ");
+          if (title) setCrisisTitle(title);
+        }
       } catch {
-        // keep default 'generic'
+        // keep defaults
       }
     }
     fetchCrisisConfig();
@@ -457,8 +464,6 @@ export default function DashboardScreen({
       style={{
         display: "flex",
         flexDirection: "column",
-        height: "100%",
-        overflowY: "auto",
         padding: "16px 20px",
         gap: 16,
       }}
@@ -564,7 +569,7 @@ export default function DashboardScreen({
         >
           Most Critical — Act Now
         </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 260, overflowY: "auto" }}>
           {criticalList.length === 0 ? (
             <p style={{ fontSize: 14, color: "var(--cr-label)", padding: "12px 0" }}>
               No critical reports in current filter
@@ -683,7 +688,7 @@ export default function DashboardScreen({
               <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--cr-label)", fontWeight: 600 }}>
                 Agent Dashboard
               </p>
-              <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)" }}>Porto Alegre · RS Floods</p>
+              <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)" }}>{crisisTitle}</p>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span
@@ -752,7 +757,7 @@ export default function DashboardScreen({
           <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--cr-label)", fontWeight: 600 }}>
             Agent Dashboard
           </p>
-          <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)" }}>Porto Alegre · RS Floods</p>
+          <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)" }}>{crisisTitle}</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span
