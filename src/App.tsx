@@ -22,7 +22,7 @@ const db = supabase as any;
 type AppMode = "index" | "citizen" | "agent" | "map";
 type CitizenStep = "camera" | "location" | "classification" | "rapid-classification" | "details" | "review";
 
-const CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "c0000000-0000-0000-0000-000000000001";
+const CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "f58c928d-9fc7-4499-8987-f8f4f92924ed";
 
 interface Props {
   mode: "demo" | "live";
@@ -109,6 +109,8 @@ function AppInner({ mode }: Props) {
     return (
       <DashboardScreen
         onGoHome={() => setAppMode("index")}
+        onGoMap={() => setAppMode("map")}
+        isDemo={isDemo}
       />
     );
   }
@@ -163,6 +165,7 @@ function AppInner({ mode }: Props) {
           lng:                        locationData.lng,
           locationMethod:             locationData.locationMethod,
           address:                    locationData.address,
+          placeName:                  locationData.placeName,
           damageLevel:                classificationData.damageLevel,
           damageLevelLabel:           classificationData.damageLevelLabel,
           infrastructureType:         classificationData.infrastructureType,
@@ -187,6 +190,7 @@ function AppInner({ mode }: Props) {
           lng:                locationData.lng,
           locationMethod:     locationData.locationMethod,
           address:            locationData.address,
+          placeName:          locationData.placeName,
           damageLevel:        rapidData.damageLevel,
           damageLevelLabel:   rapidData.damageLevelLabel,
           infrastructureType: rapidData.infrastructureType,
@@ -286,7 +290,7 @@ export default function App({ mode }: Props) {
             position: "fixed",
             top: 14,
             right: 16,
-            zIndex: 9999,
+            zIndex: 9000,
             background: "var(--cr-primary)",
             color: "#fff",
             fontSize: 11,

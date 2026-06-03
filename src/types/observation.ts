@@ -13,6 +13,7 @@ export interface ObservationInput {
   lng: number;
   locationMethod: "gps" | "manual_pin" | "address";
   address?: string;
+  placeName?: string;
 
   // ClassificationScreen
   damageLevel: string;

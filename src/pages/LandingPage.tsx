@@ -24,7 +24,7 @@ export default function LandingPage() {
           UN Crisis Reporter
         </h1>
         <p style={{ fontSize: 15, color: "var(--cr-label)", marginTop: 8 }}>
-          Community-powered damage assessment
+          Damage & crisis reporting
         </p>
       </div>
 
