@@ -33,6 +33,9 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
   const { t } = useTranslation();
   const [pins, setPins] = useState<PinData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [crisisTitle, setCrisisTitle] = useState<string>(
+    isDemo ? "RS Floods 2024 · Porto Alegre, RS" : ""
+  );
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function fetchPins() {
@@ -71,28 +74,65 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [crisisId, isDemo, refreshKey]);
 
+  useEffect(() => {
+    if (isDemo) return;
+    async function fetchCrisisTitle() {
+      try {
+        const { data } = await db
+          .from("crises")
+          .select("name, location")
+          .eq("id", crisisId)
+          .single() as { data: { name: string; location: string } | null };
+        if (data) {
+          setCrisisTitle([data.name, data.location].filter(Boolean).join(" · "));
+        }
+      } catch {
+        // keep empty
+      }
+    }
+    fetchCrisisTitle();
+  }, [crisisId, isDemo]);
+
   return (
     <div className="flex flex-col h-screen bg-surface text-text-primary">
 
       {/* Header */}
       <div
-        className="flex-none flex items-center gap-3 border-b border-border"
-        style={{ padding: "14px 16px" }}
+        style={{
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          padding: "14px 16px",
+          borderBottom: "1px solid var(--cr-border)",
+        }}
       >
         <button
           type="button"
           onClick={onBack}
-          className="text-sm text-text-muted active:opacity-70"
+          style={{
+            background: "none",
+            border: "none",
+            color: "var(--cr-label)",
+            fontSize: 14,
+            cursor: "pointer",
+            padding: "4px 0",
+            flexShrink: 0,
+          }}
         >
           {t("common.back")}
         </button>
-        <div className="flex-1 text-center">
-          <p className="text-sm font-semibold text-text-primary">
+        <div style={{ flex: 1, textAlign: "center" }}>
+          <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 600, margin: 0 }}>
             {t("community_map.title")}
           </p>
+          {crisisTitle && (
+            <p style={{ fontSize: 14, fontWeight: 700, color: "var(--cr-text)", margin: "2px 0 0" }}>
+              {crisisTitle}
+            </p>
+          )}
         </div>
-        {/* Balance the back button */}
-        <div style={{ width: 48 }} />
+        <div style={{ width: 40, flexShrink: 0 }} />
       </div>
 
       {/* Map */}

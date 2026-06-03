@@ -62,6 +62,7 @@ export default function CrisisMap({
         attribution={TILE_ATTRIBUTION}
         detectRetina
         maxZoom={20}
+        opacity={0.85}
       />
       <FlyToCenter center={center} />
 
