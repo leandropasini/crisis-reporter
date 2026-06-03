@@ -178,6 +178,21 @@
 
 ---
 
+## v0.10-session9-r3 (2026-06-03)
+**Branch:** `feature/session9-fixes` → main  
+**Tag:** `v0.10-session9-r3`
+
+- **Fix 1**: ObservationDetail — photo/img removed entirely; plain close-button header only
+- **Fix 2**: submit.ts — LOG1 (entry: mode + crisis UUID), LOG2 (full payload), LOG3 (Supabase response), LOG4 (branch taken); no isDemo guard blocks DB insert in either mode
+- **Fix 3**: ExportButton — single Export click downloads `crisis-reporter-porto-alegre.geojson` + `.csv` simultaneously; hardcoded Porto Alegre demo data; `exported_at` uses `new Date().toISOString()`
+- **Fix 4**: DEMO badge moved to `bottom: 16, left: 16` (bottom-left), `zIndex: 50`; no longer overlaps language selector
+- **Fix 5**: Dashboard content div removes `overflowY: auto`; critical list gets `maxHeight: 260, overflowY: auto` for internal scroll only
+- **Fix 6**: Dashboard headers use `crisisTitle` state (demo = "RS Floods 2024 · Porto Alegre", live = fetched from DB or "Active Crisis")
+- **Fix 7**: CommunityMapScreen defaults `crisisTitle` to "Community Crisis Map" in live mode
+- Zero new TS errors
+
+---
+
 ## v0.9-session9 (2026-06-03)
 **Branch:** `feature/session9-fixes` → main  
 **Tag:** `v0.9-session9`
