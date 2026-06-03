@@ -272,7 +272,7 @@ export default function ReviewScreen({
             ? t("review.retry")
             : isOffline
             ? t("review.save_offline")
-            : "Submit report →"}
+            : t("review.submit")}
         </button>
       </div>
 

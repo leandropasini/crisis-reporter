@@ -365,7 +365,7 @@ export default function LocationScreen({
               transition: "background 0.15s",
             }}
           >
-            Confirm location →
+            {t("location.confirm")}
           </button>
         </div>
       </div>
