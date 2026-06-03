@@ -74,3 +74,20 @@ export const DISASTER_TYPE_LABELS: Record<DisasterType, string> = {
   drought:    "Drought",
   generic:    "Generic",
 };
+
+export const DISASTER_CATEGORY_OPTIONS: Record<DisasterType, string[]> = {
+  flood:      ["Water level", "Structural damage", "Road blocked", "Power outage", "Contamination risk"],
+  earthquake: ["Structural collapse", "Wall cracks", "Foundation damage", "Road blocked", "Utilities failure"],
+  hurricane:  ["Roof damage", "Flooding", "Fallen trees", "Power outage", "Window/facade damage"],
+  landslide:  ["Road blocked", "Building at risk", "Active slide", "Buried infrastructure", "Drainage failure"],
+  fire:       ["Active burning", "Smoke exposure", "Structural damage", "Evacuation needed", "Utilities failure"],
+  drought:    ["Water supply failure", "Crop loss", "Soil degradation", "Health risk", "Infrastructure stress"],
+  generic:    [],
+};
+
+export const SEVERITY_OPTIONS: { value: string; label: string; description: string; color: string }[] = [
+  { value: "minimal",  label: "Minimal",  description: "Cracks in plaster, broken windows",   color: "var(--color-minimal)"  },
+  { value: "partial",  label: "Partial",  description: "Large wall cracks, partial roof loss", color: "var(--color-warning)"  },
+  { value: "severe",   label: "Severe",   description: "Collapsed walls, unsafe to enter",     color: "#F59E0B"               },
+  { value: "complete", label: "Complete", description: "Collapsed or uninhabitable",            color: "var(--color-critical)" },
+];
