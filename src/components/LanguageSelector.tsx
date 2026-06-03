@@ -111,7 +111,7 @@ export default function LanguageSelector({ variant = "fixed" }: Props) {
 
   if (variant === "inline") {
     return (
-      <div ref={menuRef} style={{ position: "relative" }}>
+      <div ref={menuRef} style={{ position: "relative", zIndex: 10001 }}>
         {trigger}
         {dropdown}
       </div>

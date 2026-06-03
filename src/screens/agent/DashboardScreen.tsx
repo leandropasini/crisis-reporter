@@ -266,10 +266,10 @@ export default function DashboardScreen({
   const [mapMode, setMapMode] = useState<"clusters" | "heatmap">("clusters");
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [showSettings, setShowSettings] = useState(false);
-  const [disasterType, setDisasterType] = useState<DisasterType>("generic");
+  const [disasterType, setDisasterType] = useState<DisasterType>(isDemo ? "flood" : "generic");
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
+    if (isDemo || !isSupabaseConfigured) return;
     async function fetchCrisisConfig() {
       try {
         const { data } = await db
@@ -375,53 +375,50 @@ export default function DashboardScreen({
   ];
 
   const mapArea = (
-    <div
-      style={{
-        height: 220,
-        borderRadius: 16,
-        overflow: "hidden",
-        position: "relative",
-        flexShrink: 0,
-      }}
-    >
-      {loading && (
-        <div
-          style={{
-            position: "absolute",
-            top: 10,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 1000,
-            background: "var(--cr-surface)",
-            border: "1px solid var(--cr-border)",
-            borderRadius: 8,
-            padding: "5px 12px",
-            fontSize: 12,
-            color: "var(--cr-label)",
-          }}
+    // Outer wrapper: position:relative, NO overflow:hidden — toggle can escape freely
+    <div style={{ position: "relative", height: 220, flexShrink: 0 }}>
+      {/* Inner wrapper: overflow:hidden for border-radius clipping of map tiles only */}
+      <div style={{ borderRadius: 16, overflow: "hidden", height: "100%", width: "100%" }}>
+        {loading && (
+          <div
+            style={{
+              position: "absolute",
+              top: 10,
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 1000,
+              background: "var(--cr-surface)",
+              border: "1px solid var(--cr-border)",
+              borderRadius: 8,
+              padding: "5px 12px",
+              fontSize: 12,
+              color: "var(--cr-label)",
+            }}
+          >
+            {t("dashboard.loading")}
+          </div>
+        )}
+        <MapContainer
+          center={center}
+          zoom={zoom}
+          style={{ height: "100%", width: "100%" }}
+          zoomControl={false}
         >
-          {t("dashboard.loading")}
-        </div>
-      )}
-      <MapContainer
-        center={center}
-        zoom={zoom}
-        style={{ height: "100%", width: "100%" }}
-        zoomControl={false}
-      >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
-          maxZoom={20}
-        />
-        {!loading && mapMode === "clusters" && (
-          <ClusterLayer observations={filtered} onSelect={setSelectedObs} />
-        )}
-        {!loading && mapMode === "heatmap" && (
-          <HeatmapLayer points={filtered} />
-        )}
-      </MapContainer>
-      {/* Heat/Cluster toggle — after MapContainer so it stacks on top */}
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
+            maxZoom={20}
+            opacity={0.9}
+          />
+          {!loading && mapMode === "clusters" && (
+            <ClusterLayer observations={filtered} onSelect={setSelectedObs} />
+          )}
+          {!loading && mapMode === "heatmap" && (
+            <HeatmapLayer points={filtered} />
+          )}
+        </MapContainer>
+      </div>
+      {/* Toggle outside overflow:hidden — positioned relative to outer wrapper */}
       <div
         style={{
           position: "absolute",
@@ -798,6 +795,7 @@ export default function DashboardScreen({
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               maxZoom={20}
+              opacity={0.9}
             />
             {!loading && mapMode === "clusters" && (
               <ClusterLayer observations={filtered} onSelect={setSelectedObs} />

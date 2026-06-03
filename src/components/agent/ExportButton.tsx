@@ -5,7 +5,7 @@ import { exportGeoJSON, exportCSV, type ExportRow, type ExportFilters } from "..
 interface Props {
   crisisId: string;
   filters: ExportFilters;
-  rows: ExportRow[];   // already-filtered fallback rows
+  rows: ExportRow[];
 }
 
 type Format = "geojson" | "csv";
@@ -15,18 +15,27 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<Format | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const OPTIONS: Array<{ fmt: Format; label: string; ext: string }> = [
     { fmt: "geojson", label: t("export.geojson"), ext: ".geojson" },
     { fmt: "csv",     label: t("export.csv"),     ext: ".csv" },
   ];
 
-  // Close dropdown on outside click
+  function handleToggle() {
+    if (!open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+    }
+    setOpen((v) => !v);
+  }
+
   useEffect(() => {
     if (!open) return;
     function handler(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (buttonRef.current && !buttonRef.current.contains(target)) {
         setOpen(false);
       }
     }
@@ -52,10 +61,11 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
   }
 
   return (
-    <div ref={menuRef} style={{ position: "relative" }}>
+    <>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleToggle}
         disabled={loading !== null}
         style={{
           display: "flex",
@@ -90,16 +100,16 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
 
       {open && (
         <div style={{
-          position: "absolute",
-          top: "calc(100% + 4px)",
-          right: 0,
-          width: 160,
-          background: "var(--color-surface-2)",
-          border: "1px solid var(--color-border)",
-          borderRadius: 8,
+          position: "fixed",
+          top: dropdownPos.top,
+          left: dropdownPos.left,
+          width: Math.max(dropdownPos.width, 160),
+          background: "var(--cr-surface)",
+          border: "1px solid var(--cr-border)",
+          borderRadius: 12,
           overflow: "hidden",
-          zIndex: 2000,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
+          zIndex: 6000,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
         }}>
           {OPTIONS.map((opt) => (
             <button
@@ -109,19 +119,20 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
               style={{
                 display: "block",
                 width: "100%",
-                padding: "9px 14px",
+                padding: "12px 16px",
                 textAlign: "left",
                 background: "none",
                 border: "none",
-                color: "var(--color-text-primary)",
-                fontSize: 12,
+                color: "var(--cr-text)",
+                fontSize: 14,
+                fontWeight: 500,
                 cursor: "pointer",
-                borderBottom: "1px solid var(--color-border)",
+                borderBottom: "1px solid var(--cr-border)",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-border)")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--cr-surface2)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
             >
-              <span style={{ color: "var(--color-text-muted)", fontSize: 10, display: "block", marginBottom: 1 }}>
+              <span style={{ color: "var(--cr-label)", fontSize: 11, display: "block", marginBottom: 2 }}>
                 {opt.ext}
               </span>
               {opt.label}
@@ -132,9 +143,9 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
 
       {error && (
         <p style={{
-          position: "absolute",
-          top: "calc(100% + 4px)",
-          right: 0,
+          position: "fixed",
+          top: dropdownPos.top,
+          left: dropdownPos.left,
           background: "color-mix(in srgb, var(--color-critical) 13%, transparent)",
           border: "1px solid color-mix(in srgb, var(--color-critical) 33%, transparent)",
           borderRadius: 6,
@@ -142,11 +153,11 @@ export default function ExportButton({ crisisId, filters, rows }: Props) {
           fontSize: 11,
           color: "var(--color-critical)",
           whiteSpace: "nowrap",
-          zIndex: 2000,
+          zIndex: 6000,
         }}>
           {error}
         </p>
       )}
-    </div>
+    </>
   );
 }
