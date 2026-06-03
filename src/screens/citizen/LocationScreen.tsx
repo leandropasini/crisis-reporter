@@ -15,6 +15,7 @@ export interface LocationResult {
   lng: number;
   locationMethod: LocationMethod;
   address?: string;
+  placeName?: string;
   buildingId?: string;
   buildingName?: string;
 }
@@ -71,7 +72,30 @@ export default function LocationScreen({
   const [method, setMethod] = useState<LocationMethod>("gps");
   const [address, setAddress] = useState("");
   const [selectedBuilding, setSelectedBuilding] = useState<{ id: string; name: string } | null>(null);
+  const [placeName, setPlaceName] = useState<string>(
+    demoMode ? "Porto Alegre, Rio Grande do Sul" : ""
+  );
   const methodRef = useRef<LocationMethod>("gps");
+
+  async function reverseGeocode(lat: number, lng: number) {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=12`,
+        { headers: { "Accept-Language": "en" } }
+      );
+      const json = await res.json();
+      const addr = json.address ?? {};
+      const name = [
+        addr.suburb ?? addr.neighbourhood ?? addr.town,
+        addr.city ?? addr.municipality ?? addr.county,
+      ]
+        .filter(Boolean)
+        .join(", ");
+      if (name) setPlaceName(name);
+    } catch {
+      // fallback: coords only
+    }
+  }
 
   useEffect(() => {
     if (demoMode) return;
@@ -92,6 +116,7 @@ export default function LocationScreen({
         setGpsStatus("ok");
         setMethod("gps");
         methodRef.current = "gps";
+        reverseGeocode(lat, lng);
       },
       () => {
         setGpsStatus("failed");
@@ -127,6 +152,7 @@ export default function LocationScreen({
       lng: pin.lng,
       locationMethod: method,
       address: method === "address" ? address.trim() : undefined,
+      placeName: demoMode ? "Porto Alegre, Rio Grande do Sul" : placeName || undefined,
       buildingId: selectedBuilding?.id,
       buildingName: selectedBuilding?.name,
     });
@@ -307,15 +333,14 @@ export default function LocationScreen({
             >
               {demoMode ? "DEMO LOCATION" : gpsStatus === "ok" ? "GPS" : "Manual"}
             </span>
-            {demoMode ? (
-              <span style={{ fontSize: 16, fontWeight: 700, color: "var(--cr-text)" }}>
-                Porto Alegre, Rio Grande do Sul
-              </span>
-            ) : (
-              <span style={{ fontSize: 16, fontWeight: 700, color: "var(--cr-text)" }}>
-                {pin.lat.toFixed(5)}°, {pin.lng.toFixed(5)}°
-              </span>
-            )}
+            <span style={{ fontSize: 16, fontWeight: 700, color: "var(--cr-text)" }}>
+              {demoMode
+                ? "Porto Alegre, Rio Grande do Sul"
+                : placeName || `${pin.lat.toFixed(5)}°, ${pin.lng.toFixed(5)}°`}
+            </span>
+            <span style={{ fontSize: 13, color: "var(--cr-label)" }}>
+              {pin.lat.toFixed(5)}°, {pin.lng.toFixed(5)}°
+            </span>
           </div>
         )}
 

@@ -184,9 +184,9 @@ export default function ReviewScreen({
             },
             {
               label: t("review.label_location"),
-              value: `${data.lat.toFixed(3)}°, ${data.lng.toFixed(3)}°`,
+              value: data.placeName ?? `${data.lat.toFixed(5)}°, ${data.lng.toFixed(5)}°`,
               color: "var(--cr-label)",
-              sub: data.address,
+              sub: `${data.lat.toFixed(5)}°, ${data.lng.toFixed(5)}°`,
             },
           ].map((row, i, arr) => (
             <div
