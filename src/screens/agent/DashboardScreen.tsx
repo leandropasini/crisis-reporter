@@ -424,7 +424,7 @@ export default function DashboardScreen({
           position: "absolute",
           bottom: 10,
           right: 10,
-          zIndex: 1001,
+          zIndex: 100,
           display: "flex",
           gap: 4,
         }}

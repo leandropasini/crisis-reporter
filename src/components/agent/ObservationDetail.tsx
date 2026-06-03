@@ -75,7 +75,7 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
       borderLeft: "1px solid var(--color-border)",
       display: "flex",
       flexDirection: "column",
-      zIndex: 1000,
+      zIndex: 300,
       overflowY: "auto",
     }}>
       {/* Photo */}
@@ -84,6 +84,7 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
           <img
             src={obs.photo_url}
             alt={obs.infrastructure_name}
+            onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none"; }}
             style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }}
           />
           <button

@@ -53,7 +53,13 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
 
   try {
     const sessionId = getSessionId();
-    const photoUrl = await uploadPhoto(input.photoFile, input.crisisId, sessionId);
+
+    let photoUrl = "";
+    try {
+      photoUrl = await uploadPhoto(input.photoFile, input.crisisId, sessionId);
+    } catch (uploadErr) {
+      console.warn("[crisis-reporter] photo upload failed (continuing without photo):", uploadErr);
+    }
 
     const insertData: ObservationInsert = {
       id:                         localId,
@@ -78,7 +84,12 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
       is_demo:                    input.isDemo ?? false,
     };
 
-    console.log("[crisis-reporter] inserting observation:", JSON.stringify(insertData, null, 2));
+    console.log("[crisis-reporter] inserting observation:", JSON.stringify({
+      crisis_id: insertData.crisis_id,
+      damage_level: insertData.damage_level,
+      is_demo: insertData.is_demo,
+      photo_url: insertData.photo_url ? "uploaded" : "empty",
+    }));
     const { error } = await db.from("observations").insert(insertData);
 
     if (error) throw error;
