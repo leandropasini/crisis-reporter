@@ -134,6 +134,22 @@
 - Desktop: cards side-by-side via `.landing-cards` media query
 - Zero new TS errors
 
+## v0.7-session8-r2 (2026-06-03)
+**Branch:** `feature/session8-fixes` → main  
+**Tag:** `v0.7-session8-r2`
+
+- Language: `initImmediate` removed (dropped in i18next v26); `lng: "en"` hardcoded; init always synchronous with bundled resources
+- Map brightness: all 3 TileLayers at opacity={0.9} (CrisisMap + 2 in DashboardScreen)
+- ExportButton: fixed-position dropdown using `getBoundingClientRect()` — escapes scroll containers, no longer pushes content
+- Dashboard clusters toggle: outer map wrapper has no `overflow:hidden`; toggle absolutely positioned on outer wrapper, not clipped by inner border-radius div
+- LanguageSelector inline variant: `zIndex: 10001` clears DEMO badge
+- Demo submit: `console.log` before Supabase insert shows full payload in DevTools
+- DashboardScreen: `disasterType` defaults to `"flood"` when `isDemo=true`; `fetchCrisisConfig` skipped in demo
+- LandingPage buttons: `outline: "none"` removes browser default focus ring
+- Zero new TS errors
+
+---
+
 ## v0.6-session8 (2026-06-03)
 **Branch:** `feature/session8-fixes` → main  
 **Tag:** `v0.6-session8`
