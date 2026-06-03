@@ -22,7 +22,7 @@ const db = supabase as any;
 type AppMode = "index" | "citizen" | "agent" | "map";
 type CitizenStep = "camera" | "location" | "classification" | "rapid-classification" | "details" | "review";
 
-const CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "c0000000-0000-0000-0000-000000000001";
+const CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "f58c928d-9fc7-4499-8987-f8f4f92924ed";
 
 interface Props {
   mode: "demo" | "live";
