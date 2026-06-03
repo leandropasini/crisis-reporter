@@ -48,6 +48,14 @@ export interface SubmitResult {
 export async function submitObservation(input: ObservationInput): Promise<SubmitResult> {
   const localId = crypto.randomUUID();
 
+  // Log 1: entry point
+  console.log("[crisis-reporter] LOG1 submitObservation called", {
+    mode: input.isDemo ? "demo" : "live",
+    crisis_id: input.crisisId,
+    damage_level: input.damageLevel,
+    is_demo: input.isDemo ?? false,
+  });
+
   // navigator.onLine is unreliable on mobile (iOS Safari / Android often returns
   // false even with real connectivity). Always attempt; catch handles real failures.
 
@@ -84,19 +92,23 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
       is_demo:                    input.isDemo ?? false,
     };
 
-    console.log("[crisis-reporter] inserting observation:", JSON.stringify({
-      crisis_id: insertData.crisis_id,
-      damage_level: insertData.damage_level,
-      is_demo: insertData.is_demo,
-      photo_url: insertData.photo_url ? "uploaded" : "empty",
-    }));
-    const { error } = await db.from("observations").insert(insertData);
+    // Log 2: full payload before Supabase insert
+    console.log("[crisis-reporter] LOG2 inserting payload:", JSON.stringify(insertData));
 
-    if (error) throw error;
+    const { error, data: insertResult } = await db.from("observations").insert(insertData).select();
 
+    // Log 3: Supabase response
+    if (error) {
+      console.error("[crisis-reporter] LOG3 Supabase insert ERROR:", JSON.stringify(error));
+      throw error;
+    }
+    console.log("[crisis-reporter] LOG3 Supabase insert SUCCESS:", insertResult);
+
+    // Log 4: branch taken
+    console.log("[crisis-reporter] LOG4 branch=SUPABASE id=" + localId);
     return { success: true, queued: false, id: localId };
   } catch (err) {
-    console.error("[crisis-reporter] submit failed, queuing:", err);
+    console.error("[crisis-reporter] LOG4 branch=QUEUE reason:", err);
     try {
       await queue.enqueue(input);
     } catch {

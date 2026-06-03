@@ -34,7 +34,7 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
   const [pins, setPins] = useState<PinData[]>([]);
   const [loading, setLoading] = useState(true);
   const [crisisTitle, setCrisisTitle] = useState<string>(
-    isDemo ? "RS Floods 2024 · Porto Alegre, RS" : ""
+    isDemo ? "RS Floods 2024 · Porto Alegre, RS" : "Community Crisis Map"
   );
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 

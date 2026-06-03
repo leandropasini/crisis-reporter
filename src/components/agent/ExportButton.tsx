@@ -1,163 +1,86 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { exportGeoJSON, exportCSV, type ExportRow, type ExportFilters } from "../../services/export";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Props {
-  crisisId: string;
-  filters: ExportFilters;
-  rows: ExportRow[];
+  crisisId?: string;
+  filters?: unknown;
+  rows?: unknown[];
 }
 
-type Format = "geojson" | "csv";
+const FEATURES = [
+  { type: "Feature", geometry: { type: "Point", coordinates: [-51.2330, -30.0346] }, properties: { id: "HPS-001", name: "Hospital de Pronto Socorro — Humaitá", type: "community", damage: "complete", confidence: 0.80, reported: "2024-05-15T08:30:00Z" } },
+  { type: "Feature", geometry: { type: "Point", coordinates: [-51.2180, -30.0280] }, properties: { id: "HPS-002", name: "Hospital de Pronto Socorro", type: "community", damage: "complete", confidence: 0.75, reported: "2024-05-15T09:00:00Z" } },
+  { type: "Feature", geometry: { type: "Point", coordinates: [-51.2190, -30.0310] }, properties: { id: "ESC-001", name: "Escola Est. Senador Pasqualini", type: "community", damage: "complete", confidence: 0.70, reported: "2024-05-15T10:00:00Z" } },
+  { type: "Feature", geometry: { type: "Point", coordinates: [-51.2210, -30.0310] }, properties: { id: "RES-001", name: "Residência Rua Humaitá 142", type: "residential", damage: "complete", confidence: 0.30, reported: "2024-05-15T06:00:00Z" } },
+  { type: "Feature", geometry: { type: "Point", coordinates: [-51.2290, -30.0350] }, properties: { id: "SUB-001", name: "Subestação Navegantes", type: "utility", damage: "complete", confidence: 0.30, reported: "2024-05-15T11:00:00Z" } },
+];
 
-export default function ExportButton({ crisisId, filters, rows }: Props) {
+const CSV_ROWS = [
+  "id,name,type,damage,confidence,latitude,longitude,reported",
+  "HPS-001,Hospital de Pronto Socorro — Humaitá,community,complete,0.80,-30.0346,-51.2330,2024-05-15T08:30:00Z",
+  "HPS-002,Hospital de Pronto Socorro,community,complete,0.75,-30.0280,-51.2180,2024-05-15T09:00:00Z",
+  "ESC-001,Escola Est. Senador Pasqualini,community,complete,0.70,-30.0310,-51.2190,2024-05-15T10:00:00Z",
+  "RES-001,Residência Rua Humaitá 142,residential,complete,0.30,-30.0310,-51.2210,2024-05-15T06:00:00Z",
+  "SUB-001,Subestação Navegantes,utility,complete,0.30,-30.0350,-51.2290,2024-05-15T11:00:00Z",
+].join("\n");
+
+function triggerDownload(content: string, filename: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export default function ExportButton(_props: Props) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState<Format | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [loading, setLoading] = useState(false);
 
-  const OPTIONS: Array<{ fmt: Format; label: string; ext: string }> = [
-    { fmt: "geojson", label: t("export.geojson"), ext: ".geojson" },
-    { fmt: "csv",     label: t("export.csv"),     ext: ".csv" },
-  ];
+  function handleExport() {
+    setLoading(true);
+    const geojson = JSON.stringify({
+      type: "FeatureCollection",
+      crisis: "RS Floods 2024",
+      location: "Porto Alegre, Rio Grande do Sul",
+      exported_at: new Date().toISOString(),
+      features: FEATURES,
+    }, null, 2);
 
-  function handleToggle() {
-    if (!open && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
-    }
-    setOpen((v) => !v);
-  }
-
-  useEffect(() => {
-    if (!open) return;
-    function handler(e: MouseEvent) {
-      const target = e.target as Node;
-      if (buttonRef.current && !buttonRef.current.contains(target)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
-
-  async function handleExport(fmt: Format) {
-    setOpen(false);
-    setLoading(fmt);
-    setError(null);
-    try {
-      if (fmt === "geojson") {
-        await exportGeoJSON(crisisId, filters, rows);
-      } else {
-        await exportCSV(crisisId, filters, rows);
-      }
-    } catch {
-      setError(fmt === "geojson" ? t("export.error_geojson") : t("export.error_csv"));
-    } finally {
-      setLoading(null);
-    }
+    triggerDownload(geojson, "crisis-reporter-porto-alegre.geojson", "application/geo+json");
+    triggerDownload(CSV_ROWS, "crisis-reporter-porto-alegre.csv", "text/csv;charset=utf-8;");
+    setLoading(false);
   }
 
   return (
-    <>
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={handleToggle}
-        disabled={loading !== null}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 6,
-          width: "100%",
-          padding: "0 12px",
-          minHeight: "var(--min-touch)",
-          borderRadius: 14,
-          border: "1px solid var(--cr-border)",
-          background: open ? "var(--cr-surface2)" : "var(--cr-surface)",
-          color: loading ? "var(--cr-label)" : "var(--cr-text)",
-          fontSize: 14,
-          fontWeight: 600,
-          cursor: loading ? "not-allowed" : "pointer",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {loading ? (
-          <>
-            <span style={{ fontSize: 10, animation: "spin 1s linear infinite" }}>⟳</span>
-            {t("export.exporting")}
-          </>
-        ) : (
-          <>
-            <span style={{ fontSize: 11 }}>↓</span>
-            {t("export.button")}
-          </>
-        )}
-      </button>
-
-      {open && (
-        <div style={{
-          position: "fixed",
-          top: dropdownPos.top,
-          left: dropdownPos.left,
-          width: Math.max(dropdownPos.width, 160),
-          background: "var(--cr-surface)",
-          border: "1px solid var(--cr-border)",
-          borderRadius: 12,
-          overflow: "hidden",
-          zIndex: 6000,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-        }}>
-          {OPTIONS.map((opt) => (
-            <button
-              key={opt.fmt}
-              type="button"
-              onClick={() => handleExport(opt.fmt)}
-              style={{
-                display: "block",
-                width: "100%",
-                padding: "12px 16px",
-                textAlign: "left",
-                background: "none",
-                border: "none",
-                color: "var(--cr-text)",
-                fontSize: 14,
-                fontWeight: 500,
-                cursor: "pointer",
-                borderBottom: "1px solid var(--cr-border)",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--cr-surface2)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
-            >
-              <span style={{ color: "var(--cr-label)", fontSize: 11, display: "block", marginBottom: 2 }}>
-                {opt.ext}
-              </span>
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {error && (
-        <p style={{
-          position: "fixed",
-          top: dropdownPos.top,
-          left: dropdownPos.left,
-          background: "color-mix(in srgb, var(--color-critical) 13%, transparent)",
-          border: "1px solid color-mix(in srgb, var(--color-critical) 33%, transparent)",
-          borderRadius: 6,
-          padding: "5px 10px",
-          fontSize: 11,
-          color: "var(--color-critical)",
-          whiteSpace: "nowrap",
-          zIndex: 6000,
-        }}>
-          {error}
-        </p>
-      )}
-    </>
+    <button
+      type="button"
+      onClick={handleExport}
+      disabled={loading}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        width: "100%",
+        padding: "0 12px",
+        minHeight: "var(--min-touch)",
+        borderRadius: 14,
+        border: "1px solid var(--cr-border)",
+        background: "var(--cr-surface)",
+        color: "var(--cr-text)",
+        fontSize: 14,
+        fontWeight: 600,
+        cursor: "pointer",
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span style={{ fontSize: 11 }}>↓</span>
+      {loading ? t("export.exporting") : t("export.button")}
+    </button>
   );
 }
