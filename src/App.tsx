@@ -10,6 +10,7 @@ import ReviewScreen, { type ReviewSuccessPayload } from "./screens/citizen/Revie
 import ConfirmationScreen from "./screens/citizen/ConfirmationScreen";
 import DashboardScreen from "./screens/agent/DashboardScreen";
 import CommunityMapScreen from "./screens/CommunityMapScreen";
+import DemoWelcomeScreen from "./screens/DemoWelcomeScreen";
 import LanguageSelector from "./components/LanguageSelector";
 import { CrisisModeProvider, useCrisisMode, MODE_META } from "./contexts/CrisisModeContext";
 import type { ObservationInput } from "./types/observation";
@@ -33,6 +34,9 @@ function AppInner({ mode }: Props) {
   const modeMeta = MODE_META[crisisMode];
   const isDemo = mode === "demo";
 
+  const [showWelcome, setShowWelcome] = useState(
+    isDemo && !sessionStorage.getItem("demo_welcome_seen")
+  );
   const [appMode, setAppMode] = useState<AppMode>("index");
   const [step, setStep] = useState<CitizenStep>("camera");
   const [confirmed, setConfirmed] = useState<ReviewSuccessPayload | null>(null);
@@ -102,6 +106,16 @@ function AppInner({ mode }: Props) {
   function handleReportAnother() {
     setConfirmed(null);
     setAppMode("index");
+  }
+
+  // ── Demo welcome ──────────────────────────────────────────────────────────────
+  if (showWelcome) {
+    return (
+      <DemoWelcomeScreen
+        onStartAgent={() => { setShowWelcome(false); setAppMode("agent"); }}
+        onStartCitizen={() => { setShowWelcome(false); setAppMode("citizen"); }}
+      />
+    );
   }
 
   // ── Agent mode ───────────────────────────────────────────────────────────────
