@@ -4,7 +4,7 @@ import {
   InfrastructureType, CrisisNature, CrisisSubtype,
 } from "../../types/schema";
 import type { DisasterType } from "../../types/schema";
-import { DISASTER_DAMAGE_OPTIONS } from "../../constants/disasterDamage";
+import { DISASTER_CATEGORY_OPTIONS, SEVERITY_OPTIONS } from "../../constants/disasterDamage";
 
 export interface ClassificationData {
   damageLevel: string;
@@ -116,25 +116,31 @@ function subtypeToNature(sub: CrisisSubtype): CrisisNature {
 export default function ClassificationScreen({ disasterType, defaultSubtype, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
   const { t } = useTranslation();
   const [damageLevel, setDamageLevel] = useState<string | null>(null);
+  const [damageCategory, setDamageCategory] = useState<string | null>(null);
   const [infraType, setInfraType] = useState<InfrastructureType | null>(null);
   const [infraOther, setInfraOther] = useState("");
   const [subtype, setSubtype] = useState<CrisisSubtype | null>(defaultSubtype ?? null);
   const [debrisNeeded, setDebrisNeeded] = useState<boolean>(false);
 
   const crisisNature = subtype ? subtypeToNature(subtype) : null;
+  const isGeneric = disasterType === "generic";
+  const categories = DISASTER_CATEGORY_OPTIONS[disasterType] ?? [];
 
   const canAdvance =
     damageLevel !== null &&
+    (isGeneric || damageCategory !== null) &&
     infraType !== null &&
     (infraType !== "other" || infraOther.trim().length > 0) &&
     subtype !== null;
 
   function handleConfirm() {
     if (!canAdvance || !damageLevel || !infraType || !subtype || !crisisNature) return;
-    const selectedOption = DISASTER_DAMAGE_OPTIONS[disasterType].find((o) => o.value === damageLevel);
+    const severityOpt = SEVERITY_OPTIONS.find((o) => o.value === damageLevel);
     onConfirm({
       damageLevel,
-      damageLevelLabel: selectedOption?.label ?? damageLevel,
+      damageLevelLabel: isGeneric
+        ? (severityOpt?.label ?? damageLevel)
+        : (damageCategory ?? damageLevel),
       infrastructureType: infraType,
       infrastructureTypeOther: infraType === "other" ? infraOther.trim() : undefined,
       crisisNature,
@@ -142,13 +148,6 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
       debrisClearingNeeded: debrisNeeded,
     });
   }
-
-  const DISPLAY_COLORS: Record<string, string> = {
-    minimal:  "var(--color-minimal)",
-    partial:  "var(--color-warning)",
-    severe:   "#F59E0B",
-    complete: "var(--color-critical)",
-  };
 
   const INFRA_OPTIONS: { value: InfrastructureType; tKey: string }[] = [
     { value: "residential",       tKey: "classification.infra_residential" },
@@ -202,13 +201,44 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
       {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6">
 
-        {/* ── Damage level ── */}
+        {/* ── Damage category (non-generic only) ── */}
+        {!isGeneric && categories.length > 0 && (
+          <section>
+            <SectionLabel>{t("classification.category_section")}</SectionLabel>
+            <div className="space-y-2">
+              {categories.map((cat) => {
+                const selected = damageCategory === cat;
+                const key = `classification.cat_${disasterType}_${cat.toLowerCase().replace(/[^a-z0-9]/g, "_")}`;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setDamageCategory(cat)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all active:scale-[0.99]"
+                    style={{
+                      borderColor: selected ? "var(--color-primary)" : "var(--color-border)",
+                      backgroundColor: selected
+                        ? "color-mix(in srgb, var(--color-primary) 9%, transparent)"
+                        : "var(--color-surface-2)",
+                    }}
+                  >
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
+                    <span className="text-sm font-medium" style={{ color: selected ? "var(--color-primary)" : "var(--color-value)" }}>
+                      {t(key, cat)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* ── Severity (all types) ── */}
         <section>
-          <SectionLabel>{t("classification.damage_section")}</SectionLabel>
+          <SectionLabel>{t("classification.severity_section")}</SectionLabel>
           <div className="space-y-2">
-            {DISASTER_DAMAGE_OPTIONS[disasterType].map((opt) => {
+            {SEVERITY_OPTIONS.map((opt) => {
               const selected = damageLevel === opt.value;
-              const color = DISPLAY_COLORS[opt.displayLevel] ?? "var(--color-primary)";
               return (
                 <button
                   key={opt.value}
@@ -216,26 +246,21 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
                   onClick={() => setDamageLevel(opt.value)}
                   className="w-full flex items-start gap-4 px-4 py-3.5 rounded-xl border transition-all active:scale-[0.99]"
                   style={{
-                    borderColor: selected ? color : "var(--color-border)",
-                    backgroundColor: selected ? `color-mix(in srgb, ${color} 9%, transparent)` : "var(--color-surface-2)",
+                    borderColor: selected ? opt.color : "var(--color-border)",
+                    backgroundColor: selected ? `color-mix(in srgb, ${opt.color} 9%, transparent)` : "var(--color-surface-2)",
                   }}
                 >
-                  <span
-                    style={{
-                      width: 10, height: 10, borderRadius: "50%",
-                      background: color, flexShrink: 0, marginTop: 5,
-                    }}
-                  />
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: opt.color, flexShrink: 0, marginTop: 5 }} />
                   <div style={{ flex: 1, textAlign: "left" }}>
-                    <p className="text-sm font-semibold" style={{ color: selected ? color : "var(--color-value)" }}>
-                      {opt.label}
+                    <p className="text-sm font-semibold" style={{ color: selected ? opt.color : "var(--color-value)" }}>
+                      {t(`classification.severity_${opt.value}`, opt.label)}
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--color-label)" }}>
                       {opt.description}
                     </p>
                   </div>
                   {selected && (
-                    <span className="ml-auto flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: color, marginTop: 2 }}>
+                    <span className="ml-auto flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: opt.color, marginTop: 2 }}>
                       <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                         <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
                       </svg>
@@ -351,7 +376,7 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
         {/* Validation hint */}
         {!canAdvance && (
           <p className="text-xs text-text-muted text-center">
-            {t("classification.validation_hint")}
+            {t(isGeneric ? "classification.validation_hint_generic" : "classification.validation_hint")}
           </p>
         )}
       </div>
