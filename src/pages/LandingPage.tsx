@@ -54,6 +54,7 @@ export default function LandingPage() {
             cursor: "pointer",
             textAlign: "left",
             transition: "opacity 0.15s",
+            outline: "none",
           }}
           onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.75"; }}
           onMouseUp={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
@@ -99,6 +100,7 @@ export default function LandingPage() {
             cursor: "pointer",
             textAlign: "left",
             transition: "opacity 0.15s",
+            outline: "none",
           }}
           onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.75"; }}
           onMouseUp={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}

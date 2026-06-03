@@ -7,8 +7,6 @@ import fr from "./locales/fr.json";
 import ru from "./locales/ru.json";
 import es from "./locales/es.json";
 
-const savedLang = localStorage.getItem("lang") ?? "en";
-
 i18n.use(initReactI18next).init({
   resources: {
     en: { translation: en },
@@ -18,12 +16,12 @@ i18n.use(initReactI18next).init({
     ru: { translation: ru },
     es: { translation: es },
   },
-  lng: savedLang,
+  lng: "en",
   fallbackLng: "en",
   interpolation: { escapeValue: false },
 });
 
-document.documentElement.lang = savedLang;
-document.documentElement.dir = savedLang === "ar" ? "rtl" : "ltr";
+document.documentElement.lang = "en";
+document.documentElement.dir = "ltr";
 
 export default i18n;

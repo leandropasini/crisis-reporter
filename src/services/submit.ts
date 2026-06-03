@@ -78,6 +78,7 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
       is_demo:                    input.isDemo ?? false,
     };
 
+    console.log("[crisis-reporter] inserting observation:", JSON.stringify(insertData, null, 2));
     const { error } = await db.from("observations").insert(insertData);
 
     if (error) throw error;
