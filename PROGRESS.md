@@ -134,6 +134,34 @@
 - Desktop: cards side-by-side via `.landing-cards` media query
 - Zero new TS errors
 
+## v0.6-session8 (2026-06-03)
+**Branch:** `feature/session8-fixes` → main  
+**Tag:** `v0.6-session8`
+
+- Default language forced to English (localStorage or "en" — no browser locale detection)
+- All CTAs translated: "Confirm location →" and "Submit report →" use `t()` keys in all 6 languages
+- LandingPage subtitle: "Damage & crisis reporting"
+- Step 2 (Location): shows city/neighborhood name + coordinates in both modes
+  - Demo: "Porto Alegre, Rio Grande do Sul" hardcoded + fixed coords
+  - Live: Nominatim reverse geocode; fallback to coords if request fails
+- Review (Step 4): shows place name as primary + coords as sub-line
+- Community Map: title bar shows crisis name + location
+  - Demo: "RS Floods 2024 · Porto Alegre, RS"
+  - Live: fetched from crises table (name · location)
+- Map brightness: TileLayer opacity 0.85 (CARTO dark tiles were too dark)
+- Demo submit: CRISIS_ID fallback is now real crisis UUID `f58c928d-...`; demo submissions reach Supabase with is_demo=true
+- Dashboard — Clusters/Heat toggle: moved after MapContainer in DOM for correct z-stacking
+- Dashboard — Export button: full-width, stacked above Settings (no text truncation)
+- Dashboard — BottomNav Map tab: wired to navigate to Community Map
+- Dashboard — Demo Mode toggle: removed from both /demo and /app
+- Dashboard — Crisis Settings: full-screen bottom-sheet modal with X + outside-tap-to-close
+  - Disaster type selector: locked (Flood) in demo, editable in live
+- DEMO badge z-index: 9000 (below language dropdown at 9999+)
+- Live DB: dirty test observations deleted (see BLOCO 8 SQL)
+- Zero new TS errors
+
+---
+
 ## v0.5-disaster-types (2026-06-02)
 - Disaster-contextual damage options in Step 3 (citizen flow)
 - 7 disaster types: flood (5 opts), earthquake (5), hurricane (5), landslide (4), fire (4), drought (4), generic (4)
@@ -143,3 +171,41 @@
 - getDisplayLevel() maps any stored value back to DamageLevel color bucket for map pins
 - ReviewScreen uses damageLevelLabel for display; falls back to i18n key for legacy values
 - Zero new TS errors
+
+---
+
+## Claude Code Workflows
+
+### Patterns to use for Crisis Reporter
+
+**Deep verification (use before video recording)**
+Verify every claim in the proposal against the actual codebase.
+One subagent per claim. Adversarial verifier for each.
+Prompt: "Use a workflow to verify every claim in the proposal
+against the actual codebase. One subagent per claim.
+Adversarial verifier for each. Flag anything the code
+doesn't actually deliver yet."
+
+**Fan-out-and-synthesize (use for large feature blocks)**
+Split task into smaller steps, one subagent per step,
+synthesize results. Use when implementing multiple
+independent features in parallel (e.g. all 6 disaster types).
+
+**Adversarial verification (use for UX/UI changes)**
+One subagent implements, a separate subagent tries to break it.
+Prevents the "declared done without testing" failure mode
+that happened in the UX/UI sessions.
+
+**Loop until done (use for bug hunts)**
+Spawn agents until stop condition is met (zero errors,
+zero TS errors). Don't use fixed number of passes.
+
+### When NOT to use workflows
+- Regular focused tasks (disaster types, single bug fixes)
+- When token budget is tight near deadline
+- Tasks already well-defined with clear done criteria
+
+### Trigger words
+- "Use a workflow" — explicit
+- "ultracode" — forces workflow creation
+- "quick workflow" — lightweight adversarial review
