@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconChevronRight, IconSettings } from "@tabler/icons-react";
 import { MapContainer, TileLayer } from "react-leaflet";
@@ -111,22 +111,151 @@ const DAMAGE_COLORS: Record<string, string> = {
 
 type QuickFilter = "all" | "critical" | "health" | "education";
 
-const DEMO_MODE_KEY = "crisis_demo_mode";
+
+function CrisisSettingsModal({
+  onClose,
+  disasterType,
+  onDisasterTypeChange,
+  isDemo,
+}: {
+  onClose: () => void;
+  disasterType: DisasterType;
+  onDisasterTypeChange: (t: DisasterType) => void;
+  isDemo: boolean;
+}) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  function handleOverlayClick(e: React.MouseEvent) {
+    if (e.target === overlayRef.current) onClose();
+  }
+
+  return (
+    <div
+      ref={overlayRef}
+      onClick={handleOverlayClick}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 5000,
+        background: "rgba(0,0,0,0.75)",
+        display: "flex",
+        alignItems: "flex-end",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxHeight: "85dvh",
+          background: "var(--cr-bg)",
+          borderRadius: "24px 24px 0 0",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        {/* Modal header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "20px 20px 16px",
+            borderBottom: "1px solid var(--cr-border)",
+            flexShrink: 0,
+          }}
+        >
+          <div>
+            <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--cr-label)", fontWeight: 600, margin: 0 }}>
+              Agent Dashboard
+            </p>
+            <p style={{ fontSize: 20, fontWeight: 700, color: "var(--cr-text)", margin: "4px 0 0" }}>
+              Crisis Settings
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              border: "1px solid var(--cr-border)",
+              background: "var(--cr-surface)",
+              color: "var(--cr-label)",
+              fontSize: 18,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Modal body */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px 20px 32px" }}>
+          <div style={{ marginBottom: 8 }}>
+            <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 700, marginBottom: 6 }}>
+              Disaster Type
+            </p>
+            {isDemo && (
+              <p style={{ fontSize: 12, color: "var(--cr-primary)", marginBottom: 12, opacity: 0.9 }}>
+                🔒 Locked in demo mode
+              </p>
+            )}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {(Object.keys(DISASTER_TYPE_LABELS) as DisasterType[]).map((type) => {
+                const active = disasterType === type;
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => !isDemo && onDisasterTypeChange(type)}
+                    disabled={isDemo}
+                    style={{
+                      padding: "10px 18px",
+                      borderRadius: 24,
+                      border: `1px solid ${active ? "var(--cr-primary)" : "var(--cr-border)"}`,
+                      background: active ? "var(--cr-primary-dim)" : "var(--cr-surface)",
+                      color: active ? "var(--cr-primary)" : isDemo ? "var(--cr-border)" : "var(--cr-label)",
+                      fontSize: 14,
+                      fontWeight: active ? 700 : 400,
+                      cursor: isDemo ? "default" : "pointer",
+                      minHeight: "var(--min-touch)",
+                      transition: "all 0.15s",
+                      opacity: isDemo && !active ? 0.45 : 1,
+                    }}
+                  >
+                    {DISASTER_TYPE_LABELS[type]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   crisisId?: string;
   center?: [number, number];
   zoom?: number;
   onGoHome?: () => void;
-  onDemoModeChange?: (enabled: boolean) => void;
+  onGoMap?: () => void;
+  isDemo?: boolean;
 }
 
 export default function DashboardScreen({
-  crisisId = import.meta.env.VITE_DEMO_CRISIS_ID ?? "c0000000-0000-0000-0000-000000000001",
+  crisisId = import.meta.env.VITE_DEMO_CRISIS_ID ?? "f58c928d-9fc7-4499-8987-f8f4f92924ed",
   center = [-30.029, -51.228],
   zoom = 13,
   onGoHome,
-  onDemoModeChange,
+  onGoMap,
+  isDemo = false,
 }: Props) {
   const { t } = useTranslation();
   const [observations, setObservations] = useState<MappedObservation[]>([]);
@@ -136,16 +265,8 @@ export default function DashboardScreen({
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [mapMode, setMapMode] = useState<"clusters" | "heatmap">("clusters");
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
-  const [demoMode, setDemoMode] = useState(() => localStorage.getItem(DEMO_MODE_KEY) === "true");
   const [showSettings, setShowSettings] = useState(false);
   const [disasterType, setDisasterType] = useState<DisasterType>("generic");
-
-  function toggleDemoMode() {
-    const next = !demoMode;
-    setDemoMode(next);
-    localStorage.setItem(DEMO_MODE_KEY, String(next));
-    onDemoModeChange?.(next);
-  }
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
@@ -282,7 +403,25 @@ export default function DashboardScreen({
           {t("dashboard.loading")}
         </div>
       )}
-      {/* Heat/Cluster toggle */}
+      <MapContainer
+        center={center}
+        zoom={zoom}
+        style={{ height: "100%", width: "100%" }}
+        zoomControl={false}
+      >
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
+          maxZoom={20}
+        />
+        {!loading && mapMode === "clusters" && (
+          <ClusterLayer observations={filtered} onSelect={setSelectedObs} />
+        )}
+        {!loading && mapMode === "heatmap" && (
+          <HeatmapLayer points={filtered} />
+        )}
+      </MapContainer>
+      {/* Heat/Cluster toggle — after MapContainer so it stacks on top */}
       <div
         style={{
           position: "absolute",
@@ -313,24 +452,6 @@ export default function DashboardScreen({
           </button>
         ))}
       </div>
-      <MapContainer
-        center={center}
-        zoom={zoom}
-        style={{ height: "100%", width: "100%" }}
-        zoomControl={false}
-      >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
-          maxZoom={20}
-        />
-        {!loading && mapMode === "clusters" && (
-          <ClusterLayer observations={filtered} onSelect={setSelectedObs} />
-        )}
-        {!loading && mapMode === "heatmap" && (
-          <HeatmapLayer points={filtered} />
-        )}
-      </MapContainer>
     </div>
   );
 
@@ -510,7 +631,7 @@ export default function DashboardScreen({
 
       {/* Base actions */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 4 }}>
-        <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <ExportButton
             crisisId={crisisId}
             filters={{
@@ -523,7 +644,7 @@ export default function DashboardScreen({
             type="button"
             onClick={() => setShowSettings((v) => !v)}
             style={{
-              flex: 1,
+              width: "100%",
               minHeight: "var(--min-touch)",
               borderRadius: 14,
               border: "none",
@@ -543,86 +664,6 @@ export default function DashboardScreen({
           </button>
         </div>
 
-        {showSettings && (
-          <div
-            style={{
-              padding: "14px 16px",
-              background: "var(--cr-surface)",
-              border: "1px solid var(--cr-border)",
-              borderRadius: 14,
-              display: "flex",
-              flexDirection: "column",
-              gap: 16,
-            }}
-          >
-            {/* Disaster type selector */}
-            <div>
-              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 700, marginBottom: 10 }}>
-                Disaster Type
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {(Object.keys(DISASTER_TYPE_LABELS) as DisasterType[]).map((type) => {
-                  const active = disasterType === type;
-                  return (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => handleDisasterTypeChange(type)}
-                      style={{
-                        padding: "6px 14px",
-                        borderRadius: 20,
-                        border: `1px solid ${active ? "var(--cr-primary)" : "var(--cr-border)"}`,
-                        background: active ? "var(--cr-primary-dim)" : "var(--cr-surface)",
-                        color: active ? "var(--cr-primary)" : "var(--cr-label)",
-                        fontSize: 13,
-                        fontWeight: active ? 600 : 400,
-                        cursor: "pointer",
-                        minHeight: "var(--min-touch)",
-                        transition: "all 0.15s",
-                      }}
-                    >
-                      {DISASTER_TYPE_LABELS[type]}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Demo mode toggle */}
-            <div>
-              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 700, marginBottom: 10 }}>
-                Demo Settings
-              </p>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: "var(--cr-text)" }}>Demo Mode</p>
-                  <p style={{ fontSize: 12, color: "var(--cr-label)", marginTop: 2 }}>
-                    {demoMode ? "GPS locked: Porto Alegre (−30.029, −51.228)" : "GPS real do dispositivo"}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={toggleDemoMode}
-                  style={{
-                    width: 44, height: 24, borderRadius: 12, border: "none",
-                    background: demoMode ? "var(--cr-primary)" : "var(--cr-border)",
-                    cursor: "pointer", position: "relative", flexShrink: 0, transition: "background 0.2s",
-                  }}
-                  aria-pressed={demoMode}
-                >
-                  <span
-                    style={{
-                      position: "absolute", top: 2,
-                      left: demoMode ? 22 : 2,
-                      width: 20, height: 20, borderRadius: "50%",
-                      background: "#fff", transition: "left 0.2s",
-                    }}
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -675,7 +716,15 @@ export default function DashboardScreen({
         {selectedObs && (
           <ObservationDetail observation={selectedObs} onClose={() => setSelectedObs(null)} />
         )}
-        <BottomNav active="map" onHome={onGoHome} onMap={undefined} />
+        <BottomNav active="map" onHome={onGoHome} onMap={onGoMap} />
+        {showSettings && (
+          <CrisisSettingsModal
+            onClose={() => setShowSettings(false)}
+            disasterType={disasterType}
+            onDisasterTypeChange={handleDisasterTypeChange}
+            isDemo={isDemo}
+          />
+        )}
       </div>
     );
   }
@@ -762,6 +811,14 @@ export default function DashboardScreen({
           )}
         </main>
       </div>
+      {showSettings && (
+        <CrisisSettingsModal
+          onClose={() => setShowSettings(false)}
+          disasterType={disasterType}
+          onDisasterTypeChange={handleDisasterTypeChange}
+          isDemo={isDemo}
+        />
+      )}
     </div>
   );
 }

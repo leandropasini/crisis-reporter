@@ -109,6 +109,8 @@ function AppInner({ mode }: Props) {
     return (
       <DashboardScreen
         onGoHome={() => setAppMode("index")}
+        onGoMap={() => setAppMode("map")}
+        isDemo={isDemo}
       />
     );
   }
