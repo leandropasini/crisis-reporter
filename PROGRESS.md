@@ -1,6 +1,6 @@
 # Crisis Reporter — Session Progress
 
-## Last updated: 2026-05-29
+## Last updated: 2026-06-03
 
 ---
 
@@ -175,6 +175,29 @@
 - DEMO badge z-index: 9000 (below language dropdown at 9999+)
 - Live DB: dirty test observations deleted (see BLOCO 8 SQL)
 - Zero new TS errors
+
+---
+
+## v0.9-session9 (2026-06-03)
+**Branch:** `feature/session9-fixes` → main  
+**Tag:** `v0.9-session9`
+
+### Fixes
+- **Fix 1 (CRITICAL)**: Demo submit non-fatal photo upload — inner try-catch around `uploadPhoto` in `submit.ts`; DB insert proceeds with empty `photo_url` even if Storage RLS blocks upload
+- **Fix 2**: Z-index hierarchy corrected — map:1, toggle:100, language:200, detail:300; DashboardScreen toggle at 100, ObservationDetail at 300
+- **Fix 3**: All TileLayers `opacity={0.9}`, removed CSS brightness/contrast filters and dark overlays
+- **Fix 4**: Observation images — `onError` hides broken image placeholder by hiding parent element
+- **Fix 5**: DEMO badge `zIndex: 50` (below language selector at 200)
+- **Fix 6**: Landing page "Try the app" button — `boxShadow: "none"` removes focus ring
+
+### Features
+- **Disaster category + severity selectors** (Step 3 citizen flow): `DISASTER_CATEGORY_OPTIONS` per disaster type; non-generic shows category picker + severity selector; generic shows only 4 severity options; i18n in all 6 locales (35 `cat_*` keys per locale + `severity_*` + `category_section` + `validation_hint_generic`)
+- **DemoWelcomeScreen**: full-screen overlay on first `/demo` load with Agent View + Citizen View role cards + 3-step sequence; `sessionStorage` gate (`demo_welcome_seen`); wired in App.tsx before index
+
+### Done criteria
+- Zero new TS errors (`npm run build` clean)
+- Deployed to Netlify production
+- Merged `feature/session9-fixes` → main, tagged `v0.9-session9`
 
 ---
 
