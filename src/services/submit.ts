@@ -93,8 +93,11 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
   const localId = crypto.randomUUID();
 
   const mappedDamageLevel = DAMAGE_LEVEL_MAP[input.damageLevel] ?? "partial";
+  if (!(input.damageLevel in DAMAGE_LEVEL_MAP)) {
+    console.warn("[crisis-reporter] unknown damage_level key — not in map, defaulting to partial:", input.damageLevel);
+  }
 
-  // Log 1: entry point
+  // Log 1: entry point — raw value from form + mapped value going to DB
   console.log("[crisis-reporter] LOG1 submitObservation called", {
     mode: input.isDemo ? "demo" : "live",
     crisis_id: input.crisisId,
