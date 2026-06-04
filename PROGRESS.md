@@ -178,6 +178,18 @@
 
 ---
 
+## v0.11-session9-r4 (2026-06-03)
+**Branch:** `feature/session9-fixes` → main
+**Tag:** `v0.11-session9-r4`
+
+- **Fix 1**: submit.ts — DAMAGE_LEVEL_MAP maps disaster-specific keys (flood_partial, eq_hairline, etc.) to valid DB text values; insertData uses `mappedDamageLevel` instead of raw `input.damageLevel`
+- **Fix 2**: ObservationDetail — `background: "var(--color-surface)"` (solid); was `var(--color-surface-1)` which leaked map through panel
+- **Fix 3**: ExportButton — 50ms setTimeout between GeoJSON and CSV downloads; browser blocked simultaneous programmatic downloads
+- **Migration 007**: `update_area_stats()` trigger function now `SECURITY DEFINER` — anon trigger was blocked by `area_stats_write_service` RLS requiring `service_role`, causing full transaction rollback and submit falling to local queue
+- Zero new TS errors
+
+---
+
 ## v0.10-session9-r3 (2026-06-03)
 **Branch:** `feature/session9-fixes` → main  
 **Tag:** `v0.10-session9-r3`
