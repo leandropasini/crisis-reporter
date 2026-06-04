@@ -11,6 +11,7 @@ import ConfirmationScreen from "./screens/citizen/ConfirmationScreen";
 import DashboardScreen from "./screens/agent/DashboardScreen";
 import CommunityMapScreen from "./screens/CommunityMapScreen";
 import DemoWelcomeScreen from "./screens/DemoWelcomeScreen";
+import CrisisSetupScreen from "./screens/agent/CrisisSetupScreen";
 import LanguageSelector from "./components/LanguageSelector";
 import { CrisisModeProvider, useCrisisMode, MODE_META } from "./contexts/CrisisModeContext";
 import type { ObservationInput } from "./types/observation";
@@ -22,8 +23,6 @@ const db = supabase as any;
 
 type AppMode = "index" | "citizen" | "agent" | "map";
 type CitizenStep = "camera" | "location" | "classification" | "rapid-classification" | "details" | "review";
-
-const CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "f58c928d-9fc7-4499-8987-f8f4f92924ed";
 
 interface Props {
   mode: "demo" | "live";
@@ -47,6 +46,11 @@ function AppInner({ mode }: Props) {
   const [rapidData, setRapidData]         = useState<RapidClassificationData | null>(null);
   const [detailsData, setDetailsData]     = useState<DetailsData | null>(null);
   const [disasterType, setDisasterType]   = useState<DisasterType>(isDemo ? "flood" : "generic");
+  const [liveCrisisId, setLiveCrisisId]       = useState<string | null>(null);
+  const [crisisCheckDone, setCrisisCheckDone] = useState(isDemo); // demo skips the check
+
+  const DEMO_CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "f58c928d-9fc7-4499-8987-f8f4f92924ed";
+  const effectiveCrisisId = isDemo ? DEMO_CRISIS_ID : (liveCrisisId ?? "");
 
   useEffect(() => {
     if (isDemo || !isSupabaseConfigured) return;
@@ -55,7 +59,7 @@ function AppInner({ mode }: Props) {
         const { data } = await db
           .from("crises")
           .select("disaster_type")
-          .eq("id", CRISIS_ID)
+          .eq("id", effectiveCrisisId)
           .single() as { data: { disaster_type: string } | null };
         if (data?.disaster_type) {
           setDisasterType(data.disaster_type as DisasterType);
@@ -64,7 +68,30 @@ function AppInner({ mode }: Props) {
         // keep default 'generic'
       }
     }
-    fetchDisasterType();
+    if (effectiveCrisisId) fetchDisasterType();
+  }, [isDemo, effectiveCrisisId]);
+
+  useEffect(() => {
+    if (isDemo || !isSupabaseConfigured) {
+      setCrisisCheckDone(true);
+      return;
+    }
+    async function checkActiveCrisis() {
+      try {
+        const { data } = await db
+          .from("crises")
+          .select("id")
+          .eq("status", "active")
+          .limit(1)
+          .maybeSingle() as { data: { id: string } | null };
+        setLiveCrisisId(data?.id ?? null);
+      } catch {
+        // leave liveCrisisId as null → show setup screen
+      } finally {
+        setCrisisCheckDone(true);
+      }
+    }
+    checkActiveCrisis();
   }, [isDemo]);
 
   function startCitizenFlow() {
@@ -118,10 +145,40 @@ function AppInner({ mode }: Props) {
     );
   }
 
+  // ── Live crisis loading ───────────────────────────────────────────────────────
+  if (!isDemo && !crisisCheckDone) {
+    return (
+      <div
+        style={{
+          minHeight: "100dvh",
+          background: "var(--cr-bg)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <p style={{ color: "var(--cr-label)", fontSize: 14 }}>Loading…</p>
+      </div>
+    );
+  }
+
+  // ── Crisis setup (live mode, no active crisis) ────────────────────────────────
+  if (!isDemo && crisisCheckDone && !liveCrisisId) {
+    return (
+      <CrisisSetupScreen
+        onActivate={(id) => {
+          setLiveCrisisId(id);
+          setAppMode("agent");
+        }}
+      />
+    );
+  }
+
   // ── Agent mode ───────────────────────────────────────────────────────────────
   if (appMode === "agent") {
     return (
       <DashboardScreen
+        crisisId={effectiveCrisisId}
         onGoHome={() => setAppMode("index")}
         onGoMap={() => setAppMode("map")}
         isDemo={isDemo}
@@ -135,7 +192,7 @@ function AppInner({ mode }: Props) {
       <>
         <LanguageSelector variant="fixed" />
         <CommunityMapScreen
-          crisisId={CRISIS_ID}
+          crisisId={effectiveCrisisId}
           isDemo={isDemo}
           refreshKey={confirmed?.id}
           onBack={() => setAppMode("index")}
@@ -190,7 +247,7 @@ function AppInner({ mode }: Props) {
           infrastructureName:         detailsData.infrastructureName,
           infrastructureDescription:  detailsData.infrastructureDescription,
           modularFields:              detailsData.modularFields,
-          crisisId:                   CRISIS_ID,
+          crisisId:                   effectiveCrisisId,
           isDemo,
         }
       : null;
@@ -209,7 +266,7 @@ function AppInner({ mode }: Props) {
           damageLevelLabel:   rapidData.damageLevelLabel,
           infrastructureType: rapidData.infrastructureType,
           modularFields:      {},
-          crisisId:           CRISIS_ID,
+          crisisId:           effectiveCrisisId,
           isDemo,
         }
       : null;
