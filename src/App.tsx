@@ -167,6 +167,7 @@ function AppInner({ mode }: Props) {
     return (
       <CrisisSetupScreen
         onActivate={(id) => {
+          console.log('[DEBUG] liveCrisisId set to:', id);
           setLiveCrisisId(id);
           setAppMode("agent");
         }}

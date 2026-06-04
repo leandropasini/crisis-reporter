@@ -260,6 +260,8 @@ export default function DashboardScreen({
   const { t } = useTranslation();
   const [observations, setObservations] = useState<MappedObservation[]>([]);
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { console.log('[DEBUG] Dashboard loaded with crisisId:', crisisId); }, []);
   const { mode: _mode } = useCrisisMode();
   const [selectedObs, setSelectedObs] = useState<MappedObservation | null>(null);
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
