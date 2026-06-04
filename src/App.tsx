@@ -302,8 +302,8 @@ export default function App({ mode }: Props) {
         <div
           style={{
             position: "fixed",
-            bottom: 16,
-            left: 16,
+            bottom: 72,
+            left: 8,
             zIndex: 50,
             background: "var(--cr-primary)",
             color: "#fff",

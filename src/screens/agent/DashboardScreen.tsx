@@ -384,8 +384,8 @@ export default function DashboardScreen({
   const mapArea = (
     // Outer wrapper: position:relative, NO overflow:hidden — toggle can escape freely
     <div style={{ position: "relative", height: 220, flexShrink: 0 }}>
-      {/* Inner wrapper: overflow:hidden for border-radius clipping of map tiles only */}
-      <div style={{ borderRadius: 16, overflow: "hidden", height: "100%", width: "100%" }}>
+      {/* Inner wrapper: overflow:hidden for border-radius clipping. pointer-events:none on desktop prevents escaped Leaflet panes from eating main-map clicks. */}
+      <div style={{ borderRadius: 16, overflow: "hidden", height: "100%", width: "100%", pointerEvents: isMobile ? "auto" : "none" }}>
         {loading && (
           <div
             style={{

@@ -1,6 +1,27 @@
 # Crisis Reporter — Session Progress
 
-## Last updated: 2026-06-03
+## Last updated: 2026-06-04
+
+---
+
+## v0.13 — Session 10 Fixes ✅ CONCLUÍDO
+**Branch:** `feature/session10-fixes`
+**Tag:** `v0.13-session10-fixes`
+
+### Fixes
+- **DEMO badge**: `bottom: 72, left: 8` — clears bottom nav bar on iPhone (was `bottom: 16, left: 16`)
+- **ObservationDetail hole**: added explicit `background: var(--color-surface)` to content div — panel fully opaque regardless of parent background propagation
+- **Chrome macOS click issue**: Leaflet's z-indexed panes (overlay/marker, z-index 400–700) escape the sidebar mini-map's `overflow: hidden` container on Chrome desktop, eating clicks on the main map and list items. Fix: `pointer-events: none` on the mini-map inner wrapper when `!isMobile` — mobile behavior unchanged, main map and list buttons respond on Chrome macOS
+
+### Done criteria
+| Criterion | Status |
+|---|---|
+| DEMO badge visible above bottom nav — no overlap | ✅ |
+| Detail panel fully opaque — no empty sections | ✅ |
+| List item click on Chrome macOS opens detail | ✅ |
+| Map marker click on Chrome macOS opens detail | ✅ |
+| iPhone Safari / Chrome behavior unchanged | ✅ |
+| Zero new TS errors | ✅ |
 
 ---
 

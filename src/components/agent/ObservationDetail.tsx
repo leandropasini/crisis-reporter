@@ -89,7 +89,7 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 0 }}>
+      <div style={{ flex: 1, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 0, background: "var(--color-surface)" }}>
 
         {/* Title + badges */}
         <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 10px", lineHeight: 1.4 }}>
