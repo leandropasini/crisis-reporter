@@ -71,7 +71,7 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
       right: 0,
       width: 300,
       height: "100%",
-      background: "var(--color-surface-1)",
+      background: "var(--color-surface)",
       borderLeft: "1px solid var(--color-border)",
       display: "flex",
       flexDirection: "column",
