@@ -75,8 +75,9 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
       borderLeft: "1px solid var(--color-border)",
       display: "flex",
       flexDirection: "column",
-      zIndex: 300,
+      zIndex: 1000,
       overflowY: "auto",
+      isolation: "isolate",
     }}>
       {/* Header */}
       <div style={{ flexShrink: 0, height: 56, background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0 12px" }}>

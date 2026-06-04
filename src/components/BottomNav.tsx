@@ -8,6 +8,8 @@ interface Props {
 }
 
 export default function BottomNav({ active, onHome, onReport, onMap }: Props) {
+  const isDemo = window.location.pathname.startsWith("/demo");
+
   const items = [
     { id: "home" as const, Icon: IconHome, label: "Home", onClick: onHome },
     { id: "report" as const, Icon: IconBuildingCommunity, label: "Report", onClick: onReport },
@@ -47,7 +49,24 @@ export default function BottomNav({ active, onHome, onReport, onMap }: Props) {
             }}
           >
             <item.Icon size={22} />
-            <span style={{ fontSize: 12, fontWeight: isActive ? 600 : 400 }}>{item.label}</span>
+            {item.id === "home" && isDemo ? (
+              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ fontSize: 12, fontWeight: isActive ? 600 : 400 }}>Home</span>
+                <span style={{
+                  fontSize: 8,
+                  fontWeight: 800,
+                  letterSpacing: "0.08em",
+                  background: "var(--cr-primary)",
+                  color: "#fff",
+                  padding: "1px 5px",
+                  borderRadius: 8,
+                  lineHeight: 1.6,
+                  zIndex: 50,
+                }}>DEMO</span>
+              </span>
+            ) : (
+              <span style={{ fontSize: 12, fontWeight: isActive ? 600 : 400 }}>{item.label}</span>
+            )}
           </button>
         );
       })}

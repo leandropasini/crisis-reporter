@@ -298,26 +298,6 @@ function AppInner({ mode }: Props) {
 export default function App({ mode }: Props) {
   return (
     <CrisisModeProvider>
-      {mode === "demo" && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 72,
-            left: 8,
-            zIndex: 50,
-            background: "var(--cr-primary)",
-            color: "#fff",
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: "0.1em",
-            padding: "3px 9px",
-            borderRadius: 20,
-            pointerEvents: "none",
-          }}
-        >
-          DEMO
-        </div>
-      )}
       <AppInner mode={mode} />
     </CrisisModeProvider>
   );

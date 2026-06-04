@@ -4,6 +4,24 @@
 
 ---
 
+## v0.14 — Session 10 r2 Fixes ✅ CONCLUÍDO
+**Branch:** `feature/session10-r2`
+**Tag:** `v0.14-session10-fixes`
+
+### Fixes
+- **ObservationDetail opacity (final)**: `zIndex: 1000` (up from 300, above all Leaflet panes at max 700) + `isolation: "isolate"` — panel renders above escaped Leaflet panes that previously sat at z-index 400–700 above the panel
+- **DEMO badge in BottomNav**: removed `position:fixed` badge from App.tsx; BottomNav now reads `window.location.pathname.startsWith("/demo")` internally and renders an inline orange DEMO tag beside the "Home" label when on `/demo` route — no prop drilling, no overlap
+
+### Done criteria
+| Criterion | Status |
+|---|---|
+| Detail panel fully opaque — map not visible behind it | ✅ |
+| DEMO badge inline beside Home in bottom nav, no overlap | ✅ |
+| Click handlers intact — iPhone and Chrome macOS | ✅ |
+| Zero new TS errors | ✅ |
+
+---
+
 ## v0.13 — Session 10 Fixes ✅ CONCLUÍDO
 **Branch:** `feature/session10-fixes`
 **Tag:** `v0.13-session10-fixes`
