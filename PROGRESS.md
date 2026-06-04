@@ -4,6 +4,31 @@
 
 ---
 
+## v0.18 — Crisis Setup Screen ✅ CONCLUÍDO
+**Branch:** `feature/crisis-setup`
+**Tag:** `v0.18-crisis-setup`
+
+### O que foi feito
+- **DB Migration 008**: `landslide` + `drought` added to `crisis_subtype` enum; `description TEXT` column added to `crises`; `crises_insert_anon` RLS policy added
+- **CrisisSetupScreen**: full-screen form for live mode — GPS reverse geocode via Nominatim, crisis name/description/nature/city/coordinates/start date, orange "Activate Crisis" CTA
+- **App.tsx**: `liveCrisisId` state replaces hardcoded `CRISIS_ID` in live mode; crisis check on mount; `CrisisSetupScreen` gate before dashboard; `effectiveCrisisId` propagated to DashboardScreen, CommunityMapScreen, and observation inputs
+
+### Done criteria
+| Criterion | Status |
+|---|---|
+| Crisis Setup screen appears on first load of Live mode with no active crisis | ✅ |
+| GPS auto-fills city and coordinates | ✅ |
+| Agent can edit city name | ✅ |
+| Coordinates are read-only | ✅ |
+| Start date shows today, read-only | ✅ |
+| "Activate Crisis" disabled until name, description, and nature filled | ✅ |
+| On submit, new row created in Supabase crises table | ✅ |
+| Agent Dashboard loads with the new crisis data | ✅ |
+| Screen does not appear if active crisis already exists | ✅ |
+| Zero new TS errors | ✅ |
+
+---
+
 ## v0.17 — PWA Fullscreen Fix ✅ CONCLUÍDO
 **Branch:** `feature/pwa-fullscreen`
 **Tag:** `v0.17-pwa-fullscreen`
