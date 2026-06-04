@@ -4,6 +4,16 @@
 
 ---
 
+## v0.15 — Session 10 r3 Fixes ✅ CONCLUÍDO
+**Branch:** `feature/session10-r3`
+**Tag:** `v0.15-session10-fixes`
+
+### Fixes
+- **DEMO badge desktop**: re-added `position:fixed` badge to App.tsx for `window.innerWidth >= 768` — desktop has no BottomNav, badge was invisible after r2 move. Mobile still gets it via BottomNav
+- **Education button clipped**: filter row `overflowX:auto` → `flexWrap:wrap` — 4 buttons total ~381px but sidebar inner width is 320px; last button was cut by sidebar edge
+
+---
+
 ## v0.14 — Session 10 r2 Fixes ✅ CONCLUÍDO
 **Branch:** `feature/session10-r2`
 **Tag:** `v0.14-session10-fixes`

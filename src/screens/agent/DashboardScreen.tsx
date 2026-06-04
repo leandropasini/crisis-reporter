@@ -528,7 +528,7 @@ export default function DashboardScreen({
       {mapArea}
 
       {/* Quick filters */}
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2 }}>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {QUICK_FILTERS.map((f) => {
           const active = quickFilter === f.id;
           return (

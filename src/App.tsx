@@ -298,6 +298,27 @@ function AppInner({ mode }: Props) {
 export default function App({ mode }: Props) {
   return (
     <CrisisModeProvider>
+      {/* Desktop-only DEMO badge — mobile gets it inline in BottomNav */}
+      {mode === "demo" && window.innerWidth >= 768 && (
+        <div
+          style={{
+            position: "fixed",
+            top: 10,
+            left: 10,
+            zIndex: 9000,
+            background: "var(--cr-primary)",
+            color: "#fff",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.1em",
+            padding: "3px 9px",
+            borderRadius: 20,
+            pointerEvents: "none",
+          }}
+        >
+          DEMO
+        </div>
+      )}
       <AppInner mode={mode} />
     </CrisisModeProvider>
   );
