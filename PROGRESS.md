@@ -4,6 +4,28 @@
 
 ---
 
+## v0.17 — PWA Fullscreen Fix ✅ CONCLUÍDO
+**Branch:** `feature/pwa-fullscreen`
+**Tag:** `v0.17-pwa-fullscreen`
+
+### Fix
+- **PWA fullscreen on iOS**: suppress browser navigation chrome when app is added to home screen
+  - `index.html`: added `apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style: black-translucent`, `mobile-web-app-capable`
+  - `src/index.css`: `html, body, #root` now include `min-height: 100dvh` and `overscroll-behavior: none`
+  - `src/components/BottomNav.tsx`: nav gets `paddingBottom: env(safe-area-inset-bottom)` for home indicator clearance
+  - `public/manifest.json`: `display: standalone` confirmed — no change needed
+
+### Done criteria
+| Criterion | Status |
+|---|---|
+| App fills full screen when launched from iOS home screen | ✅ |
+| Status bar uses black-translucent (content under bar) | ✅ |
+| Bottom nav clears iPhone home indicator | ✅ |
+| Overscroll bounce suppressed | ✅ |
+| Zero new TS errors | ✅ |
+
+---
+
 ## v0.16 — Session 10 r4 Fixes ✅ CONCLUÍDO
 **Branch:** `feature/session10-r4`
 **Tag:** `v0.16-session10-fixes`
