@@ -4,6 +4,25 @@
 
 ---
 
+## v0.19 — Live Crisis ID Fix ✅ CONCLUÍDO
+**Branch:** `main` (hotfix)
+**Tag:** `v0.19-live-crisis-id`
+
+### O que foi feito
+- **DashboardScreen**: removed Porto Alegre fallback default from `crisisId` prop — was `VITE_DEMO_CRISIS_ID ?? "f58c928d-..."`, now `""`. Live mode now always uses the UUID passed from App.tsx.
+- **CrisisSetupScreen**: improved error display to show actual Supabase error (was generic message); UUID generated client-side to avoid RLS RETURNING issue.
+- **DB Migration 006**: `disaster_type` column applied to live Supabase (was missing from DB).
+
+### Done criteria
+| Criterion | Status |
+|---|---|
+| Agent Dashboard in Live mode shows correct crisis data after setup | ✅ |
+| No component reads CRISIS_ID or VITE_DEMO_CRISIS_ID directly | ✅ |
+| Demo mode unaffected | ✅ |
+| Zero new TS errors | ✅ |
+
+---
+
 ## v0.18 — Crisis Setup Screen ✅ CONCLUÍDO
 **Branch:** `feature/crisis-setup`
 **Tag:** `v0.18-crisis-setup`

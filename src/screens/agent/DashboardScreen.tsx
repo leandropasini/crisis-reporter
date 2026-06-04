@@ -250,7 +250,7 @@ interface Props {
 }
 
 export default function DashboardScreen({
-  crisisId = import.meta.env.VITE_DEMO_CRISIS_ID ?? "f58c928d-9fc7-4499-8987-f8f4f92924ed",
+  crisisId = "",
   center = [-30.029, -51.228],
   zoom = 13,
   onGoHome,

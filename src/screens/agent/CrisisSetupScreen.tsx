@@ -98,9 +98,11 @@ export default function CrisisSetupScreen({ onActivate }: Props) {
     }
 
     try {
-      const { data, error } = await db
+      const id = crypto.randomUUID();
+      const { error } = await db
         .from("crises")
         .insert({
+          id,
           name:          name.trim(),
           description:   description.trim(),
           nature:        "natural",
@@ -113,14 +115,15 @@ export default function CrisisSetupScreen({ onActivate }: Props) {
           bbox_ne_lng:   lng ?? 0,
           started_at:    new Date().toISOString(),
           status:        "active",
-        })
-        .select("id")
-        .single();
+        });
 
       if (error) throw error;
-      onActivate(data.id as string);
+      onActivate(id);
     } catch (err: unknown) {
-      setSubmitError(err instanceof Error ? err.message : "Failed to create crisis");
+      console.error('Crisis insert error:', err);
+      const e = err as Record<string, unknown>;
+      const errorMessage = (e?.message as string) || (e?.details as string) || (e?.hint as string) || JSON.stringify(err);
+      setSubmitError(`Failed to create crisis: ${errorMessage}`);
       setSubmitting(false);
     }
   }
