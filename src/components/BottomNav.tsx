@@ -24,6 +24,7 @@ export default function BottomNav({ active, onHome, onReport, onMap }: Props) {
         display: "flex",
         borderTop: "1px solid var(--cr-border)",
         background: "var(--cr-bg)",
+        paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
       {isDemo && (
