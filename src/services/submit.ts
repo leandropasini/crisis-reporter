@@ -45,14 +45,61 @@ export interface SubmitResult {
   error?: string;
 }
 
+// Map disaster-specific rapid-mode values → valid DB enum values.
+// RapidClassificationScreen uses keys like flood_partial, eq_hairline, etc.
+// ClassificationScreen always sends minimal/partial/severe/complete directly.
+const DAMAGE_LEVEL_MAP: Record<string, string> = {
+  // Flood
+  flood_partial:    "partial",
+  flood_full:       "complete",
+  flood_structural: "severe",
+  flood_erosion:    "severe",
+  flood_complete:   "complete",
+  // Earthquake
+  eq_hairline:     "minimal",
+  eq_structural:   "partial",
+  eq_partial:      "severe",
+  eq_complete:     "complete",
+  eq_liquefaction: "severe",
+  // Hurricane
+  hur_roof_partial: "partial",
+  hur_roof_full:    "severe",
+  hur_facade:       "partial",
+  hur_structural:   "severe",
+  hur_complete:     "complete",
+  // Landslide
+  ls_partial:    "partial",
+  ls_foundation: "severe",
+  ls_access:     "minimal",
+  ls_complete:   "complete",
+  // Fire
+  fire_smoke:    "minimal",
+  fire_partial:  "partial",
+  fire_major:    "severe",
+  fire_complete: "complete",
+  // Drought
+  dr_cracking: "partial",
+  dr_water:    "partial",
+  dr_health:   "severe",
+  dr_access:   "minimal",
+  // Generic / already valid
+  minimal:  "minimal",
+  partial:  "partial",
+  severe:   "severe",
+  complete: "complete",
+};
+
 export async function submitObservation(input: ObservationInput): Promise<SubmitResult> {
   const localId = crypto.randomUUID();
+
+  const mappedDamageLevel = DAMAGE_LEVEL_MAP[input.damageLevel] ?? "partial";
 
   // Log 1: entry point
   console.log("[crisis-reporter] LOG1 submitObservation called", {
     mode: input.isDemo ? "demo" : "live",
     crisis_id: input.crisisId,
-    damage_level: input.damageLevel,
+    raw_damage_level: input.damageLevel,
+    mapped_damage_level: mappedDamageLevel,
     is_demo: input.isDemo ?? false,
   });
 
@@ -77,7 +124,7 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
       infrastructure_description: input.infrastructureDescription ?? null,
       infrastructure_type:        input.infrastructureType,
       infrastructure_type_other:  input.infrastructureTypeOther ?? null,
-      damage_level:               input.damageLevel,
+      damage_level:               mappedDamageLevel,
       debris_clearing_needed:     input.debrisClearingNeeded ?? false,
       photo_url:                  photoUrl,
       latitude:                   input.lat,

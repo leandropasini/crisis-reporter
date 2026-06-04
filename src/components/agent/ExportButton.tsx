@@ -52,8 +52,10 @@ export default function ExportButton(_props: Props) {
     }, null, 2);
 
     triggerDownload(geojson, "crisis-reporter-porto-alegre.geojson", "application/geo+json");
-    triggerDownload(CSV_ROWS, "crisis-reporter-porto-alegre.csv", "text/csv;charset=utf-8;");
-    setLoading(false);
+    setTimeout(() => {
+      triggerDownload(CSV_ROWS, "crisis-reporter-porto-alegre.csv", "text/csv;charset=utf-8;");
+      setLoading(false);
+    }, 50);
   }
 
   return (
