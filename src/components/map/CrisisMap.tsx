@@ -17,9 +17,9 @@ function FlyToCenter({ center }: { center: [number, number] }) {
 // Porto Alegre Centro Histórico — default demo
 const POA_CENTER: [number, number] = [-30.0290, -51.2280];
 const TILE_URL =
-  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>';
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 export interface PinData {
   id: string;
@@ -62,7 +62,6 @@ export default function CrisisMap({
         attribution={TILE_ATTRIBUTION}
         detectRetina
         maxZoom={20}
-        opacity={0.9}
       />
       <FlyToCenter center={center} />
 

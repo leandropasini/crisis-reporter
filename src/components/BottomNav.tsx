@@ -19,12 +19,37 @@ export default function BottomNav({ active, onHome, onReport, onMap }: Props) {
   return (
     <nav
       style={{
+        position: "relative",
         flexShrink: 0,
         display: "flex",
         borderTop: "1px solid var(--cr-border)",
         background: "var(--cr-bg)",
       }}
     >
+      {isDemo && (
+        <span
+          style={{
+            position: "absolute",
+            left: 4,
+            top: "50%",
+            transform: "translateY(-50%) rotate(-90deg)",
+            transformOrigin: "center center",
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: "0.08em",
+            background: "var(--cr-primary)",
+            color: "#fff",
+            padding: "2px 6px",
+            borderRadius: 6,
+            lineHeight: 1.5,
+            zIndex: 50,
+            pointerEvents: "none",
+            whiteSpace: "nowrap",
+          }}
+        >
+          DEMO
+        </span>
+      )}
       {items.map((item) => {
         const isActive = active === item.id;
         return (
@@ -49,24 +74,7 @@ export default function BottomNav({ active, onHome, onReport, onMap }: Props) {
             }}
           >
             <item.Icon size={22} />
-            {item.id === "home" && isDemo ? (
-              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ fontSize: 12, fontWeight: isActive ? 600 : 400 }}>Home</span>
-                <span style={{
-                  fontSize: 8,
-                  fontWeight: 800,
-                  letterSpacing: "0.08em",
-                  background: "var(--cr-primary)",
-                  color: "#fff",
-                  padding: "1px 5px",
-                  borderRadius: 8,
-                  lineHeight: 1.6,
-                  zIndex: 50,
-                }}>DEMO</span>
-              </span>
-            ) : (
-              <span style={{ fontSize: 12, fontWeight: isActive ? 600 : 400 }}>{item.label}</span>
-            )}
+            <span style={{ fontSize: 12, fontWeight: isActive ? 600 : 400 }}>{item.label}</span>
           </button>
         );
       })}

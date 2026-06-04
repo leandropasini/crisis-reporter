@@ -4,6 +4,24 @@
 
 ---
 
+## v0.16 — Session 10 r4 Fixes ✅ CONCLUÍDO
+**Branch:** `feature/session10-r4`
+**Tag:** `v0.16-session10-fixes`
+
+### Fixes
+- **DEMO badge (final)**: vertical pill on far-left of BottomNav — `position:absolute, left:4px, top:50%, transform:translateY(-50%) rotate(-90deg)` — nav gets `position:relative`; inline badge beside Home label removed
+- **Map tiles — all viewports**: replaced CARTO Dark Matter with OSM standard (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`) in `CrisisMap.tsx` (community map) and `DashboardScreen.tsx` sidebar mini-map; also removed `opacity:0.9` from all TileLayers for full brightness
+
+### Done criteria
+| Criterion | Status |
+|---|---|
+| DEMO badge vertical on left edge of bottom nav | ✅ |
+| Map readable on iPhone Safari/Chrome and Chrome macOS | ✅ |
+| No dark/low-contrast tiles at any viewport | ✅ |
+| Zero new TS errors | ✅ |
+
+---
+
 ## v0.15 — Session 10 r3 Fixes ✅ CONCLUÍDO
 **Branch:** `feature/session10-r3`
 **Tag:** `v0.15-session10-fixes`
