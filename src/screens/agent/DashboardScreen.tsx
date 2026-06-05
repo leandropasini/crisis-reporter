@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconChevronRight, IconSettings } from "@tabler/icons-react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import { supabase, isSupabaseConfigured } from "../../services/supabase";
 import ClusterLayer, { type MappedObservation } from "../../components/map/ClusterLayer";
 import HeatmapLayer from "../../components/map/HeatmapLayer";
@@ -240,6 +240,12 @@ function CrisisSettingsModal({
   );
 }
 
+function SetView({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  useEffect(() => { map.setView(center, zoom); }, [center, zoom, map]);
+  return null;
+}
+
 interface Props {
   crisisId?: string;
   center?: [number, number];
@@ -422,6 +428,7 @@ export default function DashboardScreen({
           style={{ height: "100%", width: "100%" }}
           zoomControl={false}
         >
+          <SetView center={mapCenter} zoom={mapZoom} />
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
