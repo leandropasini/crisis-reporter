@@ -4,6 +4,22 @@
 
 ---
 
+## v0.20 — Map Center Fix ✅ CONCLUÍDO
+**Branch:** `fix/v0.19-live-crisis-id`
+**Tag:** `v0.20-map-center`
+
+### O que foi feito
+- **DashboardScreen**: added `mapCenter`/`mapZoom` state; `fetchCrisisConfig` now fetches `bbox_sw_lat, bbox_sw_lng` and sets map center from crisis record. Falls back to `[0,0]` zoom 2 if no bbox. Demo mode unaffected (effect returns early).
+
+### Done criteria
+| Criterion | Status |
+|---|---|
+| Map centers on Bebedouro after crisis created there | ✅ |
+| Demo mode map center unchanged (Porto Alegre) | ✅ |
+| Zero new TS errors | ✅ |
+
+---
+
 ## v0.19 — Live Crisis ID Fix ✅ CONCLUÍDO
 **Branch:** `main` (hotfix)
 **Tag:** `v0.19-live-crisis-id`

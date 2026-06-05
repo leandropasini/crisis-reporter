@@ -272,6 +272,8 @@ export default function DashboardScreen({
   const [crisisTitle, setCrisisTitle] = useState(
     isDemo ? "RS Floods 2024 · Porto Alegre" : "Active Crisis"
   );
+  const [mapCenter, setMapCenter] = useState<[number, number]>(center);
+  const [mapZoom, setMapZoom] = useState(zoom);
 
   useEffect(() => {
     if (isDemo || !isSupabaseConfigured) return;
@@ -279,15 +281,22 @@ export default function DashboardScreen({
       try {
         const { data } = await db
           .from("crises")
-          .select("disaster_type, name, location")
+          .select("disaster_type, name, location, bbox_sw_lat, bbox_sw_lng")
           .eq("id", crisisId)
-          .single() as { data: { disaster_type: string; name: string; location: string } | null };
+          .single() as { data: { disaster_type: string; name: string; location: string; bbox_sw_lat: number | null; bbox_sw_lng: number | null } | null };
         if (data?.disaster_type) {
           setDisasterType(data.disaster_type as DisasterType);
         }
         if (data) {
           const title = [data.name, data.location].filter(Boolean).join(" · ");
           if (title) setCrisisTitle(title);
+          if (data.bbox_sw_lat != null && data.bbox_sw_lng != null) {
+            setMapCenter([data.bbox_sw_lat, data.bbox_sw_lng]);
+            setMapZoom(13);
+          } else {
+            setMapCenter([0, 0]);
+            setMapZoom(2);
+          }
         }
       } catch {
         // keep defaults
@@ -408,8 +417,8 @@ export default function DashboardScreen({
           </div>
         )}
         <MapContainer
-          center={center}
-          zoom={zoom}
+          center={mapCenter}
+          zoom={mapZoom}
           style={{ height: "100%", width: "100%" }}
           zoomControl={false}
         >
