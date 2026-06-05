@@ -322,14 +322,14 @@ export default function DashboardScreen({
           .eq("crisis_id", crisisId)
           .eq("status", "active") as { data: MappedObservation[] | null; error: unknown };
 
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           const mapped = (data as any[]).map((r) => ({ ...r, lat: r.latitude, lng: r.longitude }));
           setObservations(mapped);
         } else {
-          setObservations(DEMO_OBSERVATIONS);
+          setObservations(isDemo ? DEMO_OBSERVATIONS : []);
         }
       } catch {
-        setObservations(DEMO_OBSERVATIONS);
+        setObservations(isDemo ? DEMO_OBSERVATIONS : []);
       } finally {
         setLoading(false);
       }
