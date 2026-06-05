@@ -25,3 +25,11 @@ dist-ssr
 
 # Local Netlify folder
 .netlify
+.vercel
+.env*
+.env
+.env.local
+
+# Internal folders
+_HANDOFFS/
+docs/superpowers/

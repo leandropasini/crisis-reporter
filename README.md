@@ -1,73 +1,64 @@
-# React + TypeScript + Vite
+# Crisis Reporter
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Open-source community damage reporting platform for crisis response.
 
-Currently, two official plugins are available:
+Built for the UNDP "Build the Future of Crisis Mapping" challenge.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Live prototype:** https://crisis-reporter.vercel.app
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## What it does
 
-## Expanding the ESLint configuration
+Crisis Reporter turns affected communities into real-time sensor networks during disasters. Citizens capture and submit geolocated damage reports from their phones; emergency coordinators monitor the incoming data on a live dashboard and prioritize response.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The system supports two roles:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Citizen**: mobile-first report flow — photo, location, damage classification — completed in under 30 seconds, works offline
+- **Agent (coordinator)**: dashboard with live map, damage filters, area statistics, and data export
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Key features
+
+- Offline-first PWA — reports queue locally and sync when connectivity returns
+- Six disaster types with contextual damage taxonomies (flood, earthquake, hurricane, landslide, fire, drought)
+- Six UN languages (EN, ES, FR, AR, ZH, RU)
+- GPS reverse geocoding via Nominatim
+- Real-time community map with urgency-coded markers
+- GeoJSON + CSV export for coordination handoff
+- Demo mode with locked Porto Alegre dataset for evaluation
+
+---
+
+## Stack
+
+- React 18 + TypeScript + Vite
+- Supabase (PostgreSQL + Storage + RLS)
+- Leaflet for maps
+- i18next for localization
+- Deployed on Vercel
+
+---
+
+## Running locally
+
+```bash
+git clone https://github.com/leandropasini/crisis-reporter
+cd crisis-reporter
+cp .env.example .env   # add your Supabase credentials
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Database
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Migrations are in `supabase/migrations/`. Apply in order (001 → 008) via the Supabase SQL Editor or CLI.
+
+---
+
+## License
+
+MIT
