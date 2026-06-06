@@ -91,6 +91,15 @@ const DAMAGE_LEVEL_MAP: Record<string, string> = {
   completely_damaged: "complete",
 };
 
+function isMissingColumnError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const e = err as Record<string, unknown>;
+  // PostgreSQL error code 42703 = undefined_column
+  if (e.code === "42703") return true;
+  const msg = String(e.message ?? "").toLowerCase();
+  return msg.includes("column") && msg.includes("does not exist");
+}
+
 export async function submitObservation(input: ObservationInput): Promise<SubmitResult> {
   const localId = crypto.randomUUID();
 
@@ -150,7 +159,14 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
     // Log 2: full payload before Supabase insert
     console.log("[crisis-reporter] LOG2 inserting payload:", JSON.stringify(insertData));
 
-    const { error, data: insertResult } = await db.from("observations").insert(insertData).select();
+    let { error, data: insertResult } = await db.from("observations").insert(insertData).select();
+
+    // Retry without community impact columns if migration 010 has not been run yet
+    if (error && isMissingColumnError(error)) {
+      console.warn("[crisis-reporter] community impact columns not found — retrying without them");
+      const { electricity_status: _e, health_status: _h, pressing_needs: _p, ...insertDataCompat } = insertData;
+      ({ error, data: insertResult } = await db.from("observations").insert(insertDataCompat).select());
+    }
 
     // Log 3: Supabase response
     if (error) {
