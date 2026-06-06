@@ -12,6 +12,14 @@ const db = supabase as any;
 
 const SESSION_KEY = "crisisrep_session_id";
 
+// un_language DB enum values. Keep in sync with migrations (010 base set + 011 adds 'pt').
+// Fallback to 'en' if i18n.language holds a code the enum doesn't accept (e.g. before migration 011 runs).
+const VALID_LANGUAGES: readonly string[] = ["en", "es", "fr", "ar", "zh", "ru", "pt"];
+
+function toDbLanguage(lang: string): UnLanguage {
+  return (VALID_LANGUAGES.includes(lang) ? lang : "en") as UnLanguage;
+}
+
 export function getSessionId(): string {
   let id = localStorage.getItem(SESSION_KEY);
   if (!id) {
@@ -149,7 +157,7 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
       source:                     "citizen",
       session_id:                 sessionId,
       is_proxy:                   false,
-      language:                   i18n.language as UnLanguage,
+      language:                   toDbLanguage(i18n.language),
       client_created_at:          new Date().toISOString(),
       modular_fields:             input.modularFields,
       electricity_status:         input.electricityStatus ?? null,
