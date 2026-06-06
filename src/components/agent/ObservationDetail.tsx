@@ -1,11 +1,10 @@
 import { useTranslation } from "react-i18next";
 import type { MappedObservation } from "../map/ClusterLayer";
-import type { DamageLevel } from "../../types/schema";
 
-const DAMAGE_COLOR: Record<DamageLevel, string> = {
+const DAMAGE_COLOR: Record<string, string> = {
   minimal:  "var(--color-minimal)",
   partial:  "var(--color-warning)",
-  severe:   "#F59E0B",
+  severe:   "var(--color-critical)",
   complete: "var(--color-critical)",
 };
 

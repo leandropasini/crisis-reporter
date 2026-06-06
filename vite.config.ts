@@ -17,7 +17,13 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp}"],
         navigateFallback: "index.html",
-        runtimeCaching: [],
+        runtimeCaching: [
+          {
+            // Never cache Supabase API responses — always hit the network
+            urlPattern: /^https:\/\/[^/]+\.supabase\.co\/.*/i,
+            handler: "NetworkOnly" as const,
+          },
+        ],
       },
     }),
     {

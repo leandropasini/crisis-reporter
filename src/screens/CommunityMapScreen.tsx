@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../services/supabase";
+import LanguageSelector from "../components/LanguageSelector";
 import { getDisplayLevel } from "../constants/disasterDamage";
 import CrisisMap from "../components/map/CrisisMap";
 import type { PinData } from "../components/map/CrisisMap";
@@ -36,6 +37,8 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
   const [crisisTitle, setCrisisTitle] = useState<string>(
     isDemo ? "RS Floods 2024 · Porto Alegre, RS" : "Community Crisis Map"
   );
+  const [mapCenter, setMapCenter] = useState<[number, number]>(isDemo ? POA_CENTER : [0, 0]);
+  const [mapZoom, setMapZoom]     = useState<number>(isDemo ? 13 : 2);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function fetchPins() {
@@ -76,21 +79,31 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
 
   useEffect(() => {
     if (isDemo) return;
-    async function fetchCrisisTitle() {
+    async function fetchCrisisConfig() {
       try {
         const { data } = await db
           .from("crises")
-          .select("name, location")
+          .select("name, location_name, bbox_sw_lat, bbox_sw_lng")
           .eq("id", crisisId)
-          .single() as { data: { name: string; location: string } | null };
+          .single() as { data: { name: string; location_name: string; bbox_sw_lat: number | null; bbox_sw_lng: number | null } | null };
         if (data) {
-          setCrisisTitle([data.name, data.location].filter(Boolean).join(" · "));
+          setCrisisTitle([data.name, data.location_name].filter(Boolean).join(" · "));
+          const lat = data.bbox_sw_lat;
+          const lng = data.bbox_sw_lng;
+          const hasCoords = lat != null && lng != null && !(lat === 0 && lng === 0);
+          if (hasCoords) {
+            setMapCenter([lat!, lng!]);
+            setMapZoom(13);
+          } else {
+            setMapCenter([0, 0]);
+            setMapZoom(2);
+          }
         }
       } catch {
-        // keep empty
+        // keep defaults
       }
     }
-    fetchCrisisTitle();
+    fetchCrisisConfig();
   }, [crisisId, isDemo]);
 
   return (
@@ -105,6 +118,8 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
           gap: 12,
           padding: "14px 16px",
           borderBottom: "1px solid var(--cr-border)",
+          position: "relative",
+          zIndex: 1001,
         }}
       >
         <button
@@ -132,7 +147,7 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
             </p>
           )}
         </div>
-        <div style={{ width: 40, flexShrink: 0 }} />
+        <LanguageSelector variant="inline" />
       </div>
 
       {/* Map */}
@@ -143,8 +158,8 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
           </div>
         )}
         <CrisisMap
-          center={POA_CENTER}
-          zoom={13}
+          center={mapCenter}
+          zoom={mapZoom}
           pins={pins}
           className="h-full w-full"
         />

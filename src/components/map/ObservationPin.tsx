@@ -4,15 +4,15 @@ import type { DamageLevel } from "../../types/schema";
 
 // Hex literals are required here: these are injected into a Leaflet DivIcon SVG string
 // outside the CSS cascade, so CSS variables cannot be resolved.
-const PIN_COLORS: Record<DamageLevel, string> = {
+const PIN_COLORS: Record<string, string> = {
   minimal:  "#3ecf8e", // --color-minimal
   partial:  "#f59e0b", // --color-warning
-  severe:   "#F59E0B", // amber
+  severe:   "#ef4444", // backward compat → complete color
   complete: "#ef4444", // --color-critical
 };
 
 function makeIcon(color: string, damage: DamageLevel): L.DivIcon {
-  const pulseRing = damage === "complete" || damage === "severe"
+  const pulseRing = (damage as string) === "complete" || (damage as string) === "severe"
     ? `<div class="damage-complete-ring"></div>`
     : "";
   return L.divIcon({

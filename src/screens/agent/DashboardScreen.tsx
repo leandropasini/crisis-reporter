@@ -117,13 +117,17 @@ function CrisisSettingsModal({
   disasterType,
   onDisasterTypeChange,
   isDemo,
+  onEndCrisis,
 }: {
   onClose: () => void;
   disasterType: DisasterType;
   onDisasterTypeChange: (t: DisasterType) => void;
   isDemo: boolean;
+  onEndCrisis?: () => void;
 }) {
+  const { t } = useTranslation();
   const overlayRef = useRef<HTMLDivElement>(null);
+  const [confirming, setConfirming] = useState(false);
 
   function handleOverlayClick(e: React.MouseEvent) {
     if (e.target === overlayRef.current) onClose();
@@ -166,10 +170,10 @@ function CrisisSettingsModal({
         >
           <div>
             <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--cr-label)", fontWeight: 600, margin: 0 }}>
-              Agent Dashboard
+              {t("dashboard.title")}
             </p>
             <p style={{ fontSize: 20, fontWeight: 700, color: "var(--cr-text)", margin: "4px 0 0" }}>
-              Crisis Settings
+              {t("dashboard.settings_title")}
             </p>
           </div>
           <button
@@ -198,11 +202,11 @@ function CrisisSettingsModal({
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 20px 32px" }}>
           <div style={{ marginBottom: 8 }}>
             <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 700, marginBottom: 6 }}>
-              Disaster Type
+              {t("dashboard.disaster_type")}
             </p>
             {isDemo && (
               <p style={{ fontSize: 12, color: "var(--cr-primary)", marginBottom: 12, opacity: 0.9 }}>
-                🔒 Locked in demo mode
+                {t("dashboard.locked_demo")}
               </p>
             )}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -234,6 +238,76 @@ function CrisisSettingsModal({
               })}
             </div>
           </div>
+
+          {/* End Crisis — live mode only */}
+          {!isDemo && (
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid var(--cr-border)" }}>
+              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cr-label)", fontWeight: 700, marginBottom: 12 }}>
+                {t("dashboard.danger_zone")}
+              </p>
+              {!confirming ? (
+                <button
+                  type="button"
+                  onClick={() => setConfirming(true)}
+                  style={{
+                    width: "100%",
+                    minHeight: "var(--min-touch)",
+                    borderRadius: 14,
+                    border: "1px solid rgba(239,68,68,0.4)",
+                    background: "rgba(239,68,68,0.08)",
+                    color: "#EF4444",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {t("dashboard.end_crisis")}
+                </button>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <p style={{ fontSize: 14, color: "var(--cr-text)", margin: 0 }}>
+                    {t("dashboard.end_crisis_confirm")}
+                  </p>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button
+                      type="button"
+                      onClick={() => setConfirming(false)}
+                      style={{
+                        flex: 1,
+                        minHeight: "var(--min-touch)",
+                        borderRadius: 14,
+                        border: "1px solid var(--cr-border)",
+                        background: "var(--cr-surface)",
+                        color: "var(--cr-label)",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {t("dashboard.cancel")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onEndCrisis?.()}
+                      style={{
+                        flex: 1,
+                        minHeight: "var(--min-touch)",
+                        borderRadius: 14,
+                        border: "none",
+                        background: "#EF4444",
+                        color: "#fff",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {t("dashboard.confirm")}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -252,6 +326,7 @@ interface Props {
   zoom?: number;
   onGoHome?: () => void;
   onGoMap?: () => void;
+  onEndCrisis?: () => void;
   isDemo?: boolean;
 }
 
@@ -261,6 +336,7 @@ export default function DashboardScreen({
   zoom = 13,
   onGoHome,
   onGoMap,
+  onEndCrisis,
   isDemo = false,
 }: Props) {
   const { t } = useTranslation();
@@ -284,28 +360,39 @@ export default function DashboardScreen({
   useEffect(() => {
     if (isDemo || !isSupabaseConfigured) return;
     async function fetchCrisisConfig() {
+      console.log('[MAP-DEBUG] fetchCrisisConfig running, crisisId:', crisisId);
       try {
-        const { data } = await db
+        const { data, error } = await db
           .from("crises")
-          .select("disaster_type, name, location, bbox_sw_lat, bbox_sw_lng")
+          .select("disaster_type, name, location_name, bbox_sw_lat, bbox_sw_lng")
           .eq("id", crisisId)
-          .single() as { data: { disaster_type: string; name: string; location: string; bbox_sw_lat: number | null; bbox_sw_lng: number | null } | null };
+          .single() as { data: { disaster_type: string; name: string; location_name: string; bbox_sw_lat: number | null; bbox_sw_lng: number | null } | null; error: unknown };
+        console.log('[MAP-DEBUG] crisis coords from DB:', (data as any)?.bbox_sw_lat, (data as any)?.bbox_sw_lng);
+        console.log('[MAP-DEBUG] full row:', data, 'error:', error);
         if (data?.disaster_type) {
           setDisasterType(data.disaster_type as DisasterType);
         }
         if (data) {
-          const title = [data.name, data.location].filter(Boolean).join(" · ");
+          const title = [data.name, data.location_name].filter(Boolean).join(" · ");
           if (title) setCrisisTitle(title);
-          if (data.bbox_sw_lat != null && data.bbox_sw_lng != null) {
-            setMapCenter([data.bbox_sw_lat, data.bbox_sw_lng]);
+          const lat = data.bbox_sw_lat;
+          const lng = data.bbox_sw_lng;
+          const hasCoords = lat != null && lng != null && !(lat === 0 && lng === 0);
+          if (hasCoords) {
+            const newCenter: [number, number] = [lat!, lng!];
+            console.log('[MAP-DEBUG] mapCenter set to:', newCenter);
+            setMapCenter(newCenter);
             setMapZoom(13);
           } else {
+            console.log('[MAP-DEBUG] no valid coords — world view');
             setMapCenter([0, 0]);
             setMapZoom(2);
           }
+        } else {
+          console.log('[MAP-DEBUG] data is null — no row returned');
         }
-      } catch {
-        // keep defaults
+      } catch (err) {
+        console.log('[MAP-DEBUG] fetchCrisisConfig threw:', err);
       }
     }
     fetchCrisisConfig();
@@ -318,6 +405,16 @@ export default function DashboardScreen({
       await db.from("crises").update({ disaster_type: newType }).eq("id", crisisId);
     } catch {
       // UI updated; DB failure is non-fatal for demo purposes
+    }
+  }
+
+  async function handleEndCrisis() {
+    if (!isSupabaseConfigured || !crisisId) return;
+    try {
+      await db.from("crises").update({ status: "closed" }).eq("id", crisisId);
+      onEndCrisis?.();
+    } catch {
+      // leave dashboard open; non-fatal
     }
   }
 
@@ -361,7 +458,7 @@ export default function DashboardScreen({
   function applyQuickFilter(obs: MappedObservation[]): MappedObservation[] {
     switch (quickFilter) {
       case "critical":  return obs.filter(
-        (o) => o.damage_level === "complete" || o.damage_level === "severe" || o.damage_level === "partial"
+        (o) => (o.damage_level as string) === "complete" || (o.damage_level as string) === "severe" || o.damage_level === "partial"
       );
       case "health":    return obs.filter((o) => o.infrastructure_type === "community");
       case "education": return obs.filter((o) => o.infrastructure_type === "public_recreation");
@@ -373,13 +470,13 @@ export default function DashboardScreen({
 
   const totalCount    = observations.length;
   const criticalCount = observations.filter(
-    (o) => o.damage_level === "complete" || o.damage_level === "severe" || o.damage_level === "partial"
+    (o) => (o.damage_level as string) === "complete" || (o.damage_level as string) === "severe" || o.damage_level === "partial"
   ).length;
   const since6h       = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString();
   const last6hCount   = observations.filter((o) => o.client_created_at >= since6h).length;
 
   const criticalList = [...observations]
-    .filter((o) => o.damage_level === "complete" || o.damage_level === "severe" || o.damage_level === "partial")
+    .filter((o) => (o.damage_level as string) === "complete" || (o.damage_level as string) === "severe" || o.damage_level === "partial")
     .sort((a, b) => {
       const priority = (o: MappedObservation) => {
         let score = o.damage_level === "complete" ? 10 : 5;
@@ -392,10 +489,10 @@ export default function DashboardScreen({
     .slice(0, 5);
 
   const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
-    { id: "all",       label: "All levels" },
-    { id: "critical",  label: "Critical" },
-    { id: "health",    label: "Health" },
-    { id: "education", label: "Education" },
+    { id: "all",       label: t("dashboard.filter_all") },
+    { id: "critical",  label: t("dashboard.filter_critical") },
+    { id: "health",    label: t("dashboard.filter_health") },
+    { id: "education", label: t("dashboard.filter_education") },
   ];
 
   const mapArea = (
@@ -469,7 +566,7 @@ export default function DashboardScreen({
               cursor: "pointer",
             }}
           >
-            {m === "clusters" ? "Clusters" : "Heat"}
+            {m === "clusters" ? t("dashboard.map_toggle_clusters") : t("dashboard.map_toggle_heat")}
           </button>
         ))}
       </div>
@@ -501,7 +598,7 @@ export default function DashboardScreen({
           <span style={{ fontSize: 28, fontWeight: 700, color: "var(--cr-text)", lineHeight: 1 }}>
             {loading ? "—" : totalCount}
           </span>
-          <span style={{ fontSize: 11, color: "var(--cr-label)" }}>Total</span>
+          <span style={{ fontSize: 11, color: "var(--cr-label)" }}>{t("dashboard.metric_total")}</span>
         </div>
 
         {/* Critical */}
@@ -519,7 +616,7 @@ export default function DashboardScreen({
           <span style={{ fontSize: 28, fontWeight: 700, color: "#EF4444", lineHeight: 1 }}>
             {loading ? "—" : criticalCount}
           </span>
-          <span style={{ fontSize: 11, color: "var(--cr-label)" }}>severe+complete</span>
+          <span style={{ fontSize: 11, color: "var(--cr-label)" }}>{t("dashboard.metric_severe")}</span>
         </div>
 
         {/* Last 6h */}
@@ -537,7 +634,7 @@ export default function DashboardScreen({
           <span style={{ fontSize: 28, fontWeight: 700, color: "var(--cr-primary)", lineHeight: 1 }}>
             {loading ? "—" : last6hCount}
           </span>
-          <span style={{ fontSize: 11, color: "var(--cr-label)" }}>↑ increasing</span>
+          <span style={{ fontSize: 11, color: "var(--cr-label)" }}>{t("dashboard.metric_increasing")}</span>
         </div>
       </div>
 
@@ -584,17 +681,17 @@ export default function DashboardScreen({
             marginBottom: 10,
           }}
         >
-          Most Critical — Act Now
+          {t("dashboard.critical_section")}
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 260, overflowY: "auto" }}>
           {criticalList.length === 0 ? (
             <p style={{ fontSize: 14, color: "var(--cr-label)", padding: "12px 0" }}>
-              No critical reports in current filter
+              {t("dashboard.no_critical")}
             </p>
           ) : (
             criticalList.map((obs) => {
               const dotColor = DAMAGE_COLORS[obs.damage_level] ?? "var(--cr-label)";
-              const isCrit = obs.damage_level === "complete" || obs.damage_level === "severe";
+              const isCrit = (obs.damage_level as string) === "complete" || (obs.damage_level as string) === "severe";
               return (
                 <button
                   key={obs.id}
@@ -679,7 +776,7 @@ export default function DashboardScreen({
             }}
           >
             <IconSettings size={18} />
-            Crisis settings
+            {t("dashboard.settings_button")}
           </button>
         </div>
 
@@ -699,11 +796,11 @@ export default function DashboardScreen({
         }}
       >
         {/* Mobile header */}
-        <div style={{ flexShrink: 0, padding: "14px 20px", borderBottom: "1px solid var(--cr-border)" }}>
+        <div style={{ flexShrink: 0, padding: "14px 20px", borderBottom: "1px solid var(--cr-border)", position: "relative", zIndex: 1001 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div>
               <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--cr-label)", fontWeight: 600 }}>
-                Agent Dashboard
+                {t("dashboard.title")}
               </p>
               <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)" }}>{crisisTitle}</p>
             </div>
@@ -723,7 +820,7 @@ export default function DashboardScreen({
                 }}
               >
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", animation: "pulse-dot 1s ease-in-out infinite" }} />
-                Live
+                {t("dashboard.live_badge")}
               </span>
               <LanguageSelector variant="inline" />
             </div>
@@ -742,6 +839,7 @@ export default function DashboardScreen({
             disasterType={disasterType}
             onDisasterTypeChange={handleDisasterTypeChange}
             isDemo={isDemo}
+            onEndCrisis={handleEndCrisis}
           />
         )}
       </div>
@@ -768,11 +866,13 @@ export default function DashboardScreen({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          position: "relative",
+          zIndex: 1001,
         }}
       >
         <div>
           <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--cr-label)", fontWeight: 600 }}>
-            Agent Dashboard
+            {t("dashboard.title")}
           </p>
           <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)" }}>{crisisTitle}</p>
         </div>
@@ -808,11 +908,12 @@ export default function DashboardScreen({
         {/* Full map */}
         <main style={{ flex: 1, position: "relative" }}>
           <MapContainer
-            center={center}
-            zoom={zoom}
+            center={mapCenter}
+            zoom={mapZoom}
             style={{ height: "100%", width: "100%" }}
             zoomControl={false}
           >
+            <SetView center={mapCenter} zoom={mapZoom} />
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -837,6 +938,7 @@ export default function DashboardScreen({
           disasterType={disasterType}
           onDisasterTypeChange={handleDisasterTypeChange}
           isDemo={isDemo}
+          onEndCrisis={handleEndCrisis}
         />
       )}
     </div>

@@ -6,11 +6,11 @@ import BuildingLayer from "./BuildingLayer";
 import ObservationPin from "./ObservationPin";
 import "./map.css";
 
-function FlyToCenter({ center }: { center: [number, number] }) {
+function FlyToCenter({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
   useEffect(() => {
-    map.flyTo(center, map.getZoom(), { animate: true, duration: 0.6 });
-  }, [center, map]);
+    map.flyTo(center, zoom, { animate: true, duration: 0.6 });
+  }, [center, zoom, map]);
   return null;
 }
 
@@ -63,7 +63,7 @@ export default function CrisisMap({
         detectRetina
         maxZoom={20}
       />
-      <FlyToCenter center={center} />
+      <FlyToCenter center={center} zoom={zoom} />
 
       {buildings && (
         <BuildingLayer

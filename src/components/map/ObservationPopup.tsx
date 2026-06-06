@@ -12,10 +12,10 @@ export interface PopupObservation {
   client_created_at: string;
 }
 
-const DAMAGE_COLOR: Record<DamageLevel, string> = {
+const DAMAGE_COLOR: Record<string, string> = {
   minimal:  "var(--color-minimal)",
   partial:  "var(--color-warning)",
-  severe:   "#F59E0B",
+  severe:   "var(--color-critical)",
   complete: "var(--color-critical)",
 };
 

@@ -5,10 +5,10 @@ import "../../lib/leaflet-global";
 import "leaflet.heat";
 import type { DamageLevel } from "../../types/schema";
 
-const HEAT_WEIGHT: Record<DamageLevel, number> = {
+const HEAT_WEIGHT: Record<string, number> = {
   minimal:  0.3,
   partial:  0.6,
-  severe:   0.85,
+  severe:   1.0,
   complete: 1.0,
 };
 

@@ -19,20 +19,20 @@ export interface MappedObservation extends PopupObservation {
 }
 
 // Hex literals required: used inside Leaflet DivIcon SVG strings (outside CSS cascade)
-const PIN_COLORS: Record<DamageLevel, string> = {
+const PIN_COLORS: Record<string, string> = {
   minimal:  "#3ecf8e", // --color-minimal
   partial:  "#f59e0b", // --color-warning
-  severe:   "#F59E0B", // amber
+  severe:   "#ef4444", // backward compat → complete color
   complete: "#ef4444", // --color-critical
 };
 
-const SEVERITY: Record<DamageLevel, number> = {
-  minimal: 0, partial: 1, severe: 2, complete: 3,
+const SEVERITY: Record<string, number> = {
+  minimal: 0, partial: 1, severe: 3, complete: 3,
 };
 
 function pinIcon(damage: DamageLevel): L.DivIcon {
   const color = PIN_COLORS[damage];
-  const pulseRing = damage === "complete" || damage === "severe"
+  const pulseRing = (damage as string) === "complete" || (damage as string) === "severe"
     ? `<div class="damage-complete-ring"></div>`
     : "";
   return L.divIcon({
