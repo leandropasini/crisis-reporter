@@ -28,10 +28,12 @@ interface Props {
 }
 
 const DAMAGE_COLORS: Record<string, string> = {
-  minimal:  "#22C55E",
-  partial:  "#E8823A",
-  severe:   "#F59E0B",
-  complete: "#EF4444",
+  minimal:            "#22C55E",
+  partial:            "#E8823A",
+  partially_damaged:  "#E8823A",
+  severe:             "#F59E0B",
+  complete:           "#EF4444",
+  completely_damaged: "#EF4444",
 };
 
 function ProgressBar({ pct }: { pct: number }) {
@@ -53,12 +55,16 @@ export default function ReviewScreen({
 }: Props) {
   const { t } = useTranslation();
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
-  const isOffline = !navigator.onLine;
+  const isOffline = !data.isDemo && !navigator.onLine;
 
   async function handleSubmit() {
     setSubmitState("uploading");
     try {
       const result = await submitObservation(data);
+      if (result.queued && navigator.onLine) {
+        setSubmitState("error");
+        return;
+      }
       onSuccess({
         id: result.id,
         lat: data.lat,
@@ -179,7 +185,7 @@ export default function ReviewScreen({
             },
             {
               label: t("review.label_damage"),
-              value: data.damageLevelLabel ?? t(`enum.damage_${data.damageLevel}`),
+              value: data.damageLevelLabel ?? t(`damage.${data.damageLevel}`),
               color: DAMAGE_COLORS[getDisplayLevel(data.damageLevel)] ?? "var(--cr-text)",
             },
             {
