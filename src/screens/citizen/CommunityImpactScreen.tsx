@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "../../components/LanguageSelector";
 
@@ -15,6 +15,8 @@ interface Props {
   totalSteps?: number;
 }
 
+const ORANGE = "#F97316";
+
 function ProgressBar({ step, total }: { step: number; total: number }) {
   return (
     <div className="w-full h-1 bg-surface-2 rounded-full overflow-hidden">
@@ -26,55 +28,120 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function RadioDot({ selected }: { selected: boolean }) {
   return (
-    <p
-      className="text-xs font-semibold uppercase tracking-wider mb-3"
-      style={{ fontSize: "var(--font-label)", color: "var(--color-label)" }}
+    <span
+      style={{
+        width: 18,
+        height: 18,
+        borderRadius: "50%",
+        border: `2px solid ${selected ? ORANGE : "var(--color-border)"}`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+      }}
     >
-      {children}
-    </p>
+      {selected && <span style={{ width: 8, height: 8, borderRadius: "50%", background: ORANGE }} />}
+    </span>
   );
 }
 
-const QUESTION_COUNT = 3;
-
-function DotIndicator({ active, total }: { active: number; total: number }) {
+function CheckBox({ selected, disabled }: { selected: boolean; disabled: boolean }) {
   return (
-    <div className="flex items-center justify-center gap-2">
-      {Array.from({ length: total }).map((_, i) => (
+    <span
+      style={{
+        width: 18,
+        height: 18,
+        borderRadius: 5,
+        border: `2px solid ${selected ? ORANGE : "var(--color-border)"}`,
+        background: selected ? ORANGE : "transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        opacity: disabled ? 0.4 : 1,
+      }}
+    >
+      {selected && (
+        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+          <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+    </span>
+  );
+}
+
+function pillStyle(selected: boolean, disabled: boolean) {
+  return {
+    minHeight: "var(--min-touch)",
+    borderColor: selected ? ORANGE : "var(--color-border)",
+    backgroundColor: selected
+      ? `color-mix(in srgb, ${ORANGE} 12%, var(--color-surface-2))`
+      : "var(--color-surface-2)",
+    color: selected ? ORANGE : disabled ? "var(--color-label)" : "var(--color-value)",
+    opacity: disabled ? 0.4 : 1,
+    textAlign: "left" as const,
+  };
+}
+
+interface AccordionSectionProps {
+  icon: string;
+  title: string;
+  isOpen: boolean;
+  hasSelection: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}
+
+function AccordionSection({ icon, title, isOpen, hasSelection, onToggle, children }: AccordionSectionProps) {
+  return (
+    <div className="rounded-2xl overflow-hidden border" style={{ borderColor: "var(--color-border)" }}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center gap-3 px-4 transition-colors"
+        style={{
+          minHeight: "var(--min-touch)",
+          backgroundColor: isOpen
+            ? "color-mix(in srgb, var(--color-surface-2) 100%, white 6%)"
+            : "var(--color-surface-2)",
+        }}
+      >
+        <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
         <span
-          key={i}
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: "50%",
-            background: i === active ? "var(--color-primary)" : "var(--color-border)",
-            transition: "background-color 0.2s",
-          }}
-        />
-      ))}
+          className="flex-1 text-sm font-semibold text-left"
+          style={{ color: hasSelection ? ORANGE : "var(--color-value)" }}
+        >
+          {title}
+        </span>
+        {hasSelection && (
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: ORANGE, flexShrink: 0 }} />
+        )}
+        <span style={{ color: "var(--color-label)", fontSize: 15, flexShrink: 0 }}>{isOpen ? "↑" : "↓"}</span>
+      </button>
+      <div style={{ display: "grid", gridTemplateRows: isOpen ? "1fr" : "0fr", transition: "grid-template-rows 200ms ease" }}>
+        <div style={{ overflow: "hidden", minHeight: 0 }}>
+          <div className="px-3 py-3 space-y-2" style={{ borderTop: "1px solid var(--color-border)" }}>
+            {children}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function CommunityImpactScreen({
   onConfirm,
-  onBack,
   modeLabel,
   totalSteps = 6,
 }: Props) {
   const { t } = useTranslation();
-  const [subStep, setSubStep]         = useState(0); // 0=electricity, 1=health, 2=needs
+  const [openSection, setOpenSection] = useState<number | null>(0);
   const [electricity, setElectricity] = useState<string | undefined>();
   const [health, setHealth]           = useState<string | undefined>();
   const [needs, setNeeds]             = useState<string[]>([]);
   const [otherText, setOtherText]     = useState("");
-  const bodyRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    bodyRef.current?.scrollTo({ top: 0 });
-  }, [subStep]);
 
   const ELECTRICITY_OPTIONS = [
     { value: "no_damage",       label: t("community_impact.electricity_no_damage")       },
@@ -115,6 +182,10 @@ export default function CommunityImpactScreen({
     }
   }
 
+  function toggleSection(i: number) {
+    setOpenSection(openSection === i ? null : i);
+  }
+
   function handleConfirm() {
     const finalNeeds = needs.map((n) => {
       if (n === "other" && otherText.trim()) return `other:${otherText.trim()}`;
@@ -122,27 +193,6 @@ export default function CommunityImpactScreen({
     });
     onConfirm({ electricityStatus: electricity, healthStatus: health, pressingNeeds: finalNeeds });
   }
-
-  function handleStepBack() {
-    if (subStep > 0) setSubStep(subStep - 1);
-    else onBack();
-  }
-
-  function handleStepNext() {
-    if (subStep < QUESTION_COUNT - 1) setSubStep(subStep + 1);
-    else handleConfirm();
-  }
-
-  const rowStyle = (selected: boolean, disabled: boolean) => ({
-    minHeight: "var(--min-touch)",
-    borderColor: selected ? "var(--color-primary)" : "var(--color-border)",
-    backgroundColor: selected
-      ? "color-mix(in srgb, var(--color-primary) 9%, transparent)"
-      : "var(--color-surface-2)",
-    color: selected ? "var(--color-primary)" : disabled ? "var(--color-label)" : "var(--color-value)",
-    opacity: disabled ? 0.4 : 1,
-    textAlign: "left" as const,
-  });
 
   return (
     <div className="flex flex-col h-screen bg-surface text-text-primary">
@@ -159,120 +209,115 @@ export default function CommunityImpactScreen({
         <h2 className="text-base font-semibold" style={{ color: "var(--color-value)" }}>
           {t("community_impact.title")}
         </h2>
-        <DotIndicator active={subStep} total={QUESTION_COUNT} />
       </div>
 
-      {/* Scrollable body — one question at a time */}
-      <div ref={bodyRef} className="flex-1 overflow-y-auto px-4 pb-4">
+      {/* Scrollable accordion body */}
+      <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-3">
 
-        {subStep === 0 && (
-          <section>
-            <SectionLabel>{t("community_impact.electricity_section")}</SectionLabel>
-            <div className="space-y-2">
-              {ELECTRICITY_OPTIONS.map((opt) => {
-                const selected = electricity === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setElectricity(selected ? undefined : opt.value)}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
-                    style={rowStyle(selected, false)}
-                  >
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        )}
+        <AccordionSection
+          icon="⚡"
+          title={t("community_impact.electricity_section")}
+          isOpen={openSection === 0}
+          hasSelection={electricity !== undefined}
+          onToggle={() => toggleSection(0)}
+        >
+          {ELECTRICITY_OPTIONS.map((opt) => {
+            const selected = electricity === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setElectricity(selected ? undefined : opt.value)}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
+                style={pillStyle(selected, false)}
+              >
+                <RadioDot selected={selected} />
+                {opt.label}
+              </button>
+            );
+          })}
+        </AccordionSection>
 
-        {subStep === 1 && (
-          <section>
-            <SectionLabel>{t("community_impact.health_section")}</SectionLabel>
-            <div className="space-y-2">
-              {HEALTH_OPTIONS.map((opt) => {
-                const selected = health === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setHealth(selected ? undefined : opt.value)}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
-                    style={rowStyle(selected, false)}
-                  >
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        )}
+        <AccordionSection
+          icon="🏥"
+          title={t("community_impact.health_section")}
+          isOpen={openSection === 1}
+          hasSelection={health !== undefined}
+          onToggle={() => toggleSection(1)}
+        >
+          {HEALTH_OPTIONS.map((opt) => {
+            const selected = health === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setHealth(selected ? undefined : opt.value)}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
+                style={pillStyle(selected, false)}
+              >
+                <RadioDot selected={selected} />
+                {opt.label}
+              </button>
+            );
+          })}
+        </AccordionSection>
 
-        {subStep === 2 && (
-          <section>
-            <SectionLabel>{t("community_impact.needs_section")}</SectionLabel>
-            <p className="text-xs mb-3" style={{ color: "var(--color-label)" }}>
-              {t("community_impact.needs_hint")}
+        <AccordionSection
+          icon="🆘"
+          title={t("community_impact.needs_section")}
+          isOpen={openSection === 2}
+          hasSelection={needs.length > 0}
+          onToggle={() => toggleSection(2)}
+        >
+          <p className="text-xs" style={{ color: "var(--color-label)" }}>
+            {t("community_impact.needs_hint")}
+          </p>
+          {NEEDS_OPTIONS.map((opt) => {
+            const selected = needs.includes(opt.value);
+            const maxReached = needs.length >= 3 && !selected;
+            return (
+              <div key={opt.value}>
+                <button
+                  type="button"
+                  disabled={maxReached}
+                  onClick={() => toggleNeed(opt.value)}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
+                  style={pillStyle(selected, maxReached)}
+                >
+                  <CheckBox selected={selected} disabled={maxReached} />
+                  {opt.label}
+                </button>
+                {opt.value === "other" && selected && (
+                  <input
+                    type="text"
+                    value={otherText}
+                    onChange={(e) => setOtherText(e.target.value)}
+                    placeholder={t("community_impact.need_other_placeholder")}
+                    className="mt-2 w-full bg-surface-2 border rounded-lg px-3 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none transition-colors"
+                    style={{ borderColor: otherText.trim() ? ORANGE : "var(--color-border)" }}
+                  />
+                )}
+              </div>
+            );
+          })}
+          {needs.length > 0 && (
+            <p className="text-xs" style={{ color: "var(--color-label)" }}>
+              {needs.length}/3
             </p>
-            <div className="space-y-2">
-              {NEEDS_OPTIONS.map((opt) => {
-                const selected = needs.includes(opt.value);
-                const maxReached = needs.length >= 3 && !selected;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    disabled={maxReached}
-                    onClick={() => toggleNeed(opt.value)}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
-                    style={rowStyle(selected, maxReached)}
-                  >
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-            {needs.includes("other") && (
-              <input
-                type="text"
-                value={otherText}
-                onChange={(e) => setOtherText(e.target.value)}
-                placeholder={t("community_impact.need_other_placeholder")}
-                className="mt-3 w-full bg-surface-2 border rounded-lg px-3 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none transition-colors"
-                style={{ borderColor: otherText.trim() ? "var(--color-accent)" : "var(--color-border)" }}
-              />
-            )}
-            {needs.length > 0 && (
-              <p className="text-xs mt-2" style={{ color: "var(--color-label)" }}>
-                {needs.length}/3
-              </p>
-            )}
-          </section>
-        )}
+          )}
+        </AccordionSection>
 
       </div>
 
       {/* Footer */}
-      <div className="flex-none px-4 pb-8 pt-3 border-t border-border flex gap-3">
+      <div className="flex-none px-4 pb-8 pt-3 border-t border-border">
         <button
           type="button"
-          onClick={handleStepBack}
-          className="flex-1 rounded-xl border text-sm font-medium active:opacity-70"
-          style={{ minHeight: "var(--min-touch)", minWidth: 120, borderColor: "var(--color-border)", color: "var(--color-label)" }}
+          onClick={handleConfirm}
+          className="w-full rounded-xl text-white text-sm font-semibold active:opacity-80 transition-opacity"
+          style={{ minHeight: "var(--min-touch)", backgroundColor: ORANGE }}
         >
-          {t("common.back")}
-        </button>
-        <button
-          type="button"
-          onClick={handleStepNext}
-          className="flex-1 rounded-xl text-white text-sm font-semibold active:opacity-80 transition-opacity"
-          style={{ minHeight: "var(--min-touch)", minWidth: 120, backgroundColor: "var(--color-primary)" }}
-        >
-          {t("common.next")}
+          {t("common.next")} →
         </button>
       </div>
     </div>
