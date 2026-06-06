@@ -200,7 +200,7 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
       success: false,
       queued: true,
       id: localId,
-      error: err instanceof Error ? err.message : "Unknown error",
+      error: err instanceof Error ? err.message : JSON.stringify(err),
     };
   }
 }

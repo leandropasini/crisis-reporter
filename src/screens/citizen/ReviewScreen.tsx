@@ -55,13 +55,16 @@ export default function ReviewScreen({
 }: Props) {
   const { t } = useTranslation();
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
+  const [debugError, setDebugError]   = useState<string | null>(null);
   const isOffline = !data.isDemo && !navigator.onLine;
 
   async function handleSubmit() {
     setSubmitState("uploading");
+    setDebugError(null);
     try {
       const result = await submitObservation(data);
       if (result.queued && navigator.onLine) {
+        setDebugError(result.error ?? "queued+online, no error string");
         setSubmitState("error");
         return;
       }
@@ -145,9 +148,16 @@ export default function ReviewScreen({
         )}
 
         {submitState === "error" && (
-          <p style={{ fontSize: 13, color: "var(--cr-critical)", textAlign: "center" }}>
-            {t("review.submit_error")}
-          </p>
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: "var(--cr-critical)" }}>
+              {t("review.submit_error")}
+            </p>
+            {debugError && (
+              <p style={{ fontSize: 11, color: "var(--cr-label)", marginTop: 6, wordBreak: "break-all", padding: "0 8px" }}>
+                DEBUG: {debugError}
+              </p>
+            )}
+          </div>
         )}
 
         {/* Photo */}
