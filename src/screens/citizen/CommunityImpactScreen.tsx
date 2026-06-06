@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "../../components/LanguageSelector";
 
@@ -37,6 +37,27 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+const QUESTION_COUNT = 3;
+
+function DotIndicator({ active, total }: { active: number; total: number }) {
+  return (
+    <div className="flex items-center justify-center gap-2">
+      {Array.from({ length: total }).map((_, i) => (
+        <span
+          key={i}
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: i === active ? "var(--color-primary)" : "var(--color-border)",
+            transition: "background-color 0.2s",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function CommunityImpactScreen({
   onConfirm,
   onBack,
@@ -44,10 +65,16 @@ export default function CommunityImpactScreen({
   totalSteps = 6,
 }: Props) {
   const { t } = useTranslation();
+  const [subStep, setSubStep]         = useState(0); // 0=electricity, 1=health, 2=needs
   const [electricity, setElectricity] = useState<string | undefined>();
   const [health, setHealth]           = useState<string | undefined>();
   const [needs, setNeeds]             = useState<string[]>([]);
   const [otherText, setOtherText]     = useState("");
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: 0 });
+  }, [subStep]);
 
   const ELECTRICITY_OPTIONS = [
     { value: "no_damage",       label: t("community_impact.electricity_no_damage")       },
@@ -96,6 +123,16 @@ export default function CommunityImpactScreen({
     onConfirm({ electricityStatus: electricity, healthStatus: health, pressingNeeds: finalNeeds });
   }
 
+  function handleStepBack() {
+    if (subStep > 0) setSubStep(subStep - 1);
+    else onBack();
+  }
+
+  function handleStepNext() {
+    if (subStep < QUESTION_COUNT - 1) setSubStep(subStep + 1);
+    else handleConfirm();
+  }
+
   const rowStyle = (selected: boolean, disabled: boolean) => ({
     minHeight: "var(--min-touch)",
     borderColor: selected ? "var(--color-primary)" : "var(--color-border)",
@@ -122,96 +159,100 @@ export default function CommunityImpactScreen({
         <h2 className="text-base font-semibold" style={{ color: "var(--color-value)" }}>
           {t("community_impact.title")}
         </h2>
+        <DotIndicator active={subStep} total={QUESTION_COUNT} />
       </div>
 
-      {/* Scrollable body */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6">
+      {/* Scrollable body — one question at a time */}
+      <div ref={bodyRef} className="flex-1 overflow-y-auto px-4 pb-4">
 
-        {/* Electricity */}
-        <section>
-          <SectionLabel>{t("community_impact.electricity_section")}</SectionLabel>
-          <div className="space-y-2">
-            {ELECTRICITY_OPTIONS.map((opt) => {
-              const selected = electricity === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setElectricity(selected ? undefined : opt.value)}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
-                  style={rowStyle(selected, false)}
-                >
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
-        </section>
+        {subStep === 0 && (
+          <section>
+            <SectionLabel>{t("community_impact.electricity_section")}</SectionLabel>
+            <div className="space-y-2">
+              {ELECTRICITY_OPTIONS.map((opt) => {
+                const selected = electricity === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setElectricity(selected ? undefined : opt.value)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
+                    style={rowStyle(selected, false)}
+                  >
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
-        {/* Health services */}
-        <section>
-          <SectionLabel>{t("community_impact.health_section")}</SectionLabel>
-          <div className="space-y-2">
-            {HEALTH_OPTIONS.map((opt) => {
-              const selected = health === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setHealth(selected ? undefined : opt.value)}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
-                  style={rowStyle(selected, false)}
-                >
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
-        </section>
+        {subStep === 1 && (
+          <section>
+            <SectionLabel>{t("community_impact.health_section")}</SectionLabel>
+            <div className="space-y-2">
+              {HEALTH_OPTIONS.map((opt) => {
+                const selected = health === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setHealth(selected ? undefined : opt.value)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
+                    style={rowStyle(selected, false)}
+                  >
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
-        {/* Pressing needs */}
-        <section>
-          <SectionLabel>{t("community_impact.needs_section")}</SectionLabel>
-          <p className="text-xs mb-3" style={{ color: "var(--color-label)" }}>
-            {t("community_impact.needs_hint")}
-          </p>
-          <div className="space-y-2">
-            {NEEDS_OPTIONS.map((opt) => {
-              const selected = needs.includes(opt.value);
-              const maxReached = needs.length >= 3 && !selected;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  disabled={maxReached}
-                  onClick={() => toggleNeed(opt.value)}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
-                  style={rowStyle(selected, maxReached)}
-                >
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
-          {needs.includes("other") && (
-            <input
-              type="text"
-              value={otherText}
-              onChange={(e) => setOtherText(e.target.value)}
-              placeholder={t("community_impact.need_other_placeholder")}
-              className="mt-3 w-full bg-surface-2 border rounded-lg px-3 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none transition-colors"
-              style={{ borderColor: otherText.trim() ? "var(--color-accent)" : "var(--color-border)" }}
-            />
-          )}
-          {needs.length > 0 && (
-            <p className="text-xs mt-2" style={{ color: "var(--color-label)" }}>
-              {needs.length}/3
+        {subStep === 2 && (
+          <section>
+            <SectionLabel>{t("community_impact.needs_section")}</SectionLabel>
+            <p className="text-xs mb-3" style={{ color: "var(--color-label)" }}>
+              {t("community_impact.needs_hint")}
             </p>
-          )}
-        </section>
+            <div className="space-y-2">
+              {NEEDS_OPTIONS.map((opt) => {
+                const selected = needs.includes(opt.value);
+                const maxReached = needs.length >= 3 && !selected;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    disabled={maxReached}
+                    onClick={() => toggleNeed(opt.value)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
+                    style={rowStyle(selected, maxReached)}
+                  >
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            {needs.includes("other") && (
+              <input
+                type="text"
+                value={otherText}
+                onChange={(e) => setOtherText(e.target.value)}
+                placeholder={t("community_impact.need_other_placeholder")}
+                className="mt-3 w-full bg-surface-2 border rounded-lg px-3 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none transition-colors"
+                style={{ borderColor: otherText.trim() ? "var(--color-accent)" : "var(--color-border)" }}
+              />
+            )}
+            {needs.length > 0 && (
+              <p className="text-xs mt-2" style={{ color: "var(--color-label)" }}>
+                {needs.length}/3
+              </p>
+            )}
+          </section>
+        )}
 
       </div>
 
@@ -219,7 +260,7 @@ export default function CommunityImpactScreen({
       <div className="flex-none px-4 pb-8 pt-3 border-t border-border flex gap-3">
         <button
           type="button"
-          onClick={onBack}
+          onClick={handleStepBack}
           className="flex-1 rounded-xl border text-sm font-medium active:opacity-70"
           style={{ minHeight: "var(--min-touch)", minWidth: 120, borderColor: "var(--color-border)", color: "var(--color-label)" }}
         >
@@ -227,7 +268,7 @@ export default function CommunityImpactScreen({
         </button>
         <button
           type="button"
-          onClick={handleConfirm}
+          onClick={handleStepNext}
           className="flex-1 rounded-xl text-white text-sm font-semibold active:opacity-80 transition-opacity"
           style={{ minHeight: "var(--min-touch)", minWidth: 120, backgroundColor: "var(--color-primary)" }}
         >
