@@ -26,6 +26,9 @@ export interface ExportRow {
   language?: string | null;
   client_created_at: string;
   modular_fields?: ModularFields | null;
+  electricity_status?: string | null;
+  health_status?: string | null;
+  pressing_needs?: string[] | null;
   photo_url?: string | null;
 }
 
@@ -45,7 +48,8 @@ export async function fetchForExport(
     .select(
       "id, crisis_id, infrastructure_name, infrastructure_type, infrastructure_type_other, " +
       "damage_level, debris_clearing_needed, latitude, longitude, source, confidence, " +
-      "version_number, is_proxy, language, client_created_at, modular_fields, photo_url"
+      "version_number, is_proxy, language, client_created_at, modular_fields, " +
+      "electricity_status, health_status, pressing_needs, photo_url"
     )
     .eq("crisis_id", crisisId)
     .eq("status", "active")
@@ -96,6 +100,9 @@ export function buildGeoJSON(rows: ExportRow[]): string {
         photo_url:            r.photo_url ?? null,
         language:             r.language ?? null,
         modular_fields:       r.modular_fields ?? null,
+        electricity_status:   r.electricity_status ?? null,
+        health_status:        r.health_status ?? null,
+        pressing_needs:       r.pressing_needs ?? null,
       },
     };
   });
@@ -126,7 +133,10 @@ export function buildCSV(rows: ExportRow[]): string {
     client_created_at:          r.client_created_at,
     electricity_condition:      r.modular_fields?.electricity_condition ?? "",
     health_services:            r.modular_fields?.health_services ?? "",
-    pressing_needs:             (r.modular_fields?.pressing_needs ?? []).join("|"),
+    pressing_needs_legacy:      (r.modular_fields?.pressing_needs ?? []).join("|"),
+    electricity_status:         r.electricity_status ?? "",
+    health_status:              r.health_status ?? "",
+    pressing_needs:             (r.pressing_needs ?? []).join("|"),
     photo_url:                  r.photo_url ?? "",
   }));
 
@@ -137,7 +147,8 @@ export function buildCSV(rows: ExportRow[]): string {
       "infrastructure_type_other","damage_level","debris_clearing_needed",
       "latitude","longitude","source","confidence","version_number",
       "is_proxy","language","client_created_at","electricity_condition",
-      "health_services","pressing_needs","photo_url",
+      "health_services","pressing_needs_legacy","electricity_status",
+      "health_status","pressing_needs","photo_url",
     ];
     return Papa.unparse({ fields: headers, data: [] });
   }

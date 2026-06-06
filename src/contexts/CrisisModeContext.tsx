@@ -39,7 +39,7 @@ export function useCrisisMode() {
 }
 
 export const MODE_META: Record<CrisisMode, { label: string; totalSteps: number }> = {
-  rapid:       { label: "RAPID REPORT",       totalSteps: 3 },
-  full:        { label: "FULL REPORT",         totalSteps: 5 },
-  contextual:  { label: "CONTEXTUAL REPORT",   totalSteps: 5 },
+  rapid:       { label: "RAPID REPORT",       totalSteps: 4 },
+  full:        { label: "FULL REPORT",         totalSteps: 6 },
+  contextual:  { label: "CONTEXTUAL REPORT",   totalSteps: 6 },
 };

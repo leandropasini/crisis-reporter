@@ -64,6 +64,9 @@ interface ObservationRow {
   synced_at: string;
   created_at: string;
   modular_fields: ModularFields;
+  electricity_status: string | null;
+  health_status: string | null;
+  pressing_needs: string[] | null;
 }
 
 export interface ObservationInsert {
@@ -94,6 +97,9 @@ export interface ObservationInsert {
   synced_at?: string;
   created_at?: string;
   modular_fields?: ModularFields;
+  electricity_status?: string | null;
+  health_status?: string | null;
+  pressing_needs?: string[] | null;
   is_demo?: boolean;
 }
 

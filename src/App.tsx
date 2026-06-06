@@ -6,6 +6,7 @@ import LocationScreen, { type LocationResult } from "./screens/citizen/LocationS
 import ClassificationScreen, { type ClassificationData } from "./screens/citizen/ClassificationScreen";
 import RapidClassificationScreen, { type RapidClassificationData } from "./screens/citizen/RapidClassificationScreen";
 import DetailsScreen, { type DetailsData } from "./screens/citizen/DetailsScreen";
+import CommunityImpactScreen, { type CommunityImpactData } from "./screens/citizen/CommunityImpactScreen";
 import ReviewScreen, { type ReviewSuccessPayload } from "./screens/citizen/ReviewScreen";
 import ConfirmationScreen from "./screens/citizen/ConfirmationScreen";
 import DashboardScreen from "./screens/agent/DashboardScreen";
@@ -21,7 +22,7 @@ import { supabase, isSupabaseConfigured } from "./services/supabase";
 const db = supabase as any;
 
 type AppMode = "index" | "citizen" | "agent" | "map";
-type CitizenStep = "camera" | "location" | "classification" | "rapid-classification" | "details" | "review";
+type CitizenStep = "camera" | "location" | "classification" | "rapid-classification" | "community-impact" | "details" | "review";
 
 interface Props {
   mode: "demo" | "live";
@@ -44,6 +45,7 @@ function AppInner({ mode }: Props) {
   const [classificationData, setClassificationData] = useState<ClassificationData | null>(null);
   const [rapidData, setRapidData]         = useState<RapidClassificationData | null>(null);
   const [detailsData, setDetailsData]     = useState<DetailsData | null>(null);
+  const [communityImpactData, setCommunityImpactData] = useState<CommunityImpactData | null>(null);
   const [disasterType, setDisasterType]   = useState<DisasterType>(isDemo ? "flood" : "generic");
   const [liveCrisisId, setLiveCrisisId]       = useState<string | null>(null);
   const [crisisCheckDone, setCrisisCheckDone] = useState(isDemo); // demo skips the check
@@ -101,6 +103,7 @@ function AppInner({ mode }: Props) {
     setClassificationData(null);
     setRapidData(null);
     setDetailsData(null);
+    setCommunityImpactData(null);
     setConfirmed(null);
     setStep("camera");
     setAppMode("citizen");
@@ -118,12 +121,17 @@ function AppInner({ mode }: Props) {
 
   function handleClassificationConfirm(data: ClassificationData) {
     setClassificationData(data);
-    setStep("details");
+    setStep("community-impact");
   }
 
   function handleRapidConfirm(data: RapidClassificationData) {
     setRapidData(data);
-    setStep("review");
+    setStep("community-impact");
+  }
+
+  function handleCommunityImpactConfirm(data: CommunityImpactData) {
+    setCommunityImpactData(data);
+    setStep(crisisMode === "rapid" ? "review" : "details");
   }
 
   function handleDetailsConfirm(data: DetailsData) {
@@ -247,6 +255,9 @@ function AppInner({ mode }: Props) {
           infrastructureName:         detailsData.infrastructureName,
           infrastructureDescription:  detailsData.infrastructureDescription,
           modularFields:              detailsData.modularFields,
+          electricityStatus:          communityImpactData?.electricityStatus,
+          healthStatus:               communityImpactData?.healthStatus,
+          pressingNeeds:              communityImpactData?.pressingNeeds,
           crisisId:                   effectiveCrisisId,
           isDemo,
         }
@@ -266,6 +277,9 @@ function AppInner({ mode }: Props) {
           damageLevelLabel:   rapidData.damageLevelLabel,
           infrastructureType: rapidData.infrastructureType,
           modularFields:      {},
+          electricityStatus:  communityImpactData?.electricityStatus,
+          healthStatus:       communityImpactData?.healthStatus,
+          pressingNeeds:      communityImpactData?.pressingNeeds,
           crisisId:           effectiveCrisisId,
           isDemo,
         }
@@ -321,12 +335,21 @@ function AppInner({ mode }: Props) {
         />
       )}
 
+      {step === "community-impact" && (
+        <CommunityImpactScreen
+          onConfirm={handleCommunityImpactConfirm}
+          onBack={() => setStep(crisisMode === "rapid" ? "rapid-classification" : "classification")}
+          modeLabel={ml}
+          totalSteps={ts}
+        />
+      )}
+
       {step === "details" && (
         <DetailsScreen
           modularFieldsEnabled={crisisMode === "contextual"}
           initialName={classificationData?.infrastructureName}
           onConfirm={handleDetailsConfirm}
-          onBack={() => setStep("classification")}
+          onBack={() => setStep("community-impact")}
           modeLabel={ml}
           totalSteps={ts}
         />
@@ -336,7 +359,7 @@ function AppInner({ mode }: Props) {
         <ReviewScreen
           data={observationInput}
           onSuccess={setConfirmed}
-          onBack={() => setStep(crisisMode === "rapid" ? "rapid-classification" : "details")}
+          onBack={() => setStep(crisisMode === "rapid" ? "community-impact" : "details")}
           modeLabel={ml}
           totalSteps={ts}
           {...navProps}

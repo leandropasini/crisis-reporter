@@ -29,6 +29,11 @@ export interface ObservationInput {
   infrastructureDescription?: string;
   modularFields: ModularFields;
 
+  // CommunityImpactScreen
+  electricityStatus?: string;
+  healthStatus?: string;
+  pressingNeeds?: string[];
+
   // Context
   crisisId: string;
   buildingId?: string;

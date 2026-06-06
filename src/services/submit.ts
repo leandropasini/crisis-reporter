@@ -141,6 +141,9 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
       language:                   i18n.language as UnLanguage,
       client_created_at:          new Date().toISOString(),
       modular_fields:             input.modularFields,
+      electricity_status:         input.electricityStatus ?? null,
+      health_status:              input.healthStatus ?? null,
+      pressing_needs:             input.pressingNeeds?.length ? input.pressingNeeds : null,
       is_demo:                    input.isDemo ?? false,
     };
 

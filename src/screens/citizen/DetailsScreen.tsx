@@ -119,7 +119,7 @@ function MultiSelect({
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export default function DetailsScreen({ modularFieldsEnabled = false, initialName, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
+export default function DetailsScreen({ modularFieldsEnabled = false, initialName, onConfirm, onBack, modeLabel, totalSteps = 6 }: Props) {
   const { t } = useTranslation();
   const [name, setName]         = useState(initialName ?? "");
   const [description, setDesc]  = useState("");
@@ -176,10 +176,10 @@ export default function DetailsScreen({ modularFieldsEnabled = false, initialNam
 
       {/* Header */}
       <div className="px-4 pt-4 pb-3 space-y-3 flex-none" style={{ position: "relative", zIndex: 100 }}>
-        <ProgressBar step={4} total={totalSteps} />
+        <ProgressBar step={5} total={totalSteps} />
         <div className="flex items-center justify-between">
           <p className="text-xs text-text-muted tracking-widest uppercase">
-            {modeLabel ? `${modeLabel} — STEP 4 OF ${totalSteps}` : t("details.step")}
+            {modeLabel ? `${modeLabel} — STEP 5 OF ${totalSteps}` : t("details.step")}
           </p>
           <LanguageSelector variant="inline" />
         </div>
