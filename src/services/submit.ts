@@ -162,6 +162,13 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
     let { error, data: insertResult } = await db.from("observations").insert(insertData).select();
 
     // Retry without community impact columns if migration 010 has not been run yet
+    if (error) {
+      console.log("[SUBMIT-DEBUG] payload keys:", Object.keys(insertData));
+      console.log("[SUBMIT-DEBUG] error:", JSON.stringify(error));
+      console.log("[SUBMIT-DEBUG] error.code:", (error as Record<string,unknown>).code);
+      console.log("[SUBMIT-DEBUG] error.message:", (error as Record<string,unknown>).message);
+      console.log("[SUBMIT-DEBUG] isMissingColumnError:", isMissingColumnError(error));
+    }
     if (error && isMissingColumnError(error)) {
       console.warn("[crisis-reporter] community impact columns not found — retrying without them");
       const { electricity_status: _e, health_status: _h, pressing_needs: _p, ...insertDataCompat } = insertData;
