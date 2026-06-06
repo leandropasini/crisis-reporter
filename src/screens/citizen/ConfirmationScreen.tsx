@@ -107,7 +107,7 @@ export default function ConfirmationScreen({
               fontWeight: 600,
             }}
           >
-            REPORT RECEIVED
+            {t("confirmation.received")}
           </span>
           <LanguageSelector variant="inline" />
         </div>
@@ -150,7 +150,7 @@ export default function ConfirmationScreen({
             {queued ? t("confirmation.saved_locally") : t("confirmation.received")}
           </p>
           <p style={{ fontSize: 15, color: "var(--cr-label)" }}>
-            {queued ? t("confirmation.will_sync") : "Added to the collective response picture"}
+            {queued ? t("confirmation.will_sync") : t("confirmation.added_to_picture")}
           </p>
         </div>
 
@@ -189,7 +189,7 @@ export default function ConfirmationScreen({
               color: "var(--cr-label)",
             }}
           >
-            Community Impact View
+            {t("confirmation.community_impact_view")}
           </p>
 
           {loading ? (
@@ -203,17 +203,17 @@ export default function ConfirmationScreen({
                   {stats.total}
                 </span>
                 <span style={{ fontSize: 13, color: "var(--cr-label)" }}>
-                  reports within / 1.2 km radius
+                  {t("confirmation.reports_within_radius")}
                 </span>
               </div>
               <p style={{ fontSize: 13, color: "var(--cr-primary)", fontWeight: 500 }}>
-                +{stats.last6h} in last 6 hours · last 48h
+                {t("confirmation.last6h_48h", { count: stats.last6h })}
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
                 {[
-                  { label: "Buildings", value: stats.total },
-                  { label: "Contributors", value: stats.contributors },
-                  { label: "Trending", icon: "ti-trending-up", iconColor: "#22C55E" },
+                  { label: t("confirmation.stat_buildings"), value: stats.total },
+                  { label: t("confirmation.stat_contributors"), value: stats.contributors },
+                  { label: t("confirmation.stat_trending"), icon: "ti-trending-up", iconColor: "#22C55E" },
                 ].map((cell) => (
                   <div
                     key={cell.label}
@@ -239,8 +239,7 @@ export default function ConfirmationScreen({
             </>
           ) : (
             <p style={{ fontSize: 14, color: "var(--cr-label)", lineHeight: 1.5, textAlign: "center" }}>
-              Your report is the first in this area —
-              be the signal that activates the network
+              {t("confirmation.first_in_area_cta")}
             </p>
           )}
         </div>
@@ -267,7 +266,7 @@ export default function ConfirmationScreen({
             }}
           >
             <IconMap2 size={20} />
-            View community map
+            {t("confirmation.view_community_map")}
           </button>
           <button
             type="button"
@@ -284,7 +283,7 @@ export default function ConfirmationScreen({
               cursor: "pointer",
             }}
           >
-            Submit another report
+            {t("confirmation.submit_another")}
           </button>
         </div>
       </div>

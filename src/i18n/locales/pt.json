@@ -5,11 +5,18 @@
     "agent_title": "Painel do Agente",
     "agent_desc": "Visualize e analise relatórios de campo no mapa",
     "map_title": "Ver mapa comunitário",
-    "map_desc": "Veja o que seus vizinhos estão reportando"
+    "map_desc": "Veja o que seus vizinhos estão reportando",
+    "map_card_desc": "Veja o que os vizinhos estão reportando",
+    "agent_card_title": "Painel do agente",
+    "agent_card_desc": "Coordene a resposta em campo",
+    "active_crisis": "Crise ativa",
+    "no_account": "Não é necessária conta para relatar danos"
   },
   "common": {
     "back": "← Voltar",
-    "next": "Próximo →"
+    "next": "Próximo →",
+    "step_of": "Etapa {{step}} de {{total}}",
+    "review": "Revisão"
   },
   "camera": {
     "step": "Passo 1 de 5",
@@ -17,7 +24,8 @@
     "retake": "Repetir",
     "use_photo": "Usar foto →",
     "take_photo": "Tirar foto",
-    "choose_gallery": "Escolher da galeria"
+    "choose_gallery": "Escolher da galeria",
+    "point_at_scene": "Aponte para a cena"
   },
   "location": {
     "step": "Passo 2 de 5",
@@ -168,7 +176,17 @@
     "your_first": "Seu relatório é o primeiro desta área",
     "area_count_48h": "{{count}} relatórios na sua área nas últimas 48 horas",
     "report_another": "Reportar outro",
-    "view_map": "Ver mapa"
+    "view_map": "Ver mapa",
+    "added_to_picture": "Adicionado ao panorama coletivo de resposta",
+    "community_impact_view": "Visão de impacto comunitário",
+    "reports_within_radius": "relatórios em um raio de 1,2 km",
+    "last6h_48h": "+{{count}} nas últimas 6 horas · últimas 48h",
+    "stat_buildings": "Edificações",
+    "stat_contributors": "Contribuidores",
+    "stat_trending": "Tendência",
+    "first_in_area_cta": "Seu relatório é o primeiro nesta área — seja o sinal que ativa a rede",
+    "view_community_map": "Ver mapa comunitário",
+    "submit_another": "Enviar outro relatório"
   },
   "community_map": {
     "title": "Mapa Comunitário de Crise"
@@ -229,7 +247,8 @@
     "filter_health": "Saúde",
     "filter_education": "Educação",
     "map_toggle_clusters": "Clusters",
-    "map_toggle_heat": "Calor"
+    "map_toggle_heat": "Calor",
+    "active_crisis": "Crise ativa"
   },
   "export": {
     "button": "Exportar ▾",
@@ -416,5 +435,18 @@
     "need_local_support":          "Apoio de autoridades locais e organizações comunitárias",
     "need_other":                  "Outro",
     "need_other_placeholder":      "Por favor especifique"
+  },
+  "rapid": {
+    "header": "Relatório rápido — etapa 3 de 3",
+    "desc_minimal": "Rachaduras no reboco, janelas quebradas",
+    "desc_partial": "Grandes rachaduras nas paredes, perda parcial do telhado",
+    "desc_complete": "Desabado ou inabitável",
+    "infra_health": "Saúde",
+    "infra_education": "Educação"
+  },
+  "mode": {
+    "rapid_report": "Relatório rápido",
+    "full_report": "Relatório completo",
+    "contextual_report": "Relatório contextual"
   }
 }

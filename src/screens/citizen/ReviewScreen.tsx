@@ -80,7 +80,7 @@ export default function ReviewScreen({
     }
   }
 
-  const headerLabel = modeLabel ? `${modeLabel} — REVIEW` : t("review.step");
+  const headerLabel = modeLabel ? `${modeLabel} — ${t("common.review")}` : t("review.step");
 
   return (
     <div

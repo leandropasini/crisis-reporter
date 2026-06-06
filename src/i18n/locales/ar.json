@@ -5,11 +5,18 @@
     "agent_title": "لوحة تحكم الوكيل",
     "agent_desc": "عرض وتحليل التقارير الميدانية على الخريطة",
     "map_title": "عرض خريطة المجتمع",
-    "map_desc": "اطّلع على ما يُبلّغ عنه جيرانك"
+    "map_desc": "اطّلع على ما يُبلّغ عنه جيرانك",
+    "map_card_desc": "اطّلع على ما يُبلّغ عنه الجيران",
+    "agent_card_title": "لوحة الوكيل",
+    "agent_card_desc": "نسّق الاستجابة الميدانية",
+    "active_crisis": "أزمة نشطة",
+    "no_account": "لا حاجة إلى حساب للإبلاغ عن الأضرار"
   },
   "common": {
     "back": "→ رجوع",
-    "next": "← التالي"
+    "next": "← التالي",
+    "step_of": "الخطوة {{step}} من {{total}}",
+    "review": "المراجعة"
   },
   "camera": {
     "step": "الخطوة 1 من 5",
@@ -17,7 +24,8 @@
     "retake": "إعادة التصوير",
     "use_photo": "← استخدم الصورة",
     "take_photo": "التقاط صورة",
-    "choose_gallery": "اختر من المعرض"
+    "choose_gallery": "اختر من المعرض",
+    "point_at_scene": "وجّه الكاميرا نحو المشهد"
   },
   "location": {
     "step": "الخطوة 2 من 5",
@@ -168,7 +176,17 @@
     "your_first": "تقريرك هو الأول في هذه المنطقة",
     "area_count_48h": "{{count}} تقرير في منطقتك خلال الـ 48 ساعة الماضية",
     "report_another": "إرسال تقرير آخر",
-    "view_map": "عرض الخريطة"
+    "view_map": "عرض الخريطة",
+    "added_to_picture": "تمت الإضافة إلى الصورة الجماعية للاستجابة",
+    "community_impact_view": "عرض تأثير المجتمع",
+    "reports_within_radius": "تقارير ضمن نطاق 1.2 كم",
+    "last6h_48h": "+{{count}} في آخر 6 ساعات · آخر 48 ساعة",
+    "stat_buildings": "المباني",
+    "stat_contributors": "المساهمون",
+    "stat_trending": "الاتجاه",
+    "first_in_area_cta": "تقريرك هو الأول في هذه المنطقة — كن الإشارة التي تُفعّل الشبكة",
+    "view_community_map": "عرض خريطة المجتمع",
+    "submit_another": "إرسال تقرير آخر"
   },
   "community_map": {
     "title": "خريطة أزمة المجتمع"
@@ -229,7 +247,8 @@
     "filter_health": "الصحة",
     "filter_education": "التعليم",
     "map_toggle_clusters": "مجموعات",
-    "map_toggle_heat": "حرارة"
+    "map_toggle_heat": "حرارة",
+    "active_crisis": "أزمة نشطة"
   },
   "export": {
     "button": "تصدير ▾",
@@ -416,5 +435,18 @@
     "need_local_support":          "دعم السلطات المحلية والمنظمات المجتمعية",
     "need_other":                  "أخرى",
     "need_other_placeholder":      "يرجى التحديد"
+  },
+  "rapid": {
+    "header": "تقرير سريع — الخطوة 3 من 3",
+    "desc_minimal": "تشققات في الجص، نوافذ مكسورة",
+    "desc_partial": "تشققات كبيرة في الجدران، فقدان جزئي للسقف",
+    "desc_complete": "منهار أو غير صالح للسكن",
+    "infra_health": "الصحة",
+    "infra_education": "التعليم"
+  },
+  "mode": {
+    "rapid_report": "تقرير سريع",
+    "full_report": "تقرير كامل",
+    "contextual_report": "تقرير سياقي"
   }
 }

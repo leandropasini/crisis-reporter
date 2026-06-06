@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import LanguageSelector from "../components/LanguageSelector";
 import { IconBuildingCommunity, IconMap2, IconLayoutDashboard, IconChevronRight } from "@tabler/icons-react";
 import type { ComponentType } from "react";
@@ -14,36 +15,37 @@ const CARDS: {
   Icon: ComponentType<IconProps>;
   iconBg: string;
   iconColor: string;
-  title: string;
-  desc: string;
+  titleKey: string;
+  descKey: string;
 }[] = [
   {
     id: "citizen",
     Icon: IconBuildingCommunity,
     iconBg: "rgba(239,68,68,0.12)",
     iconColor: "#EF4444",
-    title: "I'm reporting damage",
-    desc: "Report building damage in your area",
+    titleKey: "index.citizen_title",
+    descKey: "index.citizen_desc",
   },
   {
     id: "map",
     Icon: IconMap2,
     iconBg: "rgba(34,197,94,0.1)",
     iconColor: "#22C55E",
-    title: "View community map",
-    desc: "See what neighbors are reporting",
+    titleKey: "index.map_title",
+    descKey: "index.map_card_desc",
   },
   {
     id: "agent",
     Icon: IconLayoutDashboard,
     iconBg: "rgba(96,165,250,0.12)",
     iconColor: "#60A5FA",
-    title: "Agent dashboard",
-    desc: "Coordinate field response",
+    titleKey: "index.agent_card_title",
+    descKey: "index.agent_card_desc",
   },
 ];
 
 export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMap }: Props) {
+  const { t } = useTranslation();
   const handlers: Record<string, () => void> = {
     citizen: onSelectCitizen,
     map: onSelectMap,
@@ -80,7 +82,7 @@ export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMa
             fontWeight: 600,
           }}
         >
-          UN Crisis Reporter
+          {t("landing.title")}
         </span>
         <LanguageSelector variant="inline" />
       </div>
@@ -123,7 +125,7 @@ export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMa
                   flexShrink: 0,
                 }}
               />
-              Active crisis
+              {t("index.active_crisis")}
             </span>
           </div>
 
@@ -195,10 +197,10 @@ export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMa
                     marginBottom: 3,
                   }}
                 >
-                  {card.title}
+                  {t(card.titleKey)}
                 </p>
                 <p style={{ fontSize: "var(--font-label)", color: "var(--cr-label)", lineHeight: 1.4 }}>
-                  {card.desc}
+                  {t(card.descKey)}
                 </p>
               </div>
 
@@ -216,7 +218,7 @@ export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMa
             textAlign: "center",
           }}
         >
-          No account needed to report damage
+          {t("index.no_account")}
         </p>
       </div>
     </div>

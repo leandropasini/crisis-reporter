@@ -179,7 +179,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, initialNam
         <ProgressBar step={5} total={totalSteps} />
         <div className="flex items-center justify-between">
           <p className="text-xs text-text-muted tracking-widest uppercase">
-            {modeLabel ? `${modeLabel} — STEP 5 OF ${totalSteps}` : t("details.step")}
+            {modeLabel ? `${modeLabel} — ${t("common.step_of", { step: 5, total: totalSteps })}` : t("details.step")}
           </p>
           <LanguageSelector variant="inline" />
         </div>

@@ -199,7 +199,7 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
         <ProgressBar step={3} total={totalSteps} />
         <div className="flex items-center justify-between">
           <p className="text-xs text-text-muted tracking-widest uppercase">
-            {modeLabel ? `${modeLabel} — STEP 3 OF ${totalSteps}` : t("classification.step")}
+            {modeLabel ? `${modeLabel} — ${t("common.step_of", { step: 3, total: totalSteps })}` : t("classification.step")}
           </p>
           <LanguageSelector variant="inline" />
         </div>

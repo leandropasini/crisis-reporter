@@ -17,9 +17,9 @@ export interface RapidClassificationData {
 }
 
 const DAMAGE_OPTIONS = [
-  { value: "minimal",            tKey: "damage.minimal",            color: "#22C55E", description: "Cracks in plaster, broken windows"   },
-  { value: "partially_damaged",  tKey: "damage.partially_damaged",  color: "#E8823A", description: "Large wall cracks, partial roof loss" },
-  { value: "completely_damaged", tKey: "damage.completely_damaged", color: "#EF4444", description: "Collapsed or uninhabitable"           },
+  { value: "minimal",            tKey: "damage.minimal",            color: "#22C55E", descKey: "rapid.desc_minimal"  },
+  { value: "partially_damaged",  tKey: "damage.partially_damaged",  color: "#E8823A", descKey: "rapid.desc_partial"  },
+  { value: "completely_damaged", tKey: "damage.completely_damaged", color: "#EF4444", descKey: "rapid.desc_complete" },
 ];
 
 interface Props {
@@ -40,17 +40,17 @@ function ProgressBar({ pct }: { pct: number }) {
 
 const INFRA_OPTIONS: {
   value: InfrastructureType;
-  label: string;
+  labelKey: string;
   Icon: ComponentType<IconProps>;
 }[] = [
-  { value: "residential",       label: "Residential", Icon: IconHome },
-  { value: "commercial",        label: "Commercial",  Icon: IconBuildingStore },
-  { value: "government",        label: "Government",  Icon: IconBuildingBank },
-  { value: "utility",           label: "Utility",     Icon: IconBolt },
-  { value: "community",         label: "Health",      Icon: IconActivityHeartbeat },
-  { value: "public_recreation", label: "Education",   Icon: IconSchool },
-  { value: "transport_comm",    label: "Transport",   Icon: IconRoad },
-  { value: "other",             label: "Other",       Icon: IconDots },
+  { value: "residential",       labelKey: "enum.infra_residential",   Icon: IconHome },
+  { value: "commercial",        labelKey: "enum.infra_commercial",    Icon: IconBuildingStore },
+  { value: "government",        labelKey: "enum.infra_government",    Icon: IconBuildingBank },
+  { value: "utility",           labelKey: "enum.infra_utility",       Icon: IconBolt },
+  { value: "community",         labelKey: "rapid.infra_health",       Icon: IconActivityHeartbeat },
+  { value: "public_recreation", labelKey: "rapid.infra_education",    Icon: IconSchool },
+  { value: "transport_comm",    labelKey: "enum.infra_transport_comm", Icon: IconRoad },
+  { value: "other",             labelKey: "enum.infra_other",         Icon: IconDots },
 ];
 
 export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome, onGoMap }: Props) {
@@ -100,7 +100,7 @@ export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome,
               fontWeight: 600,
             }}
           >
-            RAPID REPORT — STEP 3 OF 3
+            {t("rapid.header")}
           </span>
           <LanguageSelector variant="inline" />
         </div>
@@ -150,7 +150,7 @@ export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome,
                     <p style={{ fontSize: 16, fontWeight: 600, color: "var(--cr-text)", marginBottom: 2 }}>
                       {t(opt.tKey)}
                     </p>
-                    <p style={{ fontSize: 13, color: "var(--cr-label)" }}>{opt.description}</p>
+                    <p style={{ fontSize: 13, color: "var(--cr-label)" }}>{t(opt.descKey)}</p>
                   </div>
                   {sel && (
                     <IconCheck size={18} style={{ color, flexShrink: 0, marginTop: 2 }} />
@@ -206,7 +206,7 @@ export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome,
                   }}
                 >
                   <opt.Icon size={22} />
-                  <span style={{ fontSize: 11, textAlign: "center", lineHeight: 1.2 }}>{opt.label}</span>
+                  <span style={{ fontSize: 11, textAlign: "center", lineHeight: 1.2 }}>{t(opt.labelKey)}</span>
                 </button>
               );
             })}

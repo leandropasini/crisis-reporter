@@ -202,7 +202,7 @@ export default function CommunityImpactScreen({
         <ProgressBar step={4} total={totalSteps} />
         <div className="flex items-center justify-between">
           <p className="text-xs text-text-muted tracking-widest uppercase">
-            {modeLabel ? `${modeLabel} — STEP 4 OF ${totalSteps}` : t("community_impact.step")}
+            {modeLabel ? `${modeLabel} — ${t("common.step_of", { step: 4, total: totalSteps })}` : t("community_impact.step")}
           </p>
           <LanguageSelector variant="inline" />
         </div>

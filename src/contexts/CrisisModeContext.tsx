@@ -38,8 +38,8 @@ export function useCrisisMode() {
   return useContext(CrisisModeContext);
 }
 
-export const MODE_META: Record<CrisisMode, { label: string; totalSteps: number }> = {
-  rapid:       { label: "RAPID REPORT",       totalSteps: 4 },
-  full:        { label: "FULL REPORT",         totalSteps: 6 },
-  contextual:  { label: "CONTEXTUAL REPORT",   totalSteps: 6 },
+export const MODE_META: Record<CrisisMode, { tKey: string; totalSteps: number }> = {
+  rapid:       { tKey: "mode.rapid_report",       totalSteps: 4 },
+  full:        { tKey: "mode.full_report",        totalSteps: 6 },
+  contextual:  { tKey: "mode.contextual_report",  totalSteps: 6 },
 };

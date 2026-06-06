@@ -167,7 +167,7 @@ export default function LocationScreen({
   const stepNum = 2;
   const pct = (stepNum / totalSteps) * 100;
   const headerLabel = modeLabel
-    ? `${modeLabel} — STEP ${stepNum} OF ${totalSteps}`
+    ? `${modeLabel} — ${t("common.step_of", { step: stepNum, total: totalSteps })}`
     : t("location.step");
 
   return (

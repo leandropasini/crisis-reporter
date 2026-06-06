@@ -352,7 +352,7 @@ export default function DashboardScreen({
   const [showSettings, setShowSettings] = useState(false);
   const [disasterType, setDisasterType] = useState<DisasterType>(isDemo ? "flood" : "generic");
   const [crisisTitle, setCrisisTitle] = useState(
-    isDemo ? "RS Floods 2024 · Porto Alegre" : "Active Crisis"
+    isDemo ? "RS Floods 2024 · Porto Alegre" : t("dashboard.active_crisis")
   );
   const [mapCenter, setMapCenter] = useState<[number, number]>(center);
   const [mapZoom, setMapZoom] = useState(zoom);

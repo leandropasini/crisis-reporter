@@ -5,11 +5,18 @@
     "agent_title": "工作人员仪表板",
     "agent_desc": "在地图上查看和分析现场报告",
     "map_title": "查看社区地图",
-    "map_desc": "了解您的邻居正在报告什么"
+    "map_desc": "了解您的邻居正在报告什么",
+    "map_card_desc": "了解邻居们正在报告什么",
+    "agent_card_title": "工作人员仪表板",
+    "agent_card_desc": "协调现场响应工作",
+    "active_crisis": "当前危机",
+    "no_account": "无需账号即可上报受损情况"
   },
   "common": {
     "back": "← 返回",
-    "next": "下一步 →"
+    "next": "下一步 →",
+    "step_of": "第 {{step}} 步，共 {{total}} 步",
+    "review": "审核"
   },
   "camera": {
     "step": "第 1 步，共 5 步",
@@ -17,7 +24,8 @@
     "retake": "重拍",
     "use_photo": "使用此照片 →",
     "take_photo": "拍照",
-    "choose_gallery": "从相册选择"
+    "choose_gallery": "从相册选择",
+    "point_at_scene": "将镜头对准现场"
   },
   "location": {
     "step": "第 2 步，共 5 步",
@@ -168,7 +176,17 @@
     "your_first": "您的报告是该区域的第一份",
     "area_count_48h": "过去48小时内您所在区域有{{count}}份报告",
     "report_another": "提交新报告",
-    "view_map": "查看地图"
+    "view_map": "查看地图",
+    "added_to_picture": "已纳入整体响应概览",
+    "community_impact_view": "社区影响视图",
+    "reports_within_radius": "1.2公里范围内的报告",
+    "last6h_48h": "近6小时新增{{count}}条 · 近48小时",
+    "stat_buildings": "建筑物",
+    "stat_contributors": "贡献者",
+    "stat_trending": "趋势",
+    "first_in_area_cta": "您的报告是该区域的第一份——成为激活响应网络的信号",
+    "view_community_map": "查看社区地图",
+    "submit_another": "提交新的报告"
   },
   "community_map": {
     "title": "社区危机地图"
@@ -229,7 +247,8 @@
     "filter_health": "医疗",
     "filter_education": "教育",
     "map_toggle_clusters": "集群",
-    "map_toggle_heat": "热力"
+    "map_toggle_heat": "热力",
+    "active_crisis": "当前危机"
   },
   "export": {
     "button": "导出 ▾",
@@ -416,5 +435,18 @@
     "need_local_support":          "地方当局和社区组织的支持",
     "need_other":                  "其他",
     "need_other_placeholder":      "请说明"
+  },
+  "rapid": {
+    "header": "快速报告 — 第3步，共3步",
+    "desc_minimal": "墙面开裂，窗户破损",
+    "desc_partial": "墙体大面积开裂，屋顶部分损毁",
+    "desc_complete": "已倒塌或不可居住",
+    "infra_health": "医疗",
+    "infra_education": "教育"
+  },
+  "mode": {
+    "rapid_report": "快速报告",
+    "full_report": "完整报告",
+    "contextual_report": "情境报告"
   }
 }

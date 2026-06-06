@@ -5,11 +5,18 @@
     "agent_title": "Agent Dashboard",
     "agent_desc": "View and analyse field reports on the map",
     "map_title": "View community map",
-    "map_desc": "See what your neighbors are reporting"
+    "map_desc": "See what your neighbors are reporting",
+    "map_card_desc": "See what neighbors are reporting",
+    "agent_card_title": "Agent dashboard",
+    "agent_card_desc": "Coordinate field response",
+    "active_crisis": "Active crisis",
+    "no_account": "No account needed to report damage"
   },
   "common": {
     "back": "← Back",
-    "next": "Next →"
+    "next": "Next →",
+    "step_of": "Step {{step}} of {{total}}",
+    "review": "Review"
   },
   "camera": {
     "step": "Step 1 of 5",
@@ -17,7 +24,8 @@
     "retake": "Retake",
     "use_photo": "Use photo →",
     "take_photo": "Take photo",
-    "choose_gallery": "Choose from gallery"
+    "choose_gallery": "Choose from gallery",
+    "point_at_scene": "Point at the scene"
   },
   "location": {
     "step": "Step 2 of 5",
@@ -168,7 +176,17 @@
     "your_first": "Your report is the first in this area",
     "area_count_48h": "{{count}} reports in your area in the last 48 hours",
     "report_another": "Report another",
-    "view_map": "View map"
+    "view_map": "View map",
+    "added_to_picture": "Added to the collective response picture",
+    "community_impact_view": "Community Impact View",
+    "reports_within_radius": "reports within / 1.2 km radius",
+    "last6h_48h": "+{{count}} in last 6 hours · last 48h",
+    "stat_buildings": "Buildings",
+    "stat_contributors": "Contributors",
+    "stat_trending": "Trending",
+    "first_in_area_cta": "Your report is the first in this area — be the signal that activates the network",
+    "view_community_map": "View community map",
+    "submit_another": "Submit another report"
   },
   "community_map": {
     "title": "Community Crisis Map"
@@ -229,7 +247,8 @@
     "filter_health": "Health",
     "filter_education": "Education",
     "map_toggle_clusters": "Clusters",
-    "map_toggle_heat": "Heat"
+    "map_toggle_heat": "Heat",
+    "active_crisis": "Active Crisis"
   },
   "export": {
     "button": "Export ▾",
@@ -416,5 +435,18 @@
     "need_local_support":        "Support from local authorities and community organizations",
     "need_other":                "Other",
     "need_other_placeholder":    "Please specify"
+  },
+  "rapid": {
+    "header": "Rapid report — step 3 of 3",
+    "desc_minimal": "Cracks in plaster, broken windows",
+    "desc_partial": "Large wall cracks, partial roof loss",
+    "desc_complete": "Collapsed or uninhabitable",
+    "infra_health": "Health",
+    "infra_education": "Education"
+  },
+  "mode": {
+    "rapid_report": "Rapid report",
+    "full_report": "Full report",
+    "contextual_report": "Contextual report"
   }
 }

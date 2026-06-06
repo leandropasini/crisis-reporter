@@ -5,11 +5,18 @@
     "agent_title": "Panel de agente",
     "agent_desc": "Ver y analizar informes de campo en el mapa",
     "map_title": "Ver mapa comunitario",
-    "map_desc": "Vea lo que sus vecinos están reportando"
+    "map_desc": "Vea lo que sus vecinos están reportando",
+    "map_card_desc": "Vea lo que reportan los vecinos",
+    "agent_card_title": "Panel de agente",
+    "agent_card_desc": "Coordine la respuesta sobre el terreno",
+    "active_crisis": "Crisis activa",
+    "no_account": "No necesita una cuenta para reportar daños"
   },
   "common": {
     "back": "← Atrás",
-    "next": "Siguiente →"
+    "next": "Siguiente →",
+    "step_of": "Paso {{step}} de {{total}}",
+    "review": "Revisión"
   },
   "camera": {
     "step": "Paso 1 de 5",
@@ -17,7 +24,8 @@
     "retake": "Retomar",
     "use_photo": "Usar foto →",
     "take_photo": "Tomar foto",
-    "choose_gallery": "Elegir de la galería"
+    "choose_gallery": "Elegir de la galería",
+    "point_at_scene": "Apunte a la escena"
   },
   "location": {
     "step": "Paso 2 de 5",
@@ -168,7 +176,17 @@
     "your_first": "Su informe es el primero en esta área",
     "area_count_48h": "{{count}} informes en su área en las últimas 48 horas",
     "report_another": "Enviar otro informe",
-    "view_map": "Ver mapa"
+    "view_map": "Ver mapa",
+    "added_to_picture": "Agregado al panorama colectivo de respuesta",
+    "community_impact_view": "Vista de impacto comunitario",
+    "reports_within_radius": "informes dentro de un radio de 1.2 km",
+    "last6h_48h": "+{{count}} en las últimas 6 horas · últimas 48h",
+    "stat_buildings": "Edificios",
+    "stat_contributors": "Colaboradores",
+    "stat_trending": "Tendencia",
+    "first_in_area_cta": "Su informe es el primero en esta área — sea la señal que activa la red",
+    "view_community_map": "Ver mapa comunitario",
+    "submit_another": "Enviar otro informe"
   },
   "community_map": {
     "title": "Mapa comunitario de crisis"
@@ -229,7 +247,8 @@
     "filter_health": "Salud",
     "filter_education": "Educación",
     "map_toggle_clusters": "Clusters",
-    "map_toggle_heat": "Calor"
+    "map_toggle_heat": "Calor",
+    "active_crisis": "Crisis activa"
   },
   "export": {
     "button": "Exportar ▾",
@@ -416,5 +435,18 @@
     "need_local_support":          "Apoyo de autoridades locales y organizaciones comunitarias",
     "need_other":                  "Otro",
     "need_other_placeholder":      "Por favor especifica"
+  },
+  "rapid": {
+    "header": "Informe rápido — paso 3 de 3",
+    "desc_minimal": "Grietas en el revoque, ventanas rotas",
+    "desc_partial": "Grandes grietas en muros, pérdida parcial del techo",
+    "desc_complete": "Colapsado o inhabitable",
+    "infra_health": "Salud",
+    "infra_education": "Educación"
+  },
+  "mode": {
+    "rapid_report": "Informe rápido",
+    "full_report": "Informe completo",
+    "contextual_report": "Informe contextual"
   }
 }

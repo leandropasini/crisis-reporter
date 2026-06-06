@@ -5,11 +5,18 @@
     "agent_title": "Tableau de bord agent",
     "agent_desc": "Visualisez et analysez les rapports de terrain sur la carte",
     "map_title": "Voir la carte communautaire",
-    "map_desc": "Découvrez ce que vos voisins signalent"
+    "map_desc": "Découvrez ce que vos voisins signalent",
+    "map_card_desc": "Découvrez ce que les voisins signalent",
+    "agent_card_title": "Tableau de bord agent",
+    "agent_card_desc": "Coordonnez la réponse sur le terrain",
+    "active_crisis": "Crise active",
+    "no_account": "Aucun compte requis pour signaler des dégâts"
   },
   "common": {
     "back": "← Retour",
-    "next": "Suivant →"
+    "next": "Suivant →",
+    "step_of": "Étape {{step}} sur {{total}}",
+    "review": "Révision"
   },
   "camera": {
     "step": "Étape 1 sur 5",
@@ -17,7 +24,8 @@
     "retake": "Reprendre",
     "use_photo": "Utiliser la photo →",
     "take_photo": "Prendre une photo",
-    "choose_gallery": "Choisir depuis la galerie"
+    "choose_gallery": "Choisir depuis la galerie",
+    "point_at_scene": "Pointez vers la scène"
   },
   "location": {
     "step": "Étape 2 sur 5",
@@ -168,7 +176,17 @@
     "your_first": "Votre signalement est le premier dans cette zone",
     "area_count_48h": "{{count}} signalements dans votre zone au cours des 48 dernières heures",
     "report_another": "Signaler un autre",
-    "view_map": "Voir la carte"
+    "view_map": "Voir la carte",
+    "added_to_picture": "Ajouté à la vision collective de la réponse",
+    "community_impact_view": "Vue de l'impact communautaire",
+    "reports_within_radius": "signalements dans un rayon de 1,2 km",
+    "last6h_48h": "+{{count}} ces 6 dernières heures · 48 dernières heures",
+    "stat_buildings": "Bâtiments",
+    "stat_contributors": "Contributeurs",
+    "stat_trending": "Tendance",
+    "first_in_area_cta": "Votre signalement est le premier dans cette zone — soyez le signal qui active le réseau",
+    "view_community_map": "Voir la carte communautaire",
+    "submit_another": "Envoyer un autre signalement"
   },
   "community_map": {
     "title": "Carte communautaire de crise"
@@ -229,7 +247,8 @@
     "filter_health": "Santé",
     "filter_education": "Éducation",
     "map_toggle_clusters": "Clusters",
-    "map_toggle_heat": "Chaleur"
+    "map_toggle_heat": "Chaleur",
+    "active_crisis": "Crise active"
   },
   "export": {
     "button": "Exporter ▾",
@@ -416,5 +435,18 @@
     "need_local_support":          "Soutien des autorités locales et organisations communautaires",
     "need_other":                  "Autre",
     "need_other_placeholder":      "Veuillez préciser"
+  },
+  "rapid": {
+    "header": "Signalement rapide — étape 3 sur 3",
+    "desc_minimal": "Fissures dans le plâtre, fenêtres brisées",
+    "desc_partial": "Larges fissures dans les murs, perte partielle de toiture",
+    "desc_complete": "Effondré ou inhabitable",
+    "infra_health": "Santé",
+    "infra_education": "Éducation"
+  },
+  "mode": {
+    "rapid_report": "Signalement rapide",
+    "full_report": "Signalement complet",
+    "contextual_report": "Signalement contextuel"
   }
 }

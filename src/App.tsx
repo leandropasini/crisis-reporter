@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import "./i18n";
 import IndexScreen from "./screens/IndexScreen";
 import CameraScreen from "./screens/citizen/CameraScreen";
@@ -29,6 +30,7 @@ interface Props {
 }
 
 function AppInner({ mode }: Props) {
+  const { t } = useTranslation();
   const { mode: crisisMode } = useCrisisMode();
   const modeMeta = MODE_META[crisisMode];
   const isDemo = mode === "demo";
@@ -287,7 +289,7 @@ function AppInner({ mode }: Props) {
 
   const observationInput = crisisMode === "rapid" ? rapidObservationInput : fullObservationInput;
 
-  const ml = modeMeta.label;
+  const ml = t(modeMeta.tKey);
   const ts = modeMeta.totalSteps;
 
   const navProps = {

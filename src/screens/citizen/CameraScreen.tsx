@@ -64,7 +64,7 @@ export default function CameraScreen({
   const stepNum = 1;
   const pct = (stepNum / totalSteps) * 100;
   const headerLabel = modeLabel
-    ? `${modeLabel} — STEP ${stepNum} OF ${totalSteps}`
+    ? `${modeLabel} — ${t("common.step_of", { step: stepNum, total: totalSteps })}`
     : t("camera.step");
 
   return (
@@ -156,7 +156,7 @@ export default function CameraScreen({
                 }}
               >
                 <IconCamera size={36} style={{ color: "var(--cr-label)", opacity: 0.4 }} />
-                <span style={{ fontSize: 16, color: "var(--cr-label)" }}>Point at the scene</span>
+                <span style={{ fontSize: 16, color: "var(--cr-label)" }}>{t("camera.point_at_scene")}</span>
               </div>
             </>
           )}
