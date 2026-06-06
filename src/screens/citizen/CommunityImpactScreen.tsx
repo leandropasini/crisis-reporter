@@ -96,14 +96,15 @@ export default function CommunityImpactScreen({
     onConfirm({ electricityStatus: electricity, healthStatus: health, pressingNeeds: finalNeeds });
   }
 
-  const chipStyle = (selected: boolean, disabled: boolean) => ({
+  const rowStyle = (selected: boolean, disabled: boolean) => ({
     minHeight: "var(--min-touch)",
     borderColor: selected ? "var(--color-primary)" : "var(--color-border)",
     backgroundColor: selected
-      ? "color-mix(in srgb, var(--color-primary) 13%, var(--color-surface-2))"
+      ? "color-mix(in srgb, var(--color-primary) 9%, transparent)"
       : "var(--color-surface-2)",
     color: selected ? "var(--color-primary)" : disabled ? "var(--color-label)" : "var(--color-value)",
     opacity: disabled ? 0.4 : 1,
+    textAlign: "left" as const,
   });
 
   return (
@@ -129,7 +130,7 @@ export default function CommunityImpactScreen({
         {/* Electricity */}
         <section>
           <SectionLabel>{t("community_impact.electricity_section")}</SectionLabel>
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
             {ELECTRICITY_OPTIONS.map((opt) => {
               const selected = electricity === opt.value;
               return (
@@ -137,9 +138,10 @@ export default function CommunityImpactScreen({
                   key={opt.value}
                   type="button"
                   onClick={() => setElectricity(selected ? undefined : opt.value)}
-                  className="px-4 rounded-full border text-xs font-medium transition-all active:scale-95"
-                  style={chipStyle(selected, false)}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
+                  style={rowStyle(selected, false)}
                 >
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
                   {opt.label}
                 </button>
               );
@@ -150,7 +152,7 @@ export default function CommunityImpactScreen({
         {/* Health services */}
         <section>
           <SectionLabel>{t("community_impact.health_section")}</SectionLabel>
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
             {HEALTH_OPTIONS.map((opt) => {
               const selected = health === opt.value;
               return (
@@ -158,9 +160,10 @@ export default function CommunityImpactScreen({
                   key={opt.value}
                   type="button"
                   onClick={() => setHealth(selected ? undefined : opt.value)}
-                  className="px-4 rounded-full border text-xs font-medium transition-all active:scale-95"
-                  style={chipStyle(selected, false)}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
+                  style={rowStyle(selected, false)}
                 >
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
                   {opt.label}
                 </button>
               );
@@ -174,7 +177,7 @@ export default function CommunityImpactScreen({
           <p className="text-xs mb-3" style={{ color: "var(--color-label)" }}>
             {t("community_impact.needs_hint")}
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
             {NEEDS_OPTIONS.map((opt) => {
               const selected = needs.includes(opt.value);
               const maxReached = needs.length >= 3 && !selected;
@@ -184,9 +187,10 @@ export default function CommunityImpactScreen({
                   type="button"
                   disabled={maxReached}
                   onClick={() => toggleNeed(opt.value)}
-                  className="px-4 rounded-full border text-xs font-medium transition-all active:scale-95"
-                  style={chipStyle(selected, maxReached)}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-all active:scale-[0.99]"
+                  style={rowStyle(selected, maxReached)}
                 >
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: selected ? "var(--color-primary)" : "var(--color-label)", flexShrink: 0 }} />
                   {opt.label}
                 </button>
               );
