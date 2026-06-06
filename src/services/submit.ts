@@ -94,10 +94,12 @@ const DAMAGE_LEVEL_MAP: Record<string, string> = {
 function isMissingColumnError(err: unknown): boolean {
   if (!err || typeof err !== "object") return false;
   const e = err as Record<string, unknown>;
-  // PostgreSQL error code 42703 = undefined_column
+  // PGRST204 = PostgREST "column not found in schema cache" (migration not yet applied)
+  if (e.code === "PGRST204") return true;
+  // PostgreSQL 42703 = undefined_column (fallback)
   if (e.code === "42703") return true;
   const msg = String(e.message ?? "").toLowerCase();
-  return msg.includes("column") && msg.includes("does not exist");
+  return msg.includes("could not find") && msg.includes("column");
 }
 
 export async function submitObservation(input: ObservationInput): Promise<SubmitResult> {
