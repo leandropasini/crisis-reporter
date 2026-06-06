@@ -10,7 +10,6 @@ export type CrisisMode = (typeof CrisisMode)[keyof typeof CrisisMode];
 export const DamageLevel = {
   MINIMAL:  "minimal",
   PARTIAL:  "partial",
-  SEVERE:   "severe",
   COMPLETE: "complete",
 } as const;
 export type DamageLevel = (typeof DamageLevel)[keyof typeof DamageLevel];
@@ -75,7 +74,10 @@ export type CrisisStatus = (typeof CrisisStatus)[keyof typeof CrisisStatus];
 
 export type DisasterType =
   | "flood" | "earthquake" | "hurricane"
-  | "landslide" | "fire" | "drought" | "generic";
+  | "landslide" | "fire" | "drought"
+  | "tsunami" | "conflict" | "civil_unrest"
+  | "explosion" | "chemical_incident"
+  | "generic";
 
 export const UnLanguage = {
   AR: "ar",
