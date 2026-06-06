@@ -181,7 +181,7 @@ export default function LocationScreen({
       }}
     >
       {/* Header */}
-      <div style={{ flexShrink: 0, padding: "16px 20px 12px" }}>
+      <div style={{ flexShrink: 0, padding: "16px 20px 12px", position: "relative", zIndex: 1001 }}>
         <ProgressBar pct={pct} />
         <div
           style={{

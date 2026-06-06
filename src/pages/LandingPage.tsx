@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconPlayerPlay, IconDeviceMobile } from "@tabler/icons-react";
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div
@@ -21,10 +23,10 @@ export default function LandingPage() {
       {/* Title block */}
       <div style={{ textAlign: "center" }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--cr-text)", margin: 0 }}>
-          UN Crisis Reporter
+          {t("landing.title")}
         </h1>
         <p style={{ fontSize: 15, color: "var(--cr-label)", marginTop: 8 }}>
-          Damage & crisis reporting
+          {t("landing.subtitle")}
         </p>
       </div>
 
@@ -78,10 +80,10 @@ export default function LandingPage() {
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)", margin: 0 }}>
-              Watch the Demo
+              {t("landing.demo_title")}
             </p>
             <p style={{ fontSize: 13, color: "var(--cr-label)", marginTop: 3 }}>
-              Porto Alegre · RS Floods 2024
+              {t("landing.demo_subtitle")}
             </p>
           </div>
         </button>
@@ -125,10 +127,10 @@ export default function LandingPage() {
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontSize: 17, fontWeight: 700, color: "var(--cr-text)", margin: 0 }}>
-              Try the App
+              {t("landing.live_title")}
             </p>
             <p style={{ fontSize: 13, color: "var(--cr-label)", marginTop: 3 }}>
-              Test with your real location
+              {t("landing.live_subtitle")}
             </p>
           </div>
         </button>
@@ -143,7 +145,7 @@ export default function LandingPage() {
           margin: 0,
         }}
       >
-        Built for UNDP · Crisis Mapping Challenge 2024
+        {t("landing.footer")}
       </p>
     </div>
   );

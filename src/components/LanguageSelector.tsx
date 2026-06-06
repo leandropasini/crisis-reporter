@@ -4,11 +4,12 @@ import { IconWorld } from "@tabler/icons-react";
 
 const LANGUAGES = [
   { code: "en", label: "EN" },
+  { code: "pt", label: "PT" },
+  { code: "es", label: "ES" },
+  { code: "fr", label: "FR" },
   { code: "ar", label: "AR" },
   { code: "zh", label: "ZH" },
-  { code: "fr", label: "FR" },
   { code: "ru", label: "RU" },
-  { code: "es", label: "ES" },
 ];
 
 interface Props {
@@ -111,7 +112,7 @@ export default function LanguageSelector({ variant = "fixed" }: Props) {
 
   if (variant === "inline") {
     return (
-      <div ref={menuRef} style={{ position: "relative", zIndex: 200 }}>
+      <div ref={menuRef} style={{ position: "relative", zIndex: 1001 }}>
         {trigger}
         {dropdown}
       </div>
