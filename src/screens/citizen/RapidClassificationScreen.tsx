@@ -8,8 +8,7 @@ import {
 import type { IconProps } from "@tabler/icons-react";
 import LanguageSelector from "../../components/LanguageSelector";
 import BottomNav from "../../components/BottomNav";
-import type { InfrastructureType, DisasterType } from "../../types/schema";
-import { DISASTER_DAMAGE_OPTIONS } from "../../constants/disasterDamage";
+import type { InfrastructureType } from "../../types/schema";
 
 export interface RapidClassificationData {
   damageLevel: string;
@@ -17,8 +16,13 @@ export interface RapidClassificationData {
   infrastructureType: InfrastructureType;
 }
 
+const DAMAGE_OPTIONS = [
+  { value: "minimal",            tKey: "damage.minimal",            color: "#22C55E", description: "Cracks in plaster, broken windows"   },
+  { value: "partially_damaged",  tKey: "damage.partially_damaged",  color: "#E8823A", description: "Large wall cracks, partial roof loss" },
+  { value: "completely_damaged", tKey: "damage.completely_damaged", color: "#EF4444", description: "Collapsed or uninhabitable"           },
+];
+
 interface Props {
-  disasterType: DisasterType;
   onConfirm: (data: RapidClassificationData) => void;
   onBack: () => void;
   onGoHome?: () => void;
@@ -33,12 +37,6 @@ function ProgressBar({ pct }: { pct: number }) {
   );
 }
 
-const DISPLAY_COLORS: Record<string, string> = {
-  minimal:  "#22C55E",
-  partial:  "#E8823A",
-  severe:   "#F59E0B",
-  complete: "#EF4444",
-};
 
 const INFRA_OPTIONS: {
   value: InfrastructureType;
@@ -55,7 +53,7 @@ const INFRA_OPTIONS: {
   { value: "other",             label: "Other",       Icon: IconDots },
 ];
 
-export default function RapidClassificationScreen({ disasterType, onConfirm, onBack, onGoHome, onGoMap }: Props) {
+export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome, onGoMap }: Props) {
   const { t } = useTranslation();
   const [damageLevel, setDamage] = useState<string | null>(null);
   const [infraType, setInfra]    = useState<InfrastructureType | null>(null);
@@ -64,10 +62,10 @@ export default function RapidClassificationScreen({ disasterType, onConfirm, onB
 
   function handleConfirm() {
     if (!damageLevel || !infraType) return;
-    const selectedOption = DISASTER_DAMAGE_OPTIONS[disasterType].find((o) => o.value === damageLevel);
+    const selectedOption = DAMAGE_OPTIONS.find((o) => o.value === damageLevel);
     onConfirm({
       damageLevel,
-      damageLevelLabel: selectedOption?.label ?? damageLevel,
+      damageLevelLabel: selectedOption ? t(selectedOption.tKey) : damageLevel,
       infrastructureType: infraType,
     });
   }
@@ -126,9 +124,9 @@ export default function RapidClassificationScreen({ disasterType, onConfirm, onB
             {t("classification.damage_section")}
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {DISASTER_DAMAGE_OPTIONS[disasterType].map((opt) => {
+            {DAMAGE_OPTIONS.map((opt) => {
               const sel = damageLevel === opt.value;
-              const color = DISPLAY_COLORS[opt.displayLevel] ?? "#E8823A";
+              const color = opt.color;
               return (
                 <button
                   key={opt.value}
@@ -150,7 +148,7 @@ export default function RapidClassificationScreen({ disasterType, onConfirm, onB
                   <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0, marginTop: 5 }} />
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: 16, fontWeight: 600, color: "var(--cr-text)", marginBottom: 2 }}>
-                      {opt.label}
+                      {t(opt.tKey)}
                     </p>
                     <p style={{ fontSize: 13, color: "var(--cr-label)" }}>{opt.description}</p>
                   </div>

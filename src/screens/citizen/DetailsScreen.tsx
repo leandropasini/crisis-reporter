@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import LanguageSelector from "../../components/LanguageSelector";
 import type { ModularFields } from "../../types/schema";
 
 export interface DetailsData {
@@ -10,6 +11,7 @@ export interface DetailsData {
 
 interface Props {
   modularFieldsEnabled?: boolean;
+  initialName?: string;
   onConfirm: (data: DetailsData) => void;
   onBack: () => void;
   modeLabel?: string;
@@ -117,9 +119,9 @@ function MultiSelect({
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
+export default function DetailsScreen({ modularFieldsEnabled = false, initialName, onConfirm, onBack, modeLabel, totalSteps = 5 }: Props) {
   const { t } = useTranslation();
-  const [name, setName]         = useState("");
+  const [name, setName]         = useState(initialName ?? "");
   const [description, setDesc]  = useState("");
   const [electricity, setElec]  = useState<ElectricityCondition | undefined>();
   const [health, setHealth]     = useState<HealthServices | undefined>();
@@ -173,11 +175,14 @@ export default function DetailsScreen({ modularFieldsEnabled = false, onConfirm,
     <div className="flex flex-col h-screen bg-surface text-text-primary">
 
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
+      <div className="px-4 pt-4 pb-3 space-y-3 flex-none" style={{ position: "relative", zIndex: 100 }}>
         <ProgressBar step={4} total={totalSteps} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">
-          {modeLabel ? `${modeLabel} — STEP 4 OF ${totalSteps}` : t("details.step")}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-text-muted tracking-widest uppercase">
+            {modeLabel ? `${modeLabel} — STEP 4 OF ${totalSteps}` : t("details.step")}
+          </p>
+          <LanguageSelector variant="inline" />
+        </div>
       </div>
 
       {/* Scrollable body */}

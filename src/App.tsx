@@ -12,7 +12,6 @@ import DashboardScreen from "./screens/agent/DashboardScreen";
 import CommunityMapScreen from "./screens/CommunityMapScreen";
 import DemoWelcomeScreen from "./screens/DemoWelcomeScreen";
 import CrisisSetupScreen from "./screens/agent/CrisisSetupScreen";
-import LanguageSelector from "./components/LanguageSelector";
 import { CrisisModeProvider, useCrisisMode, MODE_META } from "./contexts/CrisisModeContext";
 import type { ObservationInput } from "./types/observation";
 import type { DisasterType } from "./types/schema";
@@ -77,6 +76,7 @@ function AppInner({ mode }: Props) {
       return;
     }
     async function checkActiveCrisis() {
+      console.log('[SW-DEBUG] checking active crisis...');
       try {
         const { data } = await db
           .from("crises")
@@ -84,6 +84,7 @@ function AppInner({ mode }: Props) {
           .eq("status", "active")
           .limit(1)
           .maybeSingle() as { data: { id: string } | null };
+        console.log('[SW-DEBUG] result:', data);
         setLiveCrisisId(data?.id ?? null);
       } catch {
         // leave liveCrisisId as null → show setup screen
@@ -183,6 +184,7 @@ function AppInner({ mode }: Props) {
         onGoHome={() => setAppMode("index")}
         onGoMap={() => setAppMode("map")}
         isDemo={isDemo}
+        onEndCrisis={() => setLiveCrisisId(null)}
       />
     );
   }
@@ -190,17 +192,14 @@ function AppInner({ mode }: Props) {
   // ── Community map ─────────────────────────────────────────────────────────────
   if (appMode === "map") {
     return (
-      <>
-        <LanguageSelector variant="fixed" />
-        <CommunityMapScreen
-          crisisId={effectiveCrisisId}
-          isDemo={isDemo}
-          refreshKey={confirmed?.id}
-          onBack={() => setAppMode("index")}
-          onGoHome={() => setAppMode("index")}
-          onGoReport={startCitizenFlow}
-        />
-      </>
+      <CommunityMapScreen
+        crisisId={effectiveCrisisId}
+        isDemo={isDemo}
+        refreshKey={confirmed?.id}
+        onBack={() => setAppMode("index")}
+        onGoHome={() => setAppMode("index")}
+        onGoReport={startCitizenFlow}
+      />
     );
   }
 
@@ -306,7 +305,6 @@ function AppInner({ mode }: Props) {
 
       {step === "rapid-classification" && (
         <RapidClassificationScreen
-          disasterType={disasterType}
           onConfirm={handleRapidConfirm}
           onBack={() => setStep("location")}
           {...navProps}
@@ -314,29 +312,24 @@ function AppInner({ mode }: Props) {
       )}
 
       {step === "classification" && (
-        <>
-          <LanguageSelector variant="fixed" />
-          <ClassificationScreen
-            disasterType={disasterType}
-            onConfirm={handleClassificationConfirm}
-            onBack={() => setStep("location")}
-            modeLabel={ml}
-            totalSteps={ts}
-          />
-        </>
+        <ClassificationScreen
+          disasterType={disasterType}
+          onConfirm={handleClassificationConfirm}
+          onBack={() => setStep("location")}
+          modeLabel={ml}
+          totalSteps={ts}
+        />
       )}
 
       {step === "details" && (
-        <>
-          <LanguageSelector variant="fixed" />
-          <DetailsScreen
-            modularFieldsEnabled={crisisMode === "contextual"}
-            onConfirm={handleDetailsConfirm}
-            onBack={() => setStep("classification")}
-            modeLabel={ml}
-            totalSteps={ts}
-          />
-        </>
+        <DetailsScreen
+          modularFieldsEnabled={crisisMode === "contextual"}
+          initialName={classificationData?.infrastructureName}
+          onConfirm={handleDetailsConfirm}
+          onBack={() => setStep("classification")}
+          modeLabel={ml}
+          totalSteps={ts}
+        />
       )}
 
       {step === "review" && observationInput && (

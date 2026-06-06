@@ -52,41 +52,43 @@ const DAMAGE_LEVEL_MAP: Record<string, string> = {
   // Flood
   flood_partial:    "partial",
   flood_full:       "complete",
-  flood_structural: "severe",
-  flood_erosion:    "severe",
+  flood_structural: "complete",
+  flood_erosion:    "complete",
   flood_complete:   "complete",
   // Earthquake
   eq_hairline:     "minimal",
   eq_structural:   "partial",
-  eq_partial:      "severe",
+  eq_partial:      "complete",
   eq_complete:     "complete",
-  eq_liquefaction: "severe",
+  eq_liquefaction: "complete",
   // Hurricane
   hur_roof_partial: "partial",
-  hur_roof_full:    "severe",
+  hur_roof_full:    "complete",
   hur_facade:       "partial",
-  hur_structural:   "severe",
+  hur_structural:   "complete",
   hur_complete:     "complete",
   // Landslide
   ls_partial:    "partial",
-  ls_foundation: "severe",
+  ls_foundation: "complete",
   ls_access:     "minimal",
   ls_complete:   "complete",
   // Fire
   fire_smoke:    "minimal",
   fire_partial:  "partial",
-  fire_major:    "severe",
+  fire_major:    "complete",
   fire_complete: "complete",
   // Drought
   dr_cracking: "partial",
   dr_water:    "partial",
-  dr_health:   "severe",
+  dr_health:   "complete",
   dr_access:   "minimal",
-  // Generic / already valid
-  minimal:  "minimal",
-  partial:  "partial",
-  severe:   "severe",
-  complete: "complete",
+  // Generic / already valid (backward compat for queued items)
+  minimal:            "minimal",
+  partial:            "partial",
+  severe:             "complete",
+  complete:           "complete",
+  partially_damaged:  "partial",
+  completely_damaged: "complete",
 };
 
 export async function submitObservation(input: ObservationInput): Promise<SubmitResult> {
@@ -159,6 +161,10 @@ export async function submitObservation(input: ObservationInput): Promise<Submit
     return { success: true, queued: false, id: localId };
   } catch (err) {
     console.error("[crisis-reporter] LOG4 branch=QUEUE reason:", err);
+    if (input.isDemo) {
+      console.log("[crisis-reporter] LOG4 demo mode — skipping queue, synthetic success");
+      return { success: true, queued: false, id: localId };
+    }
     try {
       await queue.enqueue(input);
     } catch {

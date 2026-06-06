@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import LanguageSelector from "../../components/LanguageSelector";
 import {
   InfrastructureType, CrisisNature, CrisisSubtype,
 } from "../../types/schema";
@@ -11,6 +12,7 @@ export interface ClassificationData {
   damageLevelLabel: string;
   infrastructureType: InfrastructureType;
   infrastructureTypeOther?: string;
+  infrastructureName?: string;
   crisisNature: CrisisNature;
   crisisSubtype: CrisisSubtype;
   debrisClearingNeeded: boolean;
@@ -119,6 +121,7 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
   const [damageCategory, setDamageCategory] = useState<string | null>(null);
   const [infraType, setInfraType] = useState<InfrastructureType | null>(null);
   const [infraOther, setInfraOther] = useState("");
+  const [infraName, setInfraName] = useState("");
   const [subtype, setSubtype] = useState<CrisisSubtype | null>(defaultSubtype ?? null);
   const [debrisNeeded, setDebrisNeeded] = useState<boolean>(false);
 
@@ -143,6 +146,7 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
         : (damageCategory ?? damageLevel),
       infrastructureType: infraType,
       infrastructureTypeOther: infraType === "other" ? infraOther.trim() : undefined,
+      infrastructureName: infraName.trim() || undefined,
       crisisNature,
       crisisSubtype: subtype,
       debrisClearingNeeded: debrisNeeded,
@@ -191,11 +195,14 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
     <div className="flex flex-col h-screen bg-surface text-text-primary">
 
       {/* Header — fixed */}
-      <div className="px-4 pt-4 pb-3 space-y-3 flex-none">
+      <div className="px-4 pt-4 pb-3 space-y-3 flex-none" style={{ position: "relative", zIndex: 100 }}>
         <ProgressBar step={3} total={totalSteps} />
-        <p className="text-xs text-text-muted text-center tracking-widest uppercase">
-          {modeLabel ? `${modeLabel} — STEP 3 OF ${totalSteps}` : t("classification.step")}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-text-muted tracking-widest uppercase">
+            {modeLabel ? `${modeLabel} — STEP 3 OF ${totalSteps}` : t("classification.step")}
+          </p>
+          <LanguageSelector variant="inline" />
+        </div>
       </div>
 
       {/* Scrollable body */}
@@ -253,7 +260,7 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
                   <span style={{ width: 10, height: 10, borderRadius: "50%", background: opt.color, flexShrink: 0, marginTop: 5 }} />
                   <div style={{ flex: 1, textAlign: "left" }}>
                     <p className="text-sm font-semibold" style={{ color: selected ? opt.color : "var(--color-value)" }}>
-                      {t(`classification.severity_${opt.value}`, opt.label)}
+                      {t(`damage.${opt.value}`)}
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--color-label)" }}>
                       {opt.description}
@@ -312,6 +319,18 @@ export default function ClassificationScreen({ disasterType, defaultSubtype, onC
               className="mt-3 w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors"
             />
           )}
+        </section>
+
+        {/* ── Infrastructure name (optional) ── */}
+        <section>
+          <SectionLabel>{t("classification.infra_name_section")}</SectionLabel>
+          <input
+            type="text"
+            value={infraName}
+            onChange={(e) => setInfraName(e.target.value)}
+            placeholder={t("classification.infra_name_placeholder")}
+            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors"
+          />
         </section>
 
         {/* ── Crisis type ── */}
