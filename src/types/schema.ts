@@ -42,6 +42,8 @@ export const CrisisSubtype = {
   FLOOD:             "flood",
   TSUNAMI:           "tsunami",
   HURRICANE_CYCLONE: "hurricane_cyclone",
+  LANDSLIDE:         "landslide",
+  DROUGHT:           "drought",
   WILDFIRE:          "wildfire",
   EXPLOSION:         "explosion",
   CHEMICAL_INCIDENT: "chemical_incident",
