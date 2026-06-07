@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { useTranslation } from "react-i18next";
+import { IconBolt, IconActivityHeartbeat, IconAlertTriangle, IconChevronUp, IconChevronDown } from "@tabler/icons-react";
+import type { IconProps } from "@tabler/icons-react";
 import LanguageSelector from "../../components/LanguageSelector";
 
 export interface CommunityImpactData {
@@ -86,7 +88,7 @@ function pillStyle(selected: boolean, disabled: boolean) {
 }
 
 interface AccordionSectionProps {
-  icon: string;
+  Icon: ComponentType<IconProps>;
   title: string;
   isOpen: boolean;
   hasSelection: boolean;
@@ -94,7 +96,7 @@ interface AccordionSectionProps {
   children: React.ReactNode;
 }
 
-function AccordionSection({ icon, title, isOpen, hasSelection, onToggle, children }: AccordionSectionProps) {
+function AccordionSection({ Icon, title, isOpen, hasSelection, onToggle, children }: AccordionSectionProps) {
   return (
     <div className="rounded-2xl overflow-hidden border" style={{ borderColor: "var(--color-border)" }}>
       <button
@@ -108,7 +110,7 @@ function AccordionSection({ icon, title, isOpen, hasSelection, onToggle, childre
             : "var(--color-surface-2)",
         }}
       >
-        <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+        <Icon size={18} style={{ color: "var(--color-label)", flexShrink: 0 }} />
         <span
           className="flex-1 text-sm font-semibold text-left"
           style={{ color: hasSelection ? ORANGE : "var(--color-value)" }}
@@ -118,7 +120,9 @@ function AccordionSection({ icon, title, isOpen, hasSelection, onToggle, childre
         {hasSelection && (
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: ORANGE, flexShrink: 0 }} />
         )}
-        <span style={{ color: "var(--color-label)", fontSize: 15, flexShrink: 0 }}>{isOpen ? "↑" : "↓"}</span>
+        {isOpen
+          ? <IconChevronUp size={18} style={{ color: "var(--color-label)", flexShrink: 0 }} />
+          : <IconChevronDown size={18} style={{ color: "var(--color-label)", flexShrink: 0 }} />}
       </button>
       <div style={{ display: "grid", gridTemplateRows: isOpen ? "1fr" : "0fr", transition: "grid-template-rows 200ms ease" }}>
         <div style={{ overflow: "hidden", minHeight: 0 }}>
@@ -215,7 +219,7 @@ export default function CommunityImpactScreen({
       <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-3">
 
         <AccordionSection
-          icon="⚡"
+          Icon={IconBolt}
           title={t("community_impact.electricity_section")}
           isOpen={openSection === 0}
           hasSelection={electricity !== undefined}
@@ -239,7 +243,7 @@ export default function CommunityImpactScreen({
         </AccordionSection>
 
         <AccordionSection
-          icon="🏥"
+          Icon={IconActivityHeartbeat}
           title={t("community_impact.health_section")}
           isOpen={openSection === 1}
           hasSelection={health !== undefined}
@@ -263,7 +267,7 @@ export default function CommunityImpactScreen({
         </AccordionSection>
 
         <AccordionSection
-          icon="🆘"
+          Icon={IconAlertTriangle}
           title={t("community_impact.needs_section")}
           isOpen={openSection === 2}
           hasSelection={needs.length > 0}
@@ -317,7 +321,7 @@ export default function CommunityImpactScreen({
           className="w-full rounded-xl text-white text-sm font-semibold active:opacity-80 transition-opacity"
           style={{ minHeight: "var(--min-touch)", backgroundColor: ORANGE }}
         >
-          {t("common.next")} →
+          {t("common.next")}
         </button>
       </div>
     </div>
