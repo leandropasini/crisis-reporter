@@ -7,7 +7,12 @@ export interface BoundingBox {
   east: number;
 }
 
-const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+// The public overpass-api.de load balancer frequently returns 406/429/504
+// under normal load — lz4 is the same project's mirror, tried as fallback.
+const OVERPASS_URLS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://lz4.overpass-api.de/api/interpreter",
+];
 const FETCH_TIMEOUT_MS = 15_000;
 
 interface OverpassGeometryPoint {
@@ -44,22 +49,17 @@ function wayToFeature(way: OverpassWay): Feature | null {
   };
 }
 
-export async function fetchBuildingFootprints(bbox: BoundingBox): Promise<FeatureCollection> {
-  const query =
-    `[out:json][timeout:10];\n` +
-    `way["building"](${bbox.south},${bbox.west},${bbox.north},${bbox.east});\n` +
-    `out body geom;`;
-
+async function queryEndpoint(url: string, query: string): Promise<FeatureCollection | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
   try {
-    const res = await fetch(OVERPASS_URL, {
+    const res = await fetch(url, {
       method: "POST",
       body: query,
       signal: controller.signal,
     });
-    if (!res.ok) return EMPTY;
+    if (!res.ok) return null;
 
     const json = (await res.json()) as OverpassResponse;
     const features = (json.elements ?? [])
@@ -69,8 +69,21 @@ export async function fetchBuildingFootprints(bbox: BoundingBox): Promise<Featur
 
     return { type: "FeatureCollection", features };
   } catch {
-    return EMPTY;
+    return null;
   } finally {
     clearTimeout(timer);
   }
+}
+
+export async function fetchBuildingFootprints(bbox: BoundingBox): Promise<FeatureCollection> {
+  const query =
+    `[out:json][timeout:10];\n` +
+    `way["building"](${bbox.south},${bbox.west},${bbox.north},${bbox.east});\n` +
+    `out body geom;`;
+
+  for (const url of OVERPASS_URLS) {
+    const result = await queryEndpoint(url, query);
+    if (result) return result;
+  }
+  return EMPTY;
 }

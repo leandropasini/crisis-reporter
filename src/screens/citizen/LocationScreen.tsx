@@ -139,6 +139,7 @@ export default function LocationScreen({
   }, [demoMode]);
 
   useEffect(() => {
+    console.log('[FOOTPRINTS] crisisId:', crisisId);
     if (demoMode || !crisisId) return;
 
     let cancelled = false;
@@ -152,6 +153,8 @@ export default function LocationScreen({
           .eq("id", crisisId)
           .single() as { data: { bbox_sw_lat: number | null; bbox_sw_lng: number | null } | null };
 
+        console.log('[FOOTPRINTS] bbox fetch result:', data);
+
         const lat = data?.bbox_sw_lat;
         const lng = data?.bbox_sw_lng;
         const hasCoords = lat != null && lng != null && !(lat === 0 && lng === 0);
@@ -163,6 +166,7 @@ export default function LocationScreen({
           west:  lng! - 0.01,
           east:  lng! + 0.01,
         });
+        console.log('[FOOTPRINTS] fetchBuildingFootprints result:', fc.features.length, 'features');
         if (!cancelled) setFootprints(fc);
       } catch {
         // map works without footprints
