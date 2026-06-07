@@ -468,6 +468,13 @@ export default function DashboardScreen({
 
   const filtered = applyQuickFilter(observations);
 
+  const selectedGroup = selectedObs
+    ? observations.filter((o) => o.lat === selectedObs.lat && o.lng === selectedObs.lng)
+    : null;
+  const selectedIndex = selectedObs && selectedGroup
+    ? Math.max(0, selectedGroup.findIndex((o) => o.id === selectedObs.id))
+    : 0;
+
   const totalCount    = observations.length;
   const criticalCount = observations.filter(
     (o) => (o.damage_level as string) === "complete" || (o.damage_level as string) === "severe" || o.damage_level === "partial"
@@ -828,8 +835,13 @@ export default function DashboardScreen({
         </div>
         <div style={{ flex: 1, overflowY: "auto", position: "relative" }}>
           {content}
-          {selectedObs && (
-            <ObservationDetail observation={selectedObs} onClose={() => setSelectedObs(null)} />
+          {selectedObs && selectedGroup && (
+            <ObservationDetail
+              key={selectedObs.id}
+              observations={selectedGroup}
+              initialIndex={selectedIndex}
+              onClose={() => setSelectedObs(null)}
+            />
           )}
         </div>
         <BottomNav active="map" onHome={onGoHome} onMap={onGoMap} />
@@ -927,8 +939,13 @@ export default function DashboardScreen({
               <HeatmapLayer points={filtered} />
             )}
           </MapContainer>
-          {selectedObs && (
-            <ObservationDetail observation={selectedObs} onClose={() => setSelectedObs(null)} />
+          {selectedObs && selectedGroup && (
+            <ObservationDetail
+              key={selectedObs.id}
+              observations={selectedGroup}
+              initialIndex={selectedIndex}
+              onClose={() => setSelectedObs(null)}
+            />
           )}
         </main>
       </div>

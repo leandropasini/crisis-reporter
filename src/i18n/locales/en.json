@@ -261,6 +261,7 @@
   "observation": {
     "conf": "{{confidence}}% conf.",
     "photo_alt": "Observation photo",
+    "report_counter": "Report {{current}} of {{total}}",
     "version_badge": "v{{n}}",
     "label_type": "Type",
     "label_source": "Source",

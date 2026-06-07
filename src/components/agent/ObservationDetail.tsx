@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import type { MappedObservation } from "../map/ClusterLayer";
 
 const DAMAGE_COLOR: Record<string, string> = {
@@ -43,9 +45,9 @@ function Row({ label: lbl, children }: { label: string; children: React.ReactNod
 
 function TagRow({ label: lbl, tags }: { label: string; tags: string[] }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, padding: "9px 0", borderBottom: "1px solid var(--color-border)" }}>
-      <span style={{ fontSize: 11, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", flexShrink: 0 }}>{lbl}</span>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "flex-end" }}>
+    <div style={{ padding: "9px 0", borderBottom: "1px solid var(--color-border)" }}>
+      <span style={{ display: "block", fontSize: 11, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{lbl}</span>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
         {tags.map((tag, i) => (
           <span key={i} style={{
             padding: "2px 9px",
@@ -55,7 +57,8 @@ function TagRow({ label: lbl, tags }: { label: string; tags: string[] }) {
             background: "var(--color-surface-2)",
             color: "var(--color-text-secondary)",
             border: "1px solid var(--color-border)",
-            whiteSpace: "nowrap",
+            maxWidth: "100%",
+            overflowWrap: "break-word",
           }}>
             {tag}
           </span>
@@ -68,12 +71,20 @@ function TagRow({ label: lbl, tags }: { label: string; tags: string[] }) {
 // ── Main component ─────────────────────────────────────────────────────────────
 
 interface Props {
-  observation: MappedObservation;
+  observations: MappedObservation[];
+  initialIndex?: number;
   onClose: () => void;
 }
 
-export default function ObservationDetail({ observation: obs, onClose }: Props) {
+export default function ObservationDetail({ observations, initialIndex = 0, onClose }: Props) {
   const { t, i18n } = useTranslation();
+  const [index, setIndex] = useState(initialIndex);
+
+  const obs = observations[index];
+  const hasMultiple = observations.length > 1;
+
+  function goPrev() { setIndex((i) => (i - 1 + observations.length) % observations.length); }
+  function goNext() { setIndex((i) => (i + 1) % observations.length); }
 
   const hasModular = obs.modular_fields && Object.values(obs.modular_fields).some((v) =>
     v !== null && v !== undefined && (Array.isArray(v) ? v.length > 0 : true)
@@ -103,7 +114,26 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
       isolation: "isolate",
     }}>
       {/* Header */}
-      <div style={{ flexShrink: 0, height: 56, background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "0 12px" }}>
+      <div style={{ flexShrink: 0, height: 56, background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: hasMultiple ? "space-between" : "flex-end", padding: "0 12px" }}>
+        {hasMultiple && (
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <button
+              type="button"
+              onClick={goPrev}
+              aria-label="Previous report"
+              style={{ display: "flex", background: "none", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: 4 }}
+            ><IconChevronLeft size={18} /></button>
+            <span style={{ fontSize: 11, color: "var(--color-text-muted)", whiteSpace: "nowrap" }}>
+              {t("observation.report_counter", { current: index + 1, total: observations.length })}
+            </span>
+            <button
+              type="button"
+              onClick={goNext}
+              aria-label="Next report"
+              style={{ display: "flex", background: "none", border: "none", color: "var(--color-text-muted)", cursor: "pointer", padding: 4 }}
+            ><IconChevronRight size={18} /></button>
+          </div>
+        )}
         <button
           type="button"
           onClick={onClose}

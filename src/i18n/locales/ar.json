@@ -261,6 +261,7 @@
   "observation": {
     "conf": "ثقة {{confidence}}%",
     "photo_alt": "صورة الملاحظة",
+    "report_counter": "تقرير {{current}} من {{total}}",
     "version_badge": "ن{{n}}",
     "label_type": "النوع",
     "label_source": "المصدر",

@@ -261,6 +261,7 @@
   "observation": {
     "conf": "置信度 {{confidence}}%",
     "photo_alt": "观测照片",
+    "report_counter": "报告 {{current}} / {{total}}",
     "version_badge": "v{{n}}",
     "label_type": "类型",
     "label_source": "来源",
