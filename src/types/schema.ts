@@ -93,7 +93,7 @@ export type UnLanguage = (typeof UnLanguage)[keyof typeof UnLanguage];
 
 // modular_fields JSONB shape (Appendix 1 do edital)
 export interface ModularFields {
-  electricity_condition?: "no_damage" | "minor_damage" | "moderate_damage" | "severe_damage" | "destroyed" | "unknown";
-  health_services?: "fully_functional" | "partially_functional" | "largely_disrupted" | "not_functioning" | "unknown";
-  pressing_needs?: Array<"food_water" | "cash" | "healthcare" | "shelter" | "livelihoods" | "wash" | "basic_services" | "protection" | "local_support" | "other">;
+  electricity_condition?: "no_damage" | "minor_damage" | "moderate_damage" | "severe_damage" | "no_service";
+  health_services?: "fully_functional" | "partially_functional" | "not_functional" | "unknown";
+  pressing_needs?: Array<"food" | "water" | "medical_care" | "shelter" | "electricity" | "sanitation" | "communication" | "transport" | "other">;
 }
