@@ -74,6 +74,8 @@ export default function LocationScreen({
   const { t } = useTranslation();
   const [footprints, setFootprints] = useState<FeatureCollection | null>(null);
   const [footprintsLoading, setFootprintsLoading] = useState(false);
+  const [debugBbox, setDebugBbox] = useState<string>("");
+  const [debugError, setDebugError] = useState<string>("");
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>(demoMode ? "ok" : "loading");
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(
     demoMode ? { lat: trunc(POA_CENTER[0]), lng: trunc(POA_CENTER[1]) } : null
@@ -146,30 +148,36 @@ export default function LocationScreen({
 
     async function loadFootprints() {
       setFootprintsLoading(true);
+      setDebugError("");
       try {
-        const { data } = await db
+        const { data, error: dbError } = await db
           .from("crises")
           .select("bbox_sw_lat, bbox_sw_lng")
           .eq("id", crisisId)
-          .single() as { data: { bbox_sw_lat: number | null; bbox_sw_lng: number | null } | null };
+          .single() as { data: { bbox_sw_lat: number | null; bbox_sw_lng: number | null } | null; error: { message: string } | null };
 
         console.log('[FOOTPRINTS] bbox fetch result:', data);
+        if (dbError) { setDebugError(`db: ${dbError.message}`); return; }
 
         const lat = data?.bbox_sw_lat;
         const lng = data?.bbox_sw_lng;
         const hasCoords = lat != null && lng != null && !(lat === 0 && lng === 0);
-        if (!hasCoords) return;
+        if (!hasCoords) { setDebugError("no crisis coords"); return; }
 
-        const fc = await fetchBuildingFootprints({
+        const bbox = {
           south: lat! - 0.01,
           north: lat! + 0.01,
           west:  lng! - 0.01,
           east:  lng! + 0.01,
-        }, crisisId);
+        };
+        setDebugBbox(`${bbox.south.toFixed(4)},${bbox.west.toFixed(4)},${bbox.north.toFixed(4)},${bbox.east.toFixed(4)}`);
+
+        const fc = await fetchBuildingFootprints(bbox, crisisId);
         console.log('[FOOTPRINTS] fetchBuildingFootprints result:', fc.features.length, 'features');
+        if (fc.features.length === 0) setDebugError("0 features returned (fetch failed or empty area)");
         if (!cancelled) setFootprints(fc);
-      } catch {
-        // map works without footprints
+      } catch (e) {
+        setDebugError(e instanceof Error ? e.message : String(e));
       } finally {
         if (!cancelled) setFootprintsLoading(false);
       }
@@ -276,6 +284,17 @@ export default function LocationScreen({
           />
         </div>
       </div>
+
+      {/* TEMP DEBUG — remove after footprints fix confirmed */}
+      {!demoMode && (
+        <div style={{ flexShrink: 0, padding: "6px 20px", fontSize: 11, fontFamily: "monospace", color: "var(--cr-label)", whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+          crisisId: {crisisId || "(none)"}{"\n"}
+          bbox: {debugBbox || "(none)"}{"\n"}
+          features: {footprints?.features.length ?? "(none)"}{"\n"}
+          loading: {String(footprintsLoading)}{"\n"}
+          error: {debugError || "(none)"}
+        </div>
+      )}
 
       {/* Building banner */}
       {selectedBuilding && (
