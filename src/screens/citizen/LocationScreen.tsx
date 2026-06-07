@@ -165,7 +165,7 @@ export default function LocationScreen({
           north: lat! + 0.01,
           west:  lng! - 0.01,
           east:  lng! + 0.01,
-        });
+        }, crisisId);
         console.log('[FOOTPRINTS] fetchBuildingFootprints result:', fc.features.length, 'features');
         if (!cancelled) setFootprints(fc);
       } catch {

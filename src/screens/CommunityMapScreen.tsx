@@ -110,7 +110,7 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
                 north: lat! + 0.01,
                 west:  lng! - 0.01,
                 east:  lng! + 0.01,
-              });
+              }, crisisId);
               if (!cancelled) setFootprints(fc);
             } finally {
               if (!cancelled) setFootprintsLoading(false);

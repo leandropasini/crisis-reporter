@@ -33,6 +33,8 @@ interface OverpassResponse {
 
 const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
 
+const cache = new Map<string, FeatureCollection>();
+
 function wayToFeature(way: OverpassWay): Feature | null {
   if (!way.geometry || way.geometry.length < 3) return null;
 
@@ -75,15 +77,20 @@ async function queryEndpoint(url: string, query: string): Promise<FeatureCollect
   }
 }
 
-export async function fetchBuildingFootprints(bbox: BoundingBox): Promise<FeatureCollection> {
+export async function fetchBuildingFootprints(bbox: BoundingBox, crisisId?: string): Promise<FeatureCollection> {
+  if (crisisId && cache.has(crisisId)) return cache.get(crisisId)!;
+
   const query =
     `[out:json][timeout:10];\n` +
     `way["building"](${bbox.south},${bbox.west},${bbox.north},${bbox.east});\n` +
     `out body geom;`;
 
+  let result: FeatureCollection = EMPTY;
   for (const url of OVERPASS_URLS) {
-    const result = await queryEndpoint(url, query);
-    if (result) return result;
+    const r = await queryEndpoint(url, query);
+    if (r) { result = r; break; }
   }
-  return EMPTY;
+
+  if (crisisId && result.features.length > 0) cache.set(crisisId, result);
+  return result;
 }
