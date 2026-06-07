@@ -372,7 +372,7 @@ function AppInner({ mode }: Props) {
 
       {step === "details" && (
         <DetailsScreen
-          modularFieldsEnabled={crisisMode === "contextual"}
+          modularFieldsEnabled={false}
           initialName={classificationData?.infrastructureName}
           onConfirm={handleDetailsConfirm}
           onBack={() => setStep("community-impact")}
