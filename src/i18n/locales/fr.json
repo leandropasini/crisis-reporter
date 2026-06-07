@@ -31,6 +31,7 @@
   "location": {
     "step": "Étape 2 sur 5",
     "gps_loading": "Localisation en cours…",
+    "loading_map_data": "Chargement des données de la carte…",
     "gps_ok": "Position trouvée — faites glisser l'épingle pour ajuster",
     "gps_failed": "GPS indisponible — saisissez une adresse ou placez l'épingle manuellement",
     "address_label": "Adresse",

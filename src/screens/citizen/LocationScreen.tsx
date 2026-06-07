@@ -6,6 +6,11 @@ import LanguageSelector from "../../components/LanguageSelector";
 import BottomNav from "../../components/BottomNav";
 import type { FeatureCollection } from "geojson";
 import buildingsData from "../../data/buildings-poa-sample.geojson";
+import { supabase } from "../../services/supabase";
+import { fetchBuildingFootprints } from "../../services/overpass";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
 
 type LocationMethod = "gps" | "manual_pin" | "address";
 type GpsStatus = "loading" | "ok" | "failed";
@@ -21,6 +26,7 @@ export interface LocationResult {
 }
 
 interface Props {
+  crisisId?: string;
   crisisCenter?: [number, number];
   onConfirm: (result: LocationResult) => void;
   onBack: () => void;
@@ -55,6 +61,7 @@ const POA_CENTER: [number, number] = [-30.029, -51.228];
 const PIN_ID = "location-pin";
 
 export default function LocationScreen({
+  crisisId,
   crisisCenter = POA_CENTER,
   onConfirm,
   onBack,
@@ -65,6 +72,8 @@ export default function LocationScreen({
   onGoMap,
 }: Props) {
   const { t } = useTranslation();
+  const [footprints, setFootprints] = useState<FeatureCollection | null>(null);
+  const [footprintsLoading, setFootprintsLoading] = useState(false);
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>(demoMode ? "ok" : "loading");
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(
     demoMode ? { lat: trunc(POA_CENTER[0]), lng: trunc(POA_CENTER[1]) } : null
@@ -128,6 +137,43 @@ export default function LocationScreen({
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demoMode]);
+
+  useEffect(() => {
+    if (demoMode || !crisisId) return;
+
+    let cancelled = false;
+
+    async function loadFootprints() {
+      setFootprintsLoading(true);
+      try {
+        const { data } = await db
+          .from("crises")
+          .select("bbox_sw_lat, bbox_sw_lng")
+          .eq("id", crisisId)
+          .single() as { data: { bbox_sw_lat: number | null; bbox_sw_lng: number | null } | null };
+
+        const lat = data?.bbox_sw_lat;
+        const lng = data?.bbox_sw_lng;
+        const hasCoords = lat != null && lng != null && !(lat === 0 && lng === 0);
+        if (!hasCoords) return;
+
+        const fc = await fetchBuildingFootprints({
+          south: lat! - 0.01,
+          north: lat! + 0.01,
+          west:  lng! - 0.01,
+          east:  lng! + 0.01,
+        });
+        if (!cancelled) setFootprints(fc);
+      } catch {
+        // map works without footprints
+      } finally {
+        if (!cancelled) setFootprintsLoading(false);
+      }
+    }
+
+    loadFootprints();
+    return () => { cancelled = true; };
+  }, [demoMode, crisisId]);
 
   function handlePinDrag(_id: string, lat: number, lng: number) {
     setPin({ lat: trunc(lat), lng: trunc(lng) });
@@ -207,12 +253,17 @@ export default function LocationScreen({
       </div>
 
       {/* Map */}
-      <div style={{ flexShrink: 0, height: 300, padding: "0 20px" }}>
+      <div style={{ flexShrink: 0, height: 300, padding: "0 20px", position: "relative" }}>
+        {footprintsLoading && (
+          <div style={{ position: "absolute", top: 8, right: 28, zIndex: 1000, background: "var(--cr-surface)", borderRadius: 8, padding: "4px 10px" }}>
+            <span style={{ fontSize: 12, color: "var(--cr-label)" }}>{t("location.loading_map_data")}</span>
+          </div>
+        )}
         <div style={{ height: "100%", borderRadius: 20, overflow: "hidden" }}>
           <CrisisMap
             center={mapCenter}
             zoom={15}
-            buildings={buildingsData as FeatureCollection}
+            buildings={demoMode ? (buildingsData as FeatureCollection) : (footprints ?? undefined)}
             selectedBuildingId={selectedBuilding?.id}
             onBuildingClick={(id, name) => setSelectedBuilding({ id, name })}
             pins={pins}

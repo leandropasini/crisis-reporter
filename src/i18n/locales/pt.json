@@ -31,6 +31,7 @@
   "location": {
     "step": "Passo 2 de 5",
     "gps_loading": "Obtendo sua localização…",
+    "loading_map_data": "Carregando dados do mapa…",
     "gps_ok": "Localização encontrada — arraste o pin para ajustar",
     "gps_failed": "GPS indisponível — insira o endereço ou posicione o pin manualmente",
     "address_label": "Endereço",

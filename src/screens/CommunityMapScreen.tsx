@@ -7,6 +7,9 @@ import CrisisMap from "../components/map/CrisisMap";
 import type { PinData } from "../components/map/CrisisMap";
 import BottomNav from "../components/BottomNav";
 import type { DamageLevel } from "../types/schema";
+import type { FeatureCollection } from "geojson";
+import buildingsData from "../data/buildings-poa-sample.geojson";
+import { fetchBuildingFootprints } from "../services/overpass";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -39,6 +42,8 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
   );
   const [mapCenter, setMapCenter] = useState<[number, number]>(isDemo ? POA_CENTER : [0, 0]);
   const [mapZoom, setMapZoom]     = useState<number>(isDemo ? 13 : 2);
+  const [footprints, setFootprints] = useState<FeatureCollection | null>(null);
+  const [footprintsLoading, setFootprintsLoading] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function fetchPins() {
@@ -78,7 +83,11 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
   }, [crisisId, isDemo, refreshKey]);
 
   useEffect(() => {
-    if (isDemo) return;
+    if (isDemo) {
+      setFootprints(buildingsData as FeatureCollection);
+      return;
+    }
+    let cancelled = false;
     async function fetchCrisisConfig() {
       try {
         const { data } = await db
@@ -94,6 +103,18 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
           if (hasCoords) {
             setMapCenter([lat!, lng!]);
             setMapZoom(13);
+            setFootprintsLoading(true);
+            try {
+              const fc = await fetchBuildingFootprints({
+                south: lat! - 0.01,
+                north: lat! + 0.01,
+                west:  lng! - 0.01,
+                east:  lng! + 0.01,
+              });
+              if (!cancelled) setFootprints(fc);
+            } finally {
+              if (!cancelled) setFootprintsLoading(false);
+            }
           } else {
             setMapCenter([0, 0]);
             setMapZoom(2);
@@ -104,6 +125,7 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
       }
     }
     fetchCrisisConfig();
+    return () => { cancelled = true; };
   }, [crisisId, isDemo]);
 
   return (
@@ -157,9 +179,15 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
             <p className="text-sm text-text-muted">{t("dashboard.loading")}</p>
           </div>
         )}
+        {footprintsLoading && (
+          <div style={{ position: "absolute", top: 8, right: 8, zIndex: 1000, background: "var(--cr-surface)", borderRadius: 8, padding: "4px 10px" }}>
+            <span style={{ fontSize: 12, color: "var(--cr-label)" }}>{t("location.loading_map_data")}</span>
+          </div>
+        )}
         <CrisisMap
           center={mapCenter}
           zoom={mapZoom}
+          buildings={footprints ?? undefined}
           pins={pins}
           className="h-full w-full"
         />

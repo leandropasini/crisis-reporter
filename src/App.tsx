@@ -334,6 +334,7 @@ function AppInner({ mode }: Props) {
 
       {step === "location" && (
         <LocationScreen
+          crisisId={effectiveCrisisId}
           onConfirm={handleLocationConfirm}
           onBack={() => setStep("camera")}
           modeLabel={ml}
