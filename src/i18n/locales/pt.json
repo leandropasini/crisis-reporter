@@ -10,6 +10,7 @@
     "agent_card_title": "Painel do agente",
     "agent_card_desc": "Coordene a resposta em campo",
     "active_crisis": "Crise ativa",
+    "crisis_unavailable": "Nenhuma crise ativa configurada",
     "no_account": "Não é necessária conta para relatar danos"
   },
   "common": {

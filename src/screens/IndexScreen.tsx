@@ -5,6 +5,8 @@ import type { ComponentType } from "react";
 import type { IconProps } from "@tabler/icons-react";
 
 interface Props {
+  crisisName: string | null;
+  crisisLocation: string | null;
   onSelectCitizen: () => void;
   onSelectAgent: () => void;
   onSelectMap: () => void;
@@ -44,13 +46,16 @@ const CARDS: {
   },
 ];
 
-export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMap }: Props) {
+export default function IndexScreen({ crisisName, crisisLocation, onSelectCitizen, onSelectAgent, onSelectMap }: Props) {
   const { t } = useTranslation();
   const handlers: Record<string, () => void> = {
     citizen: onSelectCitizen,
     map: onSelectMap,
     agent: onSelectAgent,
   };
+
+  const primaryTitle = crisisLocation || crisisName;
+  const secondaryTitle = crisisLocation && crisisName ? crisisName : null;
 
   return (
     <div
@@ -139,11 +144,13 @@ export default function IndexScreen({ onSelectCitizen, onSelectAgent, onSelectMa
                 color: "var(--cr-text)",
               }}
             >
-              Porto Alegre
+              {primaryTitle || t("index.crisis_unavailable")}
             </h1>
-            <p style={{ fontSize: 16, color: "var(--cr-label)", marginTop: 4 }}>
-              RS Floods 2024
-            </p>
+            {secondaryTitle && (
+              <p style={{ fontSize: 16, color: "var(--cr-label)", marginTop: 4 }}>
+                {secondaryTitle}
+              </p>
+            )}
           </div>
         </div>
 

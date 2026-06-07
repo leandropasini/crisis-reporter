@@ -55,6 +55,28 @@ function AppInner({ mode }: Props) {
   const DEMO_CRISIS_ID = import.meta.env.VITE_DEMO_CRISIS_ID ?? "f58c928d-9fc7-4499-8987-f8f4f92924ed";
   const effectiveCrisisId = isDemo ? DEMO_CRISIS_ID : (liveCrisisId ?? "");
 
+  const [crisisName, setCrisisName]         = useState<string | null>(null);
+  const [crisisLocation, setCrisisLocation] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !effectiveCrisisId) return;
+    async function fetchCrisisInfo() {
+      try {
+        const { data } = await db
+          .from("crises")
+          .select("name, location_name")
+          .eq("id", effectiveCrisisId)
+          .single() as { data: { name: string; location_name: string } | null };
+        setCrisisName(data?.name || null);
+        setCrisisLocation(data?.location_name || null);
+      } catch {
+        setCrisisName(null);
+        setCrisisLocation(null);
+      }
+    }
+    fetchCrisisInfo();
+  }, [effectiveCrisisId]);
+
   useEffect(() => {
     if (isDemo || !isSupabaseConfigured) return;
     async function fetchDisasterType() {
@@ -228,6 +250,8 @@ function AppInner({ mode }: Props) {
   if (appMode === "index") {
     return (
       <IndexScreen
+        crisisName={crisisName}
+        crisisLocation={crisisLocation}
         onSelectCitizen={startCitizenFlow}
         onSelectAgent={() => setAppMode("agent")}
         onSelectMap={() => setAppMode("map")}

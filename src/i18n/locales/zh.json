@@ -10,6 +10,7 @@
     "agent_card_title": "工作人员仪表板",
     "agent_card_desc": "协调现场响应工作",
     "active_crisis": "当前危机",
+    "crisis_unavailable": "尚未配置活跃危机",
     "no_account": "无需账号即可上报受损情况"
   },
   "common": {

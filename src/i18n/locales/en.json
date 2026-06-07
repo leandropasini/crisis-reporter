@@ -10,6 +10,7 @@
     "agent_card_title": "Agent dashboard",
     "agent_card_desc": "Coordinate field response",
     "active_crisis": "Active crisis",
+    "crisis_unavailable": "No active crisis configured",
     "no_account": "No account needed to report damage"
   },
   "common": {

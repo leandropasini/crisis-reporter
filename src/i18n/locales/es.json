@@ -10,6 +10,7 @@
     "agent_card_title": "Panel de agente",
     "agent_card_desc": "Coordine la respuesta sobre el terreno",
     "active_crisis": "Crisis activa",
+    "crisis_unavailable": "No hay ninguna crisis activa configurada",
     "no_account": "No necesita una cuenta para reportar daños"
   },
   "common": {

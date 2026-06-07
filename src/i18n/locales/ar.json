@@ -10,6 +10,7 @@
     "agent_card_title": "لوحة الوكيل",
     "agent_card_desc": "نسّق الاستجابة الميدانية",
     "active_crisis": "أزمة نشطة",
+    "crisis_unavailable": "لا توجد أزمة نشطة معدة حاليًا",
     "no_account": "لا حاجة إلى حساب للإبلاغ عن الأضرار"
   },
   "common": {

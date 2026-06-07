@@ -10,6 +10,7 @@
     "agent_card_title": "Tableau de bord agent",
     "agent_card_desc": "Coordonnez la réponse sur le terrain",
     "active_crisis": "Crise active",
+    "crisis_unavailable": "Aucune crise active configurée",
     "no_account": "Aucun compte requis pour signaler des dégâts"
   },
   "common": {
