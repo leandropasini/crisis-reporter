@@ -8,12 +8,6 @@ const DAMAGE_COLOR: Record<string, string> = {
   complete: "var(--color-critical)",
 };
 
-function confidenceColor(c: number): string {
-  if (c < 50) return "var(--color-medium)";
-  if (c <= 80) return "var(--color-warning)";
-  return "var(--color-minimal)";
-}
-
 function formatTs(iso: string, locale: string): string {
   const d = new Date(iso);
   return d.toLocaleString(locale, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -47,6 +41,30 @@ function Row({ label: lbl, children }: { label: string; children: React.ReactNod
   );
 }
 
+function TagRow({ label: lbl, tags }: { label: string; tags: string[] }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, padding: "9px 0", borderBottom: "1px solid var(--color-border)" }}>
+      <span style={{ fontSize: 11, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", flexShrink: 0 }}>{lbl}</span>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "flex-end" }}>
+        {tags.map((tag, i) => (
+          <span key={i} style={{
+            padding: "2px 9px",
+            borderRadius: 999,
+            fontSize: 11,
+            fontWeight: 500,
+            background: "var(--color-surface-2)",
+            color: "var(--color-text-secondary)",
+            border: "1px solid var(--color-border)",
+            whiteSpace: "nowrap",
+          }}>
+            {tag}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Main component ─────────────────────────────────────────────────────────────
 
 interface Props {
@@ -61,7 +79,13 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
     v !== null && v !== undefined && (Array.isArray(v) ? v.length > 0 : true)
   );
 
-  const earlierCount = (obs.version_number ?? 1) - 1;
+  const hasCommunityImpact =
+    !!obs.electricity_status || !!obs.health_status || !!(obs.pressing_needs && obs.pressing_needs.length > 0);
+
+  function needLabel(value: string): string {
+    if (value.startsWith("other:")) return value.slice("other:".length).trim();
+    return t(`community_impact.need_${value}`);
+  }
 
   return (
     <div style={{
@@ -91,30 +115,31 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
       {/* Content */}
       <div style={{ flex: 1, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 0, background: "var(--color-surface)" }}>
 
-        {/* Title + badges */}
+        {/* Photo */}
+        {obs.photo_url && (
+          <div style={{ borderRadius: 10, overflow: "hidden", aspectRatio: "4/3", background: "var(--color-surface-2)", marginBottom: 12 }}>
+            <img
+              src={obs.photo_url}
+              alt={t("observation.photo_alt")}
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+          </div>
+        )}
+
+        {/* Title + damage badge */}
         <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 10px", lineHeight: 1.4 }}>
           {obs.infrastructure_name}
         </p>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
           <Badge text={t(`enum.damage_${obs.damage_level}`)} color={DAMAGE_COLOR[obs.damage_level]} />
-          <Badge text={t("observation.conf", { confidence: obs.confidence })} color={confidenceColor(obs.confidence)} />
-          {obs.version_number !== undefined && (
-            <Badge text={t("observation.version_badge", { n: obs.version_number })} color="var(--color-text-muted)" />
-          )}
         </div>
 
         {/* Fields */}
         <div style={{ borderTop: "1px solid var(--color-border)" }}>
           <Row label={t("observation.label_type")}>{t(`enum.infra_${obs.infrastructure_type}`)}</Row>
-          <Row label={t("observation.label_source")}>{t(`enum.source_${obs.source}`)}</Row>
           {obs.debris_clearing_needed !== undefined && (
             <Row label={t("observation.label_debris")}>{obs.debris_clearing_needed ? t("observation.debris_needed") : t("observation.debris_not_needed")}</Row>
           )}
-          {obs.location_method && (
-            <Row label={t("observation.label_location")}>{t(`enum.method_${obs.location_method}`)}</Row>
-          )}
-          <Row label={t("observation.label_coords")}>{obs.lat.toFixed(5)}, {obs.lng.toFixed(5)}</Row>
-          <Row label={t("observation.label_reported")}>{formatTs(obs.client_created_at, i18n.language)}</Row>
           {obs.crisis_nature && (
             <Row label={t("observation.label_crisis")}>{t(`enum.nature_${obs.crisis_nature}`)}</Row>
           )}
@@ -128,7 +153,25 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
           </div>
         )}
 
-        {/* Modular fields */}
+        {/* Community impact (citizen-reported) */}
+        {hasCommunityImpact && (
+          <div style={{ margin: "12px 0 0" }}>
+            <p style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{t("community_impact.title")}</p>
+            <div style={{ borderTop: "1px solid var(--color-border)" }}>
+              {obs.electricity_status && (
+                <Row label={t("community_impact.electricity_section")}>{t(`community_impact.electricity_${obs.electricity_status}`)}</Row>
+              )}
+              {obs.health_status && (
+                <Row label={t("community_impact.health_section")}>{t(`community_impact.health_${obs.health_status}`)}</Row>
+              )}
+              {obs.pressing_needs && obs.pressing_needs.length > 0 && (
+                <TagRow label={t("community_impact.needs_section")} tags={obs.pressing_needs.map(needLabel)} />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Modular field data (legacy contextual-mode fields) */}
         {hasModular && (
           <div style={{ margin: "12px 0 0" }}>
             <p style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{t("observation.field_data")}</p>
@@ -146,17 +189,13 @@ export default function ObservationDetail({ observation: obs, onClose }: Props) 
           </div>
         )}
 
-        {/* Version history */}
-        <div style={{ margin: "12px 0 0", padding: "10px 12px", background: "var(--color-surface-2)", borderRadius: 8, border: "1px solid var(--color-border)" }}>
-          <p style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{t("observation.version_history")}</p>
-          <p style={{ fontSize: 12, color: "var(--color-text-secondary)", margin: 0 }}>
-            {t("observation.version_current", { n: obs.version_number ?? 1 })}
-          </p>
-          {earlierCount > 0 && (
-            <p style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 4 }}>
-              {t("observation.version_earlier", { count: earlierCount })}
-            </p>
+        {/* Location + reported */}
+        <div style={{ margin: "12px 0 0", borderTop: "1px solid var(--color-border)" }}>
+          {obs.location_method && (
+            <Row label={t("observation.label_location")}>{t(`enum.method_${obs.location_method}`)}</Row>
           )}
+          <Row label={t("observation.label_coords")}>{obs.lat.toFixed(5)}, {obs.lng.toFixed(5)}</Row>
+          <Row label={t("observation.label_reported")}>{formatTs(obs.client_created_at, i18n.language)}</Row>
         </div>
       </div>
     </div>

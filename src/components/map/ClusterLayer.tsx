@@ -16,6 +16,9 @@ export interface MappedObservation extends PopupObservation {
   version_number?: number;
   location_method?: string;
   crisis_nature?: CrisisNature;
+  electricity_status?: string | null;
+  health_status?: string | null;
+  pressing_needs?: string[] | null;
 }
 
 // Hex literals required: used inside Leaflet DivIcon SVG strings (outside CSS cascade)

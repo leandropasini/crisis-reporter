@@ -262,6 +262,7 @@
   },
   "observation": {
     "conf": "Уверенность {{confidence}}%",
+    "photo_alt": "Фото наблюдения",
     "version_badge": "v{{n}}",
     "label_type": "Тип",
     "label_source": "Источник",

@@ -429,7 +429,7 @@ export default function DashboardScreen({
         const { data, error } = await db
           .from("observations")
           .select(
-            "id, latitude, longitude, infrastructure_name, infrastructure_type, infrastructure_description, damage_level, debris_clearing_needed, source, confidence, photo_url, client_created_at, version_number, location_method, modular_fields"
+            "id, latitude, longitude, infrastructure_name, infrastructure_type, infrastructure_description, damage_level, debris_clearing_needed, source, confidence, photo_url, client_created_at, version_number, location_method, modular_fields, electricity_status, health_status, pressing_needs"
           )
           .eq("crisis_id", crisisId)
           .eq("status", "active") as { data: MappedObservation[] | null; error: unknown };
@@ -826,12 +826,12 @@ export default function DashboardScreen({
             </div>
           </div>
         </div>
-        <div style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ flex: 1, overflowY: "auto", position: "relative" }}>
           {content}
+          {selectedObs && (
+            <ObservationDetail observation={selectedObs} onClose={() => setSelectedObs(null)} />
+          )}
         </div>
-        {selectedObs && (
-          <ObservationDetail observation={selectedObs} onClose={() => setSelectedObs(null)} />
-        )}
         <BottomNav active="map" onHome={onGoHome} onMap={onGoMap} />
         {showSettings && (
           <CrisisSettingsModal

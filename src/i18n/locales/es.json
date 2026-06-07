@@ -260,6 +260,7 @@
   },
   "observation": {
     "conf": "{{confidence}}% de confianza",
+    "photo_alt": "Foto de la observación",
     "version_badge": "v{{n}}",
     "label_type": "Tipo",
     "label_source": "Fuente",

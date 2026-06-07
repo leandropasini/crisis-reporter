@@ -260,6 +260,7 @@
   },
   "observation": {
     "conf": "{{confidence}}% conf.",
+    "photo_alt": "Observation photo",
     "version_badge": "v{{n}}",
     "label_type": "Type",
     "label_source": "Source",

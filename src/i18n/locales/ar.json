@@ -260,6 +260,7 @@
   },
   "observation": {
     "conf": "ثقة {{confidence}}%",
+    "photo_alt": "صورة الملاحظة",
     "version_badge": "ن{{n}}",
     "label_type": "النوع",
     "label_source": "المصدر",
