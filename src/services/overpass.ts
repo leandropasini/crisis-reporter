@@ -56,9 +56,8 @@ async function queryEndpoint(url: string, query: string): Promise<FeatureCollect
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
   try {
-    const res = await fetch(url, {
-      method: "POST",
-      body: query,
+    const res = await fetch(`${url}?data=${encodeURIComponent(query)}`, {
+      method: "GET",
       signal: controller.signal,
     });
     if (!res.ok) return null;
