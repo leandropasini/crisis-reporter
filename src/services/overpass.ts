@@ -7,12 +7,6 @@ export interface BoundingBox {
   east: number;
 }
 
-// The public overpass-api.de load balancer frequently returns 406/429/504
-// under normal load — lz4 is the same project's mirror, tried as fallback.
-const OVERPASS_URLS = [
-  "https://overpass-api.de/api/interpreter",
-  "https://lz4.overpass-api.de/api/interpreter",
-];
 const FETCH_TIMEOUT_MS = 15_000;
 
 interface OverpassGeometryPoint {
@@ -51,31 +45,6 @@ function wayToFeature(way: OverpassWay): Feature | null {
   };
 }
 
-async function queryEndpoint(url: string, query: string): Promise<FeatureCollection | null> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
-  try {
-    const res = await fetch(`${url}?data=${encodeURIComponent(query)}`, {
-      method: "GET",
-      signal: controller.signal,
-    });
-    if (!res.ok) return null;
-
-    const json = (await res.json()) as OverpassResponse;
-    const features = (json.elements ?? [])
-      .filter((el): el is OverpassWay => el.type === "way")
-      .map(wayToFeature)
-      .filter((f): f is Feature => f !== null);
-
-    return { type: "FeatureCollection", features };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 export async function fetchBuildingFootprints(bbox: BoundingBox, crisisId?: string): Promise<FeatureCollection> {
   if (crisisId && cache.has(crisisId)) return cache.get(crisisId)!;
 
@@ -84,10 +53,26 @@ export async function fetchBuildingFootprints(bbox: BoundingBox, crisisId?: stri
     `way["building"](${bbox.south},${bbox.west},${bbox.north},${bbox.east});\n` +
     `out body geom;`;
 
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
   let result: FeatureCollection = EMPTY;
-  for (const url of OVERPASS_URLS) {
-    const r = await queryEndpoint(url, query);
-    if (r) { result = r; break; }
+  try {
+    const res = await fetch(`/api/overpass?data=${encodeURIComponent(query)}`, {
+      signal: controller.signal,
+    });
+    if (res.ok) {
+      const json = (await res.json()) as OverpassResponse;
+      const features = (json.elements ?? [])
+        .filter((el): el is OverpassWay => el.type === "way")
+        .map(wayToFeature)
+        .filter((f): f is Feature => f !== null);
+      result = { type: "FeatureCollection", features };
+    }
+  } catch {
+    // graceful fallback to EMPTY
+  } finally {
+    clearTimeout(timer);
   }
 
   if (crisisId && result.features.length > 0) cache.set(crisisId, result);
