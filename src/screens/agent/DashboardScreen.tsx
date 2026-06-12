@@ -492,8 +492,7 @@ export default function DashboardScreen({
         return score;
       };
       return priority(b) - priority(a);
-    })
-    .slice(0, 5);
+    });
 
   const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
     { id: "all",       label: t("dashboard.filter_all") },
