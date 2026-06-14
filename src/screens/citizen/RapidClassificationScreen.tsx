@@ -81,7 +81,7 @@ export default function RapidClassificationScreen({ onConfirm, onBack, onGoHome,
       }}
     >
       {/* Header */}
-      <div style={{ flexShrink: 0, padding: "16px 20px 12px" }}>
+      <div style={{ flexShrink: 0, padding: "16px 20px 12px", paddingTop: "calc(16px + var(--demo-disclaimer-h, 0px))" }}>
         <ProgressBar pct={100} />
         <div
           style={{

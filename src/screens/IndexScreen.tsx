@@ -75,6 +75,7 @@ export default function IndexScreen({ crisisName, crisisLocation, onSelectCitize
           alignItems: "center",
           justifyContent: "space-between",
           padding: "16px 20px",
+          paddingTop: "calc(16px + var(--demo-disclaimer-h, 0px))",
           flexShrink: 0,
         }}
       >

@@ -138,6 +138,7 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
           alignItems: "center",
           gap: 12,
           padding: "14px 16px",
+          paddingTop: "calc(14px + var(--demo-disclaimer-h, 0px))",
           borderBottom: "1px solid var(--cr-border)",
           position: "relative",
           zIndex: 1001,

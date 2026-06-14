@@ -23,15 +23,15 @@ export default function DemoWelcomeScreen({ onStartAgent, onStartCitizen }: Prop
   return (
     <div
       style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 8000,
+        height: "100dvh",
         background: "rgba(10, 12, 18, 0.97)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         padding: "24px 20px",
+        paddingTop: "calc(24px + var(--demo-disclaimer-h, 0px))",
+        paddingBottom: "calc(env(safe-area-inset-bottom) + 64px)",
         overflowY: "auto",
       }}
     >

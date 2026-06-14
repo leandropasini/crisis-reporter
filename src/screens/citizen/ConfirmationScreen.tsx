@@ -104,10 +104,11 @@ export default function ConfirmationScreen({
         minHeight: "100dvh",
         background: "var(--cr-bg)",
         color: "var(--cr-text)",
+        paddingBottom: "calc(env(safe-area-inset-bottom) + 64px)",
       }}
     >
       {/* Header */}
-      <div style={{ flexShrink: 0, padding: "16px 20px 12px" }}>
+      <div style={{ flexShrink: 0, padding: "16px 20px 12px", paddingTop: "calc(16px + var(--demo-disclaimer-h, 0px))" }}>
         <div style={{ height: 3, background: "#22C55E", borderRadius: 2 }} />
         <div
           style={{

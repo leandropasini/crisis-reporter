@@ -178,7 +178,7 @@ export default function DetailsScreen({ modularFieldsEnabled = false, initialNam
     <div className="flex flex-col h-[100dvh] bg-surface text-text-primary">
 
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 space-y-3 flex-none" style={{ position: "relative", zIndex: 100 }}>
+      <div className="px-4 pt-4 pb-3 space-y-3 flex-none" style={{ position: "relative", zIndex: 100, paddingTop: "calc(16px + var(--demo-disclaimer-h, 0px))" }}>
         <ProgressBar step={5} total={totalSteps} />
         <div className="flex items-center justify-between">
           <p className="text-xs text-text-muted tracking-widest uppercase">

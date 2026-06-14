@@ -90,10 +90,11 @@ export default function ReviewScreen({
         height: "100dvh",
         background: "var(--cr-bg)",
         color: "var(--cr-text)",
+        paddingBottom: "calc(env(safe-area-inset-bottom) + 64px)",
       }}
     >
       {/* Header */}
-      <div style={{ flexShrink: 0, padding: "16px 20px 12px" }}>
+      <div style={{ flexShrink: 0, padding: "16px 20px 12px", paddingTop: "calc(16px + var(--demo-disclaimer-h, 0px))" }}>
         <ProgressBar pct={100} />
         <div
           style={{

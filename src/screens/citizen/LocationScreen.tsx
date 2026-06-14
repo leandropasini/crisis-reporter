@@ -237,10 +237,11 @@ export default function LocationScreen({
         height: "100dvh",
         background: "var(--cr-bg)",
         color: "var(--cr-text)",
+        paddingBottom: "calc(env(safe-area-inset-bottom) + 64px)",
       }}
     >
       {/* Header */}
-      <div style={{ flexShrink: 0, padding: "16px 20px 12px", position: "relative", zIndex: 1001 }}>
+      <div style={{ flexShrink: 0, padding: "16px 20px 12px", paddingTop: "calc(16px + var(--demo-disclaimer-h, 0px))", position: "relative", zIndex: 1001 }}>
         <ProgressBar pct={pct} />
         <div
           style={{
