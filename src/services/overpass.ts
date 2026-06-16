@@ -7,7 +7,7 @@ export interface BoundingBox {
   east: number;
 }
 
-const FETCH_TIMEOUT_MS = 15_000;
+const FETCH_TIMEOUT_MS = 45_000;
 
 interface OverpassGeometryPoint {
   lat: number;

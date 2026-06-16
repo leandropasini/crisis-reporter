@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconLock } from "@tabler/icons-react";
 import CrisisMap from "../../components/map/CrisisMap";
@@ -74,6 +74,8 @@ export default function LocationScreen({
   const { t } = useTranslation();
   const [footprints, setFootprints] = useState<FeatureCollection | null>(null);
   const [footprintsLoading, setFootprintsLoading] = useState(false);
+  const [liveZoom, setLiveZoom] = useState<number>(16);
+  const [crisisBboxCenter, setCrisisBboxCenter] = useState<[number, number] | null>(null);
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>(demoMode ? "ok" : "loading");
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(
     demoMode ? { lat: trunc(POA_CENTER[0]), lng: trunc(POA_CENTER[1]) } : null
@@ -87,6 +89,7 @@ export default function LocationScreen({
   const [showNoFootprintsMsg, setShowNoFootprintsMsg] = useState(false);
   const methodRef = useRef<LocationMethod>("gps");
   const skipFlyToRef = useRef(false);
+  const userInteractedRef = useRef(false);
 
   async function reverseGeocode(lat: number, lng: number) {
     try {
@@ -115,7 +118,6 @@ export default function LocationScreen({
       setGpsStatus("failed");
       setMethod("manual_pin");
       methodRef.current = "manual_pin";
-      setPin({ lat: trunc(crisisCenter[0]), lng: trunc(crisisCenter[1]) });
       return;
     }
 
@@ -133,21 +135,25 @@ export default function LocationScreen({
         setGpsStatus("failed");
         setMethod("manual_pin");
         methodRef.current = "manual_pin";
-        setPin({ lat: trunc(crisisCenter[0]), lng: trunc(crisisCenter[1]) });
       },
       { timeout: 8000, enableHighAccuracy: true }
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demoMode]);
 
+  // Fallback pin when GPS is unavailable: use the crisis bbox center
+  // (once known) instead of the hardcoded POA default.
+  useEffect(() => {
+    if (demoMode || pin !== null || gpsStatus !== "failed") return;
+    const center = crisisBboxCenter ?? crisisCenter;
+    setPin({ lat: trunc(center[0]), lng: trunc(center[1]) });
+  }, [demoMode, gpsStatus, pin, crisisBboxCenter, crisisCenter]);
+
+  // Crisis bbox center — used as a fallback pin location when GPS is unavailable.
   useEffect(() => {
     if (demoMode || !crisisId) return;
-
     let cancelled = false;
-
-    async function loadFootprints() {
-      setFootprintsLoading(true);
-      setShowNoFootprintsMsg(false);
+    async function loadCrisisBbox() {
       try {
         const { data } = await db
           .from("crises")
@@ -158,16 +164,33 @@ export default function LocationScreen({
         const lat = data?.bbox_sw_lat;
         const lng = data?.bbox_sw_lng;
         const hasCoords = lat != null && lng != null && !(lat === 0 && lng === 0);
-        
-        if (!hasCoords) return;
 
+        if (hasCoords && !cancelled) setCrisisBboxCenter([lat!, lng!]);
+      } catch {
+        // keep default
+      }
+    }
+    loadCrisisBbox();
+    return () => { cancelled = true; };
+  }, [demoMode, crisisId]);
+
+  // Building footprints — centered on the user's current pin position.
+  useEffect(() => {
+    if (demoMode || !crisisId || !pin) return;
+
+    let cancelled = false;
+
+    async function loadFootprints() {
+      setFootprintsLoading(true);
+      setShowNoFootprintsMsg(false);
+      try {
         const fc = await fetchBuildingFootprints({
-          south: lat! - 0.01,
-          north: lat! + 0.01,
-          west:  lng! - 0.01,
-          east:  lng! + 0.01,
+          south: pin!.lat - 0.007,
+          north: pin!.lat + 0.007,
+          west:  pin!.lng - 0.007,
+          east:  pin!.lng + 0.007,
         });
-        
+
         if (!cancelled) {
           setFootprints(fc);
           if (fc.features.length === 0) {
@@ -185,10 +208,11 @@ export default function LocationScreen({
 
     loadFootprints();
     return () => { cancelled = true; };
-  }, [demoMode, crisisId]);
+  }, [demoMode, crisisId, pin?.lat, pin?.lng]);
 
   function handlePinDrag(_id: string, lat: number, lng: number) {
     skipFlyToRef.current = true;
+    userInteractedRef.current = true;
     setPin({ lat: trunc(lat), lng: trunc(lng) });
     setMethod("manual_pin");
     methodRef.current = "manual_pin";
@@ -217,7 +241,10 @@ export default function LocationScreen({
     });
   }
 
-  const mapCenter: [number, number] = pin ? [pin.lat, pin.lng] : crisisCenter;
+  const mapCenter = useMemo<[number, number]>(
+    () => (pin ? [pin.lat, pin.lng] : (crisisBboxCenter ?? crisisCenter)),
+    [pin?.lat, pin?.lng, crisisBboxCenter, crisisCenter]
+  );
 
   const pins = pin
     ? [{ id: PIN_ID, lat: pin.lat, lng: pin.lng, damageLevel: "minimal" as const, draggable: true }]
@@ -237,7 +264,7 @@ export default function LocationScreen({
         height: "100dvh",
         background: "var(--cr-bg)",
         color: "var(--cr-text)",
-        paddingBottom: "calc(env(safe-area-inset-bottom) + 64px)",
+        paddingBottom: "max(calc(env(safe-area-inset-bottom) + 64px), 90px)",
       }}
     >
       {/* Header */}
@@ -267,7 +294,7 @@ export default function LocationScreen({
       </div>
 
       {/* Map */}
-      <div style={{ flexShrink: 0, height: 300, padding: "0 20px", position: "relative" }}>
+      <div style={{ flexShrink: 0, height: 220, padding: "0 20px", position: "relative" }}>
         {footprintsLoading && (
           <div style={{ position: "absolute", top: 8, right: 28, zIndex: 1000, background: "var(--cr-surface)", borderRadius: 8, padding: "4px 10px" }}>
             <span style={{ fontSize: 12, color: "var(--cr-label)" }}>{t("location.loading_map_data")}</span>
@@ -276,13 +303,15 @@ export default function LocationScreen({
         <div style={{ height: "100%", borderRadius: 20, overflow: "hidden" }}>
           <CrisisMap
             center={mapCenter}
-            zoom={15}
-            buildings={demoMode ? (buildingsData as FeatureCollection) : (footprints ?? undefined)}
+            zoom={16}
+            buildings={liveZoom >= 15 ? (demoMode ? (buildingsData as FeatureCollection) : (footprints ?? undefined)) : undefined}
             selectedBuildingId={selectedBuilding?.id}
             onBuildingClick={(id, name) => setSelectedBuilding({ id, name })}
             pins={pins}
             onPinDragEnd={handlePinDrag}
             skipFlyToRef={skipFlyToRef}
+            userInteractedRef={userInteractedRef}
+            onZoomChange={setLiveZoom}
             className="rounded-none"
           />
         </div>

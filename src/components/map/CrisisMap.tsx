@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import type { FeatureCollection } from "geojson";
 import type { DamageLevel } from "../../types/schema";
 import BuildingLayer from "./BuildingLayer";
@@ -10,10 +10,12 @@ function FlyToCenter({
   center,
   zoom,
   skipFlyToRef,
+  userInteractedRef,
 }: {
   center: [number, number];
   zoom: number;
   skipFlyToRef?: { current: boolean };
+  userInteractedRef?: { current: boolean };
 }) {
   const map = useMap();
   useEffect(() => {
@@ -21,8 +23,30 @@ function FlyToCenter({
       skipFlyToRef.current = false;
       return;
     }
+    if (userInteractedRef?.current) return;
     map.flyTo(center, zoom, { animate: true, duration: 0.6 });
-  }, [center, zoom, map, skipFlyToRef]);
+  }, [center, zoom, map, skipFlyToRef, userInteractedRef]);
+  return null;
+}
+
+function ZoomTracker({ onZoomChange }: { onZoomChange?: (zoom: number) => void }) {
+  const map = useMapEvents({
+    zoomend: () => onZoomChange?.(map.getZoom()),
+  });
+  useEffect(() => {
+    onZoomChange?.(map.getZoom());
+  }, [map, onZoomChange]);
+  return null;
+}
+
+// Marks the map as user-controlled once the user drags (pans) it themselves —
+// programmatic flyTo/panTo calls don't trigger dragend.
+function InteractionTracker({ userInteractedRef }: { userInteractedRef?: { current: boolean } }) {
+  useMapEvents({
+    dragend: () => {
+      if (userInteractedRef) userInteractedRef.current = true;
+    },
+  });
   return null;
 }
 
@@ -50,6 +74,8 @@ interface Props {
   pins?: PinData[];
   onPinDragEnd?: (id: string, lat: number, lng: number) => void;
   skipFlyToRef?: { current: boolean };
+  userInteractedRef?: { current: boolean };
+  onZoomChange?: (zoom: number) => void;
   className?: string;
 }
 
@@ -62,6 +88,8 @@ export default function CrisisMap({
   pins = [],
   onPinDragEnd,
   skipFlyToRef,
+  userInteractedRef,
+  onZoomChange,
   className = "",
 }: Props) {
   return (
@@ -77,7 +105,9 @@ export default function CrisisMap({
         detectRetina
         maxZoom={20}
       />
-      <FlyToCenter center={center} zoom={zoom} skipFlyToRef={skipFlyToRef} />
+      <FlyToCenter center={center} zoom={zoom} skipFlyToRef={skipFlyToRef} userInteractedRef={userInteractedRef} />
+      <ZoomTracker onZoomChange={onZoomChange} />
+      <InteractionTracker userInteractedRef={userInteractedRef} />
 
       {buildings && (
         <BuildingLayer

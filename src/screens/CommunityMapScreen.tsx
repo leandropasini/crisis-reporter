@@ -42,6 +42,7 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
   );
   const [mapCenter, setMapCenter] = useState<[number, number]>(isDemo ? POA_CENTER : [0, 0]);
   const [mapZoom, setMapZoom]     = useState<number>(isDemo ? 13 : 2);
+  const [liveZoom, setLiveZoom]   = useState<number>(isDemo ? 13 : 2);
   const [footprints, setFootprints] = useState<FeatureCollection | null>(null);
   const [footprintsLoading, setFootprintsLoading] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -187,8 +188,9 @@ export default function CommunityMapScreen({ crisisId, isDemo, refreshKey, onBac
         <CrisisMap
           center={mapCenter}
           zoom={mapZoom}
-          buildings={footprints ?? undefined}
+          buildings={isDemo || liveZoom >= 15 ? (footprints ?? undefined) : undefined}
           pins={pins}
+          onZoomChange={setLiveZoom}
           className="h-full w-full"
         />
       </div>
