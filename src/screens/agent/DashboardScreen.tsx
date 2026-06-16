@@ -458,7 +458,7 @@ export default function DashboardScreen({
   function applyQuickFilter(obs: MappedObservation[]): MappedObservation[] {
     switch (quickFilter) {
       case "critical":  return obs.filter(
-        (o) => (o.damage_level as string) === "complete" || (o.damage_level as string) === "severe" || o.damage_level === "partial"
+        (o) => (o.damage_level as string) === "complete" || (o.damage_level as string) === "severe"
       );
       case "health":    return obs.filter((o) => o.infrastructure_type === "community");
       case "education": return obs.filter((o) => o.infrastructure_type === "public_recreation");
