@@ -5,8 +5,8 @@ Built for the UNDP "Build the Future of Crisis Mapping" challenge.
 
 ## Live app
 
-- Demo mode (explore safely): https://crisis-reporter-submission.vercel.app/demo
-- Live mode (agent + citizen): https://crisis-reporter-submission.vercel.app/app
+- Demo mode (explore safely): https://crisis-reporter.vercel.app/demo
+- Live mode (agent + citizen): https://crisis-reporter.vercel.app/app
 
 ## Quick start — agent
 
