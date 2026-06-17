@@ -53,4 +53,3 @@ Built for the UNDP "Build the Future of Crisis Mapping" challenge.
 4. Run migrations in order: `supabase/migrations/001` → last
 5. `npm run dev`
 
-See `_SUBMISSION/PROPOSAL.md` for full technical documentation.
