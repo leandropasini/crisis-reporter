@@ -1,0 +1,52 @@
+# .github/workflows/keep-alive.yml
+name: 🔄 Keep Supabase Alive
+
+on:
+  schedule:
+    # Executa a cada 3 dias às 00:00 UTC
+    - cron: '0 0 */3 * *'
+  workflow_dispatch:  # Permite execução manual
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📡 Ping no Supabase (READ-ONLY)
+        run: |
+          echo "⏰ Executando em: $(date)"
+          echo "🌍 Timezone: $(date +%Z)"
+          echo "📊 Verificando saúde do banco..."
+          
+          # Chamada APENAS DE LEITURA para a VIEW
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/app_health?select=checked_at,status,table_count" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          
+          echo ""
+          echo "📊 Status Code: $HTTP_CODE"
+          echo "📝 Resposta: $BODY"
+          
+          if [ $HTTP_CODE -eq 200 ]; then
+            echo ""
+            echo "✅ SUPABASE MANTIDO ATIVO COM SUCESSO!"
+            echo "📊 Banco de dados ativo e respondendo"
+            echo "🔒 NENHUM DADO FOI MODIFICADO (apenas leitura)"
+          else
+            echo ""
+            echo "❌ ERRO: Não foi possível pingar o Supabase"
+            echo "🔍 Código: $HTTP_CODE"
+            echo "📄 Resposta: $BODY"
+            exit 1
+          fi
+      
+      - name: 📊 Log do Status
+        run: |
+          echo "📅 Data: $(date -u '+%Y-%m-%d %H:%M:%S') UTC"
+          echo "🟢 Status: Supabase ativo"
+          echo "⏳ Próxima execução: em 3 dias"
